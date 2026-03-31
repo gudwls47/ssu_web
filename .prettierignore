@@ -1,0 +1,13 @@
+.git/
+.gitignore
+.prettierignore
+.eslintignore
+.browserslistrc
+
+/node_modules/
+/build/
+/client/
+/public/
+/scripts/
+*.json
+public/smarteditor2/

@@ -1,0 +1,117 @@
+---
+description: shadcn/ui 컴포넌트 목록 및 커스텀 여부
+globs: src/app/**/*.tsx
+alwaysApply: false
+---
+
+이 파일은 `src/app/shadcn/components/ui` 폴더의 shadcn/ui 컴포넌트 목록입니다.
+사용자가 "shadcn 컴포넌트 목록 업데이트해줘"라고 요청하면, `src/app/shadcn/components/ui` 폴더를 탐색해서 이 파일을 최신 상태로 갱신합니다.
+
+# shadcn/ui 컴포넌트 목록
+
+## Accordion
+- **파일**: `accordion.tsx`
+- **커스텀 여부**: true
+- **커스텀 내용**: 아이콘 색상, 애니메이션 스타일
+- **export**: `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent`
+
+## Button
+- **파일**: `button.tsx`
+- **커스텀 여부**: true
+- **커스텀 내용**: variant 12개 추가 (grayOutline, blackFill 등), size 옵션, href prop으로 Link 역할, isLoading prop, TouchButton 추가
+- **export**: `Button`, `TouchButton`, `buttonVariants`
+- **주요 Props**:
+  - `variant`: default, secondary, save, ghost, alertSubmit, blackFill, primaryOutline, blackOutline, grayOutline, warning, error, errorFill, disabled, gray
+  - `size`: default, m, sm, xl, xs, xxs, icon
+  - `href`: Link 역할 (내부적으로 next/link 사용)
+  - `isLoading`: 로딩 상태 (Spinner 표시)
+  - `asChild`: Slot으로 렌더링
+
+## Calendar (shadcn)
+- **파일**: `calendar.tsx`
+- **커스텀 여부**: true
+- **커스텀 내용**: theme 색상 적용, 네비게이션 버튼 스타일
+- **export**: `Calendar`
+- **참고**: `src/app/components/Calendar`가 이 컴포넌트를 래핑해서 사용
+
+## Checkbox
+- **파일**: `checkbox.tsx`
+- **커스텀 여부**: true
+- **커스텀 내용**: 크기 22x22px, theme 색상 적용 (primary, disabled 스타일)
+- **export**: `Checkbox`
+
+## Dialog
+- **파일**: `dialog.tsx`
+- **커스텀 여부**: false
+- **export**: `Dialog`, `DialogTrigger`, `DialogContent`, `DialogHeader`, `DialogFooter`, `DialogTitle`, `DialogDescription`
+
+## Drawer (shadcn)
+- **파일**: `drawer.tsx`
+- **커스텀 여부**: true
+- **커스텀 내용**: direction(left/right) 지원, vaul 기반
+- **export**: `Drawer`, `DrawerTrigger`, `DrawerContent`, `DrawerHeader`, `DrawerFooter`, `DrawerTitle`, `DrawerDescription`
+
+## Input
+- **파일**: `input.tsx`
+- **커스텀 여부**: true
+- **커스텀 내용**: customType(text/int/float/password), isViewMode, 소수점 처리, 라벨/에러/suffix/Adornment 지원
+- **export**: `Input`
+- **주요 Props**:
+  - `customType`: text, int, float, password (입력값 자동 필터링)
+  - `height`: 높이 (기본 44)
+  - `width`: 너비
+  - `borderRadius`: 테두리 둥글기 (기본 8)
+  - `isViewMode`: 읽기 전용 모드
+  - `error`: 에러 메시지 표시
+  - `label`: 라벨 텍스트
+  - `required`: 필수 표시 (*)
+  - `startAdornment`, `endAdornment`: 내부 좌/우 요소
+  - `isShowSearchIcon`: 검색 아이콘 표시 여부
+  - `suffix`: 우측 접미사 요소 (input 외부)
+  - `isDecimal`, `decimalProps`: 소수점 입력 옵션
+  - `compareValue`: 비교 값 (다르면 경고 배경색)
+
+## Popover
+- **파일**: `popover.tsx`
+- **커스텀 여부**: true
+- **커스텀 내용**: z-index 120, 애니메이션 스타일
+- **export**: `Popover`, `PopoverTrigger`, `PopoverContent`, `PopoverAnchor`
+
+## RadioGroup
+- **파일**: `radio-group.tsx`
+- **커스텀 여부**: true
+- **커스텀 내용**: isSelected/isDisabled prop 추가, theme.json 색상 직접 사용, 크기 조절 가능
+- **export**: `RadioGroup`, `RadioGroupItem`
+- **주요 Props (RadioGroupItem)**:
+  - `size`: 크기 (기본 16)
+  - `isSelected`: 선택 여부 (필수)
+  - `isDisabled`: 비활성화 여부
+
+## Sonner (Toaster)
+- **파일**: `sonner.tsx`
+- **커스텀 여부**: false
+- **export**: `Toaster`
+- **참고**: `openToast` 유틸과 함께 사용 (`src/app/hooks/useToast.tsx`)
+
+## Spinner
+- **파일**: `spinner.tsx`
+- **커스텀 여부**: true
+- **커스텀 내용**: 신규 생성 (shadcn 기본 제공 X), Loader2Icon 사용
+- **export**: `Spinner`
+- **참고**: Button의 isLoading에 사용
+
+## Switch
+- **파일**: `switch.tsx`
+- **커스텀 여부**: true
+- **커스텀 내용**: 크기 28x52px, theme.json 색상 적용, isViewMode prop 추가
+- **export**: `Switch`
+- **주요 Props**:
+  - `isViewMode`: 읽기 전용 모드
+
+# 사용 시 주의사항
+
+1. **Import 경로**: `@/app/shadcn/components/ui/컴포넌트명`
+2. **cva 활용**: Button, Input 등은 내부적으로 cva를 사용하므로 className 확장 가능
+3. **theme 연동**: 대부분의 컴포넌트가 `theme.json` 또는 Tailwind theme 색상을 사용
+4. **읽기 전용 모드**: Input, Switch는 `isViewMode` prop 지원
+5. **RadioGroupItem**: 반드시 `isSelected` prop을 명시적으로 전달해야 함

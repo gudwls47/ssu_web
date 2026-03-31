@@ -1,0 +1,38 @@
+---
+description: 공용 컴포넌트 목록 및 사용 가이드
+globs: src/app/**/*.tsx
+alwaysApply: false
+---
+
+이 파일은 `src/app/components` 폴더의 공용 컴포넌트 목록입니다.
+사용자가 "컴포넌트 목록 업데이트해줘"라고 요청하면, `src/app/components` 폴더를 탐색해서 이 파일을 최신 상태로 갱신합니다.
+
+# 공용 컴포넌트 목록
+
+## 레이아웃/네비게이션
+- `Header` - 공용 헤더
+- `Accordion` - 아코디언 (기본, 아웃라인, 프라이머리 스타일 지원)
+- `Breadcrumb` - 브레드크럼 네비게이션
+- `SideMenu/AdminSideMenu` - 어드민 사이드 메뉴
+- `Tabs` - 탭 네비게이션
+
+## 테이블/목록
+- `Table/AdminListTable` - 어드민 목록 테이블 (컬럼 정의, 로딩, 빈 상태 지원)
+- `Pagination` - 페이지네이션
+
+## 입력/선택
+- `Select` - 단일/다중 선택 (검색 가능)
+- `Select/ObjectSelect` - 객체 기반 선택
+- `Calendar` - 날짜/기간 선택 (single/range 모드)
+- `Textarea` - 멀티라인 텍스트 입력
+
+## 카드/오버레이
+- `Card` - 공용 카드 컴포넌트
+- `Alert` - 알림 다이얼로그 (Dialog 기반, 확인/취소 버튼 커스텀)
+- `Drawer` - 드로어 (좌/우 방향, 닫기 제어 가능)
+- `Modal` - 모달 다이얼로그 (저장/취소 버튼, 닫기 버튼 숨김 옵션)
+
+## 표시/피드백
+- `Chip` - 태그/상태 표시 칩
+- `EmptyHint` - 빈 상태 안내 메시지
+- `Skeleton` - 로딩 상태 표시 스켈레톤
