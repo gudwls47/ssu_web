@@ -20,7 +20,8 @@ const base = {
 } as const;
 
 const brand = {
-  primary: blue[500],
+  primary: "#FF6B3D",
+  secondary: "#4F46E5",
 } as const;
 
 const bg = {
@@ -28,13 +29,13 @@ const bg = {
   lightGray: neutral[50],
   gray: neutral[100],
   overlay: "rgba(0,0,0,0.6)",
-  primary: blue[50],
+  primary: brand.primary,
 } as const;
 
 const border = {
   base: neutral[200],
   black: base.black,
-  primary: blue[100],
+  primary: brand.primary,
 } as const;
 
 const status = {
@@ -66,7 +67,7 @@ const icon = {
 
 const button = {
   primary: brand.primary,
-  primaryHover: blue[600],
+  primaryHover: brand.primary, // Hover 색상이 별도로 정의되지 않아 우선 동일하게 설정
   black: base.black,
   gray: bg.gray,
   grayHover: neutral[200],
