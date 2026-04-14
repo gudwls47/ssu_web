@@ -16,7 +16,7 @@ import {
 import { cn } from "@/app/shadcn/lib/utils";
 
 const NAV_ITEMS = [
-  { label: "축제", href: "/" },
+  { label: "축제", href: "/festival" },
   { label: "커뮤니티", href: "/community" },
   { label: "공지", href: "/notice" },
 ];
@@ -25,10 +25,13 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="bb-border-base sticky top-0 z-40 w-full bg-bg-white">
+    <header className="bb-border-base bg-bg-white sticky top-0 z-40 w-full">
       <div className="mx-auto flex h-[64px] max-w-[1280px] items-center justify-between px-5 md:h-[72px]">
         {/* 로고 */}
-        <Link href="/" className="text-xl font-bold text-txt-primary md:text-2xl">
+        <Link
+          href="/"
+          className="text-txt-primary text-xl font-bold md:text-2xl"
+        >
           FESTIVAL
         </Link>
 
@@ -39,8 +42,10 @@ export function Header() {
               key={item.href}
               href={item.href}
               className={cn(
-                "text-base font-medium transition-colors hover:text-button-primary",
-                pathname === item.href ? "text-button-primary" : "text-txt-base",
+                "hover:text-button-primary text-base font-medium transition-colors",
+                pathname === item.href
+                  ? "text-button-primary"
+                  : "text-txt-base",
               )}
             >
               {item.label}
@@ -53,7 +58,7 @@ export function Header() {
           <Drawer direction="right">
             <DrawerTrigger asChild>
               <TouchButton size={40}>
-                <Menu className="size-6 text-txt-base" />
+                <Menu className="text-txt-base size-6" />
               </TouchButton>
             </DrawerTrigger>
             <DrawerContent className="w-[280px]">
@@ -61,7 +66,7 @@ export function Header() {
                 <DrawerTitle className="text-lg font-bold">메뉴</DrawerTitle>
                 <DrawerClose asChild>
                   <TouchButton size={32}>
-                    <X className="size-5 text-txt-base" />
+                    <X className="text-txt-base size-5" />
                   </TouchButton>
                 </DrawerClose>
               </DrawerHeader>

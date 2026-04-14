@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { Meta } from "next/dist/lib/metadata/generate/meta";
 import localFont from "next/font/local";
 import type { Metadata } from "next";
+import LostAndFound from "./components/LostAndFound";
 import Providers from "./providers/Providers";
 
 const pretendard = localFont({
@@ -44,6 +45,7 @@ export default async function RootLayout({
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
       />
       <body className="font-pretendard">
+        <LostAndFound />
         <Providers>{children}</Providers>
       </body>
     </html>
