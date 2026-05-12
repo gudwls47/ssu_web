@@ -10,9 +10,9 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   return (
-    <div className="bg-bg-white min-h-screen w-full">
+    <div className="festa min-h-screen w-full">
       <Header />
-      <main className="mx-auto w-full max-w-[1280px] p-5">{children}</main>
+      <main className="f-wrap">{children}</main>
     </div>
   );
 }

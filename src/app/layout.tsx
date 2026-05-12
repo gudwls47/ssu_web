@@ -1,5 +1,6 @@
 import "./styles/reset.css";
 import "./styles/global.css";
+import "./styles/festa.css";
 
 import type { ReactNode } from "react";
 import { headers } from "next/headers";
