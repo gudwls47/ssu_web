@@ -1,5 +1,5 @@
 /* ────────────────────────────────────────────────────────
-   FESTA — design tokens (festival · light palette)
+   FESTA — design tokens (3 palettes)
    ──────────────────────────────────────────────────────── */
 
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap');
@@ -12,6 +12,12 @@
   --display-tracking: -0.03em;
 }
 
+/* reset.css의 * { color: #121212 } 를 FESTA 안에서 무력화 */
+.festa * {
+  color: inherit;
+}
+
+/* ── Festival palette (default) ── */
 .festa {
   --bg: #FFEFF5;
   --fg: #2A0F4E;
@@ -35,6 +41,122 @@
   -webkit-font-smoothing: antialiased;
   font-feature-settings: 'ss01', 'ss02', 'tnum';
   min-height: 100vh;
+}
+
+/* ── Festival dark ── */
+.festa[data-mode="dark"] {
+  --bg: #1B0832;
+  --fg: #FFEFF5;
+  --muted: rgba(255, 239, 245, 0.6);
+  --faint: rgba(255, 239, 245, 0.08);
+  --surface: #2D1252;
+  --surface-2: #3D1B6B;
+  --border: rgba(255, 239, 245, 0.14);
+  --accent: #FF1E7A;
+  --accent-fg: #FFFFFF;
+  --accent-2: #BDFF1E;
+  --accent-2-fg: #1B0832;
+  --live: #FF3D8E;
+  --upcoming: #BDFF1E;
+  --ended: rgba(255, 239, 245, 0.4);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 12px 40px rgba(255, 30, 122, 0.2);
+}
+
+/* ── Classic palette — 미니멀 매거진 ── */
+.festa[data-palette="classic"] {
+  --bg: #FBF6EC;
+  --fg: #14172B;
+  --muted: rgba(20, 23, 43, 0.55);
+  --faint: rgba(20, 23, 43, 0.08);
+  --surface: #FFFFFF;
+  --surface-2: #F2EBDC;
+  --border: rgba(20, 23, 43, 0.12);
+  --accent: #E85D4A;
+  --accent-fg: #FFFFFF;
+  --accent-2: #F2C94C;
+  --accent-2-fg: #14172B;
+  --live: #E85D4A;
+  --upcoming: #5A6FCF;
+  --ended: rgba(20, 23, 43, 0.4);
+  --shadow: 0 1px 3px rgba(20, 23, 43, 0.06), 0 8px 24px rgba(20, 23, 43, 0.06);
+}
+
+/* ── Classic dark ── */
+.festa[data-palette="classic"][data-mode="dark"] {
+  --bg: #14172B;
+  --fg: #FBF6EC;
+  --muted: rgba(251, 246, 236, 0.6);
+  --faint: rgba(251, 246, 236, 0.1);
+  --surface: #1E2240;
+  --surface-2: #262B4D;
+  --border: rgba(251, 246, 236, 0.14);
+  --accent: #FF7A66;
+  --accent-fg: #14172B;
+  --accent-2: #F2C94C;
+  --accent-2-fg: #14172B;
+  --live: #FF7A66;
+  --upcoming: #8FA5FF;
+  --ended: rgba(251, 246, 236, 0.4);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Experimental palette — 네온 브루탈 ── */
+.festa[data-palette="experimental"] {
+  --bg: #EFFF00;
+  --fg: #0A0A0F;
+  --muted: rgba(10, 10, 15, 0.55);
+  --faint: rgba(10, 10, 15, 0.08);
+  --surface: #FFFFFF;
+  --surface-2: #DBE800;
+  --border: #0A0A0F;
+  --accent: #FF00B8;
+  --accent-fg: #FFFFFF;
+  --accent-2: #00CFE6;
+  --accent-2-fg: #0A0A0F;
+  --live: #FF00B8;
+  --upcoming: #00CFE6;
+  --ended: rgba(10, 10, 15, 0.4);
+  --shadow: 4px 4px 0 #0A0A0F;
+}
+
+/* ── Experimental dark ── */
+.festa[data-palette="experimental"][data-mode="dark"] {
+  --bg: #0A0A0F;
+  --fg: #EFFF00;
+  --muted: rgba(239, 255, 0, 0.6);
+  --faint: rgba(239, 255, 0, 0.08);
+  --surface: #14141C;
+  --surface-2: #1A1A24;
+  --border: #EFFF00;
+  --accent: #FF00B8;
+  --accent-fg: #0A0A0F;
+  --accent-2: #00F0FF;
+  --accent-2-fg: #0A0A0F;
+  --live: #FF00B8;
+  --upcoming: #00F0FF;
+  --ended: rgba(239, 255, 0, 0.4);
+  --shadow: 4px 4px 0 #FF00B8;
+}
+
+.festa[data-palette="experimental"] .f-card,
+.festa[data-palette="experimental"] .f-filter-side,
+.festa[data-palette="experimental"] .f-set-row,
+.festa[data-palette="experimental"] .f-booth-card,
+.festa[data-palette="experimental"] .f-notice-row,
+.festa[data-palette="experimental"] .f-comm-row {
+  border-radius: 4px;
+  border: 1.5px solid var(--border);
+  box-shadow: 3px 3px 0 var(--border);
+}
+
+.festa[data-palette="experimental"] .f-hero {
+  border-radius: 4px;
+  border: 2px solid var(--fg);
+}
+
+.festa[data-palette="experimental"] .f-chip,
+.festa[data-palette="experimental"] .f-btn {
+  border-radius: 4px;
 }
 
 .festa *, .festa *::before, .festa *::after {
