@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
+
+export PATH="/Users/jungyookyung/.nvm/versions/node/v24.14.0/bin:$PATH"
 
 pnpm husky:type && pnpm dlx lint-staged

@@ -1,164 +1,328 @@
 "use client";
 
 import { useState } from "react";
-import { DateRange } from "react-day-picker";
+import Link from "next/link";
 
-import Calendar from "@/app/components/Calendar";
-import Chip from "@/app/components/Chip";
-import Select from "@/app/components/Select";
-import { theme } from "@/theme/theme";
-
-// 축제 상태 타입
-type FestivalStatus = "UPCOMING" | "ONGOING" | "COMPLETED";
+type FestivalStatus = "live" | "upcoming" | "ended";
 
 interface Festival {
-  id: number;
-  title: string;
-  description: string;
-  startDate: string;
-  endDate: string;
+  id: string;
+  name: string;
+  en: string;
+  school: string;
+  start: string;
+  end: string;
   status: FestivalStatus;
-  thumbnail?: string;
+  participants: number;
+  tagline: string;
+  colors: [string, string, string];
 }
 
-const MOCK_FESTIVALS: Festival[] = [
+const FESTIVALS: Festival[] = [
   {
-    id: 1,
-    title: "2026 숭실대학교 봄 축제",
-    description:
-      "새로운 시작을 알리는 숭실대학교의 봄 축제입니다. 다양한 공연과 먹거리가 준비되어 있습니다.",
-    startDate: "2026-05-10",
-    endDate: "2026-05-12",
-    status: "UPCOMING",
+    id: "ssu-daedongje-2026",
+    name: "2026 숭실 대동제",
+    en: "DAEDONGJE",
+    school: "숭실대학교",
+    start: "2026-05-12",
+    end: "2026-05-14",
+    status: "live",
+    participants: 8420,
+    tagline: "숭실의 봄이 깨어나다",
+    colors: ["#FF1E7A", "#BDFF1E", "#2A0F4E"],
   },
   {
-    id: 2,
-    title: "제 25회 IT대학 학술제",
-    description:
-      "IT대학 학생들의 열정과 기술을 엿볼 수 있는 학술제입니다. 혁신적인 프로젝트들을 만나보세요.",
-    startDate: "2026-04-01",
-    endDate: "2026-04-15",
-    status: "ONGOING",
+    id: "ssu-itfest-2026",
+    name: "제25회 IT대학 학술제",
+    en: "IT FESTA",
+    school: "숭실대학교",
+    start: "2026-05-20",
+    end: "2026-05-22",
+    status: "upcoming",
+    participants: 3200,
+    tagline: "기술과 축제의 만남",
+    colors: ["#6B2EE6", "#BDFF1E", "#1B0832"],
   },
   {
-    id: 3,
-    title: "2025 숭실대학교 대동제",
-    description:
-      "지난 가을, 모두가 하나 되어 즐겼던 대동제의 추억을 다시 한번 떠올려보세요.",
-    startDate: "2025-09-20",
-    endDate: "2025-09-22",
-    status: "COMPLETED",
+    id: "ssu-sportsfest-2026",
+    name: "2026 숭실 체육대회",
+    en: "SPORTS FEST",
+    school: "숭실대학교",
+    start: "2026-06-05",
+    end: "2026-06-05",
+    status: "upcoming",
+    participants: 2100,
+    tagline: "하나 되는 숭실인",
+    colors: ["#FF7A66", "#F2C94C", "#14172B"],
+  },
+  {
+    id: "ssu-artfest-2026",
+    name: "숭실 예술문화제",
+    en: "ART WAVE",
+    school: "숭실대학교",
+    start: "2026-06-18",
+    end: "2026-06-20",
+    status: "upcoming",
+    participants: 1800,
+    tagline: "예술로 물드는 캠퍼스",
+    colors: ["#00CFE6", "#FF00B8", "#0A0A0F"],
+  },
+  {
+    id: "ssu-daedongje-2025",
+    name: "2025 숭실 대동제",
+    en: "DAEDONGJE 2025",
+    school: "숭실대학교",
+    start: "2025-09-20",
+    end: "2025-09-22",
+    status: "ended",
+    participants: 7800,
+    tagline: "지난 가을의 추억",
+    colors: ["#E85D4A", "#FBF6EC", "#14172B"],
+  },
+  {
+    id: "ssu-itfest-2025",
+    name: "제24회 IT대학 학술제",
+    en: "IT FESTA 2025",
+    school: "숭실대학교",
+    start: "2025-05-18",
+    end: "2025-05-20",
+    status: "ended",
+    participants: 2900,
+    tagline: "코드로 쓰는 축제",
+    colors: ["#3D6EE6", "#F2C94C", "#14172B"],
   },
 ];
 
-const STATUS_OPTIONS = [
-  { label: "전체", value: "ALL" },
-  { label: "예정", value: "UPCOMING" },
-  { label: "진행중", value: "ONGOING" },
-  { label: "종료", value: "COMPLETED" },
-];
+const STATUS = {
+  live: { en: "LIVE", cls: "live", ko: "진행중" },
+  upcoming: { en: "UPCOMING", cls: "upcoming", ko: "예정" },
+  ended: { en: "ENDED", cls: "ended", ko: "종료" },
+};
+
+function fmtRange(start: string, end: string) {
+  const s = new Date(start);
+  const e = new Date(end);
+  const fmt = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`;
+  return `${fmt(s)} – ${fmt(e)}`;
+}
+
+function SearchIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3-3" />
+    </svg>
+  );
+}
+
+function PosterArt({ fest }: { fest: Festival }) {
+  const [c0, c1, c2] = fest.colors;
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: `radial-gradient(120% 80% at 80% 0%, ${c0} 0%, ${c1} 35%, ${c2} 100%)`,
+        color: "#fff",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage:
+            "repeating-linear-gradient(45deg, transparent 0 10px, rgba(255,255,255,0.04) 10px 11px)",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          left: 16,
+          bottom: 14,
+          right: 16,
+          fontFamily: "var(--display-font)",
+          fontWeight: "var(--display-weight, 700)",
+          fontSize: 28,
+          lineHeight: 0.9,
+          letterSpacing: "-0.03em",
+          textShadow: "0 2px 16px rgba(0,0,0,0.3)",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 9,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            opacity: 0.85,
+            marginBottom: 8,
+            fontFamily: "var(--mono-font)",
+            fontWeight: 500,
+          }}
+        >
+          {fest.school} · {new Date(fest.start).getFullYear()}
+        </div>
+        {fest.en}
+      </div>
+    </div>
+  );
+}
+
+function FestCard({ fest }: { fest: Festival }) {
+  const s = STATUS[fest.status];
+  return (
+    <Link
+      href={`/festival/${fest.id}`}
+      className="f-card"
+      style={{ textDecoration: "none" }}
+    >
+      <div className="poster">
+        <PosterArt fest={fest} />
+        <div className="badge">
+          <span
+            className={`f-tag ${s.cls}${fest.status === "live" ? "pulse" : ""}`}
+          >
+            {s.en}
+          </span>
+        </div>
+      </div>
+      <div className="card-body">
+        <div className="card-title">{fest.name}</div>
+        <div className="card-meta">
+          <span>{fest.school}</span>
+          <span style={{ color: "var(--faint)" }}>·</span>
+          <span>{fmtRange(fest.start, fest.end)}</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+const STATUS_FILTERS = [
+  { value: "all", label: "전체" },
+  { value: "live", label: "진행중" },
+  { value: "upcoming", label: "예정" },
+  { value: "ended", label: "종료" },
+] as const;
 
 export default function FestivalListPage() {
-  const [statusFilter, setStatusFilter] = useState("ALL");
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(void 0);
+  const [q, setQ] = useState("");
+  const [status, setStatus] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
-  const getStatusChip = (status: FestivalStatus) => {
-    switch (status) {
-      case "UPCOMING":
-        return <Chip label="예정" variant="info" />;
-      case "ONGOING":
-        return <Chip label="진행중" variant="primary" />;
-      case "COMPLETED":
-        return <Chip label="종료" variant="gray" />;
-    }
+  const filtered = FESTIVALS.filter((f) => {
+    if (status !== "all" && f.status !== status) return false;
+    if (
+      q &&
+      !`${f.name} ${f.school} ${f.en}`.toLowerCase().includes(q.toLowerCase())
+    )
+      return false;
+    if (startDate && f.end < startDate) return false;
+    if (endDate && f.start > endDate) return false;
+    return true;
+  });
+
+  const reset = () => {
+    setQ("");
+    setStatus("all");
+    setStartDate("");
+    setEndDate("");
   };
 
   return (
-    <div className="flex flex-col gap-[40px]">
-      {/* 배너 섹션 */}
-      <section className="bg-bg-primary/20 relative h-[240px] w-full overflow-hidden rounded-[24px] md:h-[320px]">
-        <div className="flex h-full flex-col justify-center px-[40px] md:px-[60px]">
-          <h1 className="text-txt-base text-[28px] font-bold md:text-[40px]">
-            숭실대학교 축제 목록
-          </h1>
-          <p className="text-txt-sub mt-[12px] text-[16px] md:text-[18px]">
-            현재 진행 중이거나 예정된 축제 정보를 확인하세요.
-          </p>
-        </div>
-        {/* 장식용 그래픽 요소 (필요 시 이미지로 대체) */}
-        <div className="bg-button-primary/10 absolute right-[-40px] bottom-[-40px] size-[200px] rounded-full md:size-[300px]" />
-      </section>
+    <>
+      <div className="f-tagline">Search · 축제 검색</div>
+      <h1 className="f-h" style={{ marginBottom: 24 }}>
+        어디로 갈까요?
+      </h1>
 
-      {/* 필터 및 목록 섹션 */}
-      <div className="flex flex-col gap-[24px]">
-        {/* 필터 바 */}
-        <div className="bs-border-base bg-bg-white flex flex-col gap-[16px] rounded-[16px] p-[20px] md:flex-row md:items-center">
-          <div className="flex flex-col gap-[8px] md:w-[200px]">
-            <span className="text-txt-base text-[14px] font-bold">상태</span>
-            <Select
-              items={STATUS_OPTIONS}
-              value={statusFilter}
-              onChange={setStatusFilter}
-              placeholder="상태 선택"
-            />
-          </div>
-          <div className="flex flex-col gap-[8px] md:w-[320px]">
-            <span className="text-txt-base text-[14px] font-bold">
-              진행 기간
-            </span>
-            <Calendar
-              mode="range"
-              selected={dateRange}
-              onSelect={setDateRange}
-              placeholder="시작일 - 종료일"
-            />
-          </div>
-        </div>
-
-        {/* 축제 목록 */}
-        <div className="grid grid-cols-1 gap-[24px] sm:grid-cols-2 lg:grid-cols-3">
-          {MOCK_FESTIVALS.map((festival) => (
-            <div
-              key={festival.id}
-              className="bs-border-base group bg-bg-white cursor-pointer overflow-hidden rounded-[20px] transition-all hover:shadow-xl"
-            >
-              {/* 썸네일 이미지 */}
-              <div className="bg-bg-gray aspect-[16/9] w-full overflow-hidden">
-                {festival.thumbnail ? (
-                  <img
-                    src={festival.thumbnail}
-                    alt={festival.title}
-                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="bg-bg-primary/5 flex h-full w-full items-center justify-center">
-                    <span className="text-txt-disabled text-[14px]">
-                      이미지 없음
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* 축제 정보 */}
-              <div className="flex flex-col p-[24px]">
-                <div className="flex items-center justify-between">
-                  {getStatusChip(festival.status)}
-                  <span className="text-txt-sub text-[13px]">
-                    {festival.startDate.replace(/-/g, ".")} ~{" "}
-                    {festival.endDate.replace(/-/g, ".")}
-                  </span>
-                </div>
-                <h3 className="text-txt-base group-hover:text-txt-primary mt-[16px] text-[20px] font-bold transition-colors">
-                  {festival.title}
-                </h3>
-                <p className="text-txt-sub mt-[10px] line-clamp-2 text-[15px] leading-relaxed">
-                  {festival.description}
-                </p>
-              </div>
+      <div className="f-search-layout">
+        {/* ── 사이드 필터 ── */}
+        <aside className="f-filter-side">
+          <div>
+            <h4>STATUS</h4>
+            <div className="chip-row">
+              {STATUS_FILTERS.map(({ value, label }) => (
+                <button
+                  key={value}
+                  className="f-chip"
+                  data-active={status === value ? "true" : "false"}
+                  onClick={() => setStatus(value)}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
-          ))}
+          </div>
+          <div>
+            <h4>PERIOD</h4>
+            <input
+              type="date"
+              className="f-date-input"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              placeholder="시작일"
+            />
+            <input
+              type="date"
+              className="f-date-input"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              placeholder="종료일"
+            />
+          </div>
+          <button
+            className="f-btn ghost sm"
+            style={{ width: "100%" }}
+            onClick={reset}
+          >
+            필터 초기화
+          </button>
+        </aside>
+
+        {/* ── 검색 + 카드 그리드 ── */}
+        <div>
+          <div
+            className="f-search-bar"
+            style={{ marginBottom: 24, height: 52, cursor: "default" }}
+          >
+            <SearchIcon />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="축제명 · 아티스트 · 학술제 검색"
+              style={{ cursor: "text" }}
+            />
+            <kbd>{filtered.length}건</kbd>
+          </div>
+
+          <div className="f-grid">
+            {filtered.map((f) => (
+              <FestCard key={f.id} fest={f} />
+            ))}
+            {filtered.length === 0 && (
+              <div
+                style={{
+                  gridColumn: "1 / -1",
+                  padding: 48,
+                  textAlign: "center",
+                  color: "var(--muted)",
+                  font: "500 14px/1.6 var(--body-font)",
+                }}
+              >
+                검색 조건에 맞는 축제가 없습니다.
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
