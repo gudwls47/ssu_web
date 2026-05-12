@@ -2,163 +2,166 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cva } from "class-variance-authority";
-import { type LucideIcon } from "lucide-react";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/app/shadcn/components/ui/accordion";
-import { cn } from "@/app/shadcn/lib/utils";
-
-interface MenuItem {
+interface NavItem {
+  id: string;
   label: string;
-  href?: string;
-  icon?: LucideIcon;
-  children?: MenuItem[];
-  requiredPermission?: string;
-  requireSuperAdmin?: boolean;
+  en: string;
+  href: string;
 }
 
-const ADMIN_MENU_ITEMS: MenuItem[] = [
-  {
-    label: "대시보드",
-    href: "/admin/dashboard",
-  },
-  {
-    label: "회원",
-    href: "/admin/members",
-    requiredPermission: "MEMBER_READ",
-  },
-  {
-    label: "아이템",
-    href: "/admin/items",
-    requiredPermission: "BLACKLIST_READ",
-  },
-  {
-    label: "배너",
-    href: "/admin/banners",
-    requiredPermission: "BANNER_READ",
-  },
+const NAV_ITEMS: NavItem[] = [
+  { id: "dashboard", label: "대시보드", en: "DASHBOARD", href: "/admin/dashboard" },
+  { id: "festivals", label: "내 축제", en: "FESTIVALS", href: "/admin/festivals" },
+  { id: "notices", label: "공지", en: "NOTICES", href: "/admin/notices" },
+  { id: "stats", label: "통계", en: "STATS", href: "/admin/stats" },
 ];
-
-const menuItemVariants = cva(
-  "flex items-center gap-3 px-6 h-[48px] text-sm font-medium transition-colors",
-  {
-    variants: {
-      isActive: {
-        true: "bg-bg-primary [&>span]:text-txt-primary",
-        false: "hover:bg-bg-lightGray",
-      },
-    },
-    defaultVariants: {
-      isActive: false,
-    },
-  },
-);
-
-const subMenuItemVariants = cva(
-  "block px-3 py-2 pl-11 text-sm transition-colors",
-  {
-    variants: {
-      isActive: {
-        true: "bg-bg-primary [&>span]:text-txt-primary",
-        false: "hover:bg-bg-lightGray",
-      },
-    },
-    defaultVariants: {
-      isActive: false,
-    },
-  },
-);
 
 export default function AdminSideMenu() {
   const pathname = usePathname();
 
-  const isActiveLink = (href: string) => pathname.startsWith(href);
-
-  const isActiveParent = (children: MenuItem[]) =>
-    children.some((child) => child.href && pathname.startsWith(child.href));
-
-  const renderMenuItem = (item: MenuItem, index: number) => {
-    const Icon = item.icon;
-
-    if (item.href && !item.children) {
-      return (
-        <Link
-          key={index}
-          href={item.href}
-          className={menuItemVariants({ isActive: isActiveLink(item.href) })}
-        >
-          {Icon && <Icon className="size-5" />}
-          <span>{item.label}</span>
-        </Link>
-      );
-    }
-
-    if (item.children && item.children.length > 0) {
-      const isParentActive = isActiveParent(item.children);
-
-      return (
-        <Accordion
-          key={index}
-          type="single"
-          collapsible
-          defaultValue={isParentActive ? `item-${index}` : void 0}
-        >
-          <AccordionItem value={`item-${index}`} className="border-none">
-            <AccordionTrigger
-              className={cn(
-                "cursor-pointer px-3 py-2.5 hover:no-underline",
-                isParentActive
-                  ? "text-font-mainText"
-                  : "text-font-subText01 hover:bg-bg-lightGray hover:text-font-mainText",
-              )}
-            >
-              <div className="flex items-center gap-3">
-                {Icon && <Icon className="size-5" />}
-                <span className="text-sm font-medium">{item.label}</span>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-1 pb-0">
-              <div className="flex flex-col gap-1">
-                {item.children.map((child, childIndex) => (
-                  <Link
-                    key={childIndex}
-                    href={child.href || "#"}
-                    className={subMenuItemVariants({
-                      isActive: child.href ? isActiveLink(child.href) : false,
-                    })}
-                  >
-                    {child.label}
-                  </Link>
-                ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      );
-    }
-
-    return null;
-  };
+  const isActive = (href: string) => pathname.startsWith(href);
 
   return (
-    <div className="br-border-base sticky top-0 flex h-screen w-[280px] shrink-0 flex-col py-[40px]">
-      <div className="flex-center mb-[40px] h-[80px]">
-        <p>LOGO</p>
+    <div
+      style={{
+        width: 220,
+        background: "var(--surface)",
+        borderRight: "1px solid var(--border)",
+        padding: 16,
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        position: "sticky",
+        top: 0,
+        flexShrink: 0,
+      }}
+    >
+      {/* Brand */}
+      <Link href="/admin/festivals" style={{ textDecoration: "none" }}>
+        <div
+          style={{
+            fontFamily: "var(--display-font)",
+            fontWeight: 700,
+            fontSize: 26,
+            letterSpacing: "-0.04em",
+            color: "var(--fg)",
+            marginBottom: 4,
+          }}
+        >
+          FEST<span style={{ color: "var(--accent)" }}>A</span>
+          <span style={{ color: "var(--accent)" }}>.</span>
+        </div>
+      </Link>
+      <div
+        style={{
+          fontFamily: "var(--mono-font)",
+          fontSize: 9,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          color: "var(--muted)",
+          marginBottom: 24,
+        }}
+      >
+        ADMIN · 주최자 콘솔
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="flex flex-col gap-1">
-          {ADMIN_MENU_ITEMS.map((item, index) => renderMenuItem(item, index))}
+      {/* Nav */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 2, flex: 1 }}>
+        {NAV_ITEMS.map((item) => {
+          const active = isActive(item.href);
+          return (
+            <Link
+              key={item.id}
+              href={item.href}
+              style={{
+                textDecoration: "none",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "10px 12px",
+                borderRadius: 10,
+                background: active ? "var(--fg)" : "transparent",
+                color: active ? "var(--bg)" : "var(--fg)",
+                fontSize: 13,
+                fontWeight: active ? 600 : 500,
+                transition: "background 0.12s, color 0.12s",
+              }}
+            >
+              <span style={{ flex: 1 }}>{item.label}</span>
+              <span
+                style={{
+                  fontFamily: "var(--mono-font)",
+                  fontSize: 9,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  opacity: 0.5,
+                }}
+              >
+                {item.en}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* User / Logout */}
+      <div
+        style={{
+          padding: 12,
+          borderRadius: 12,
+          background: "var(--surface-2)",
+          marginTop: 16,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 10,
+          }}
+        >
+          <div
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              background: "var(--accent)",
+              color: "var(--accent-fg)",
+              display: "grid",
+              placeItems: "center",
+              fontSize: 12,
+              fontWeight: 700,
+              flexShrink: 0,
+            }}
+          >
+            숭
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--fg)" }}>
+              숭실대 학생회
+            </div>
+            <div
+              style={{
+                fontFamily: "var(--mono-font)",
+                fontSize: 10,
+                color: "var(--muted)",
+              }}
+            >
+              admin · SSU
+            </div>
+          </div>
         </div>
+        <button
+          className="f-btn ghost sm"
+          style={{ width: "100%", borderRadius: 8 }}
+        >
+          로그아웃
+        </button>
       </div>
     </div>
   );
 }
 
-export { ADMIN_MENU_ITEMS };
-export type { MenuItem };
+export { NAV_ITEMS };
