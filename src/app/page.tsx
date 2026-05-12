@@ -1,6 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Script from "next/script";
+
+declare global {
+  interface Window {
+    naver: any;
+  }
+}
 
 type FestivalStatus = "live" | "upcoming" | "ended";
 
@@ -200,52 +207,44 @@ export default function MainPage() {
   const ended = FESTIVALS.filter((f) => f.status === "ended");
 
   return (
-    <>
-      {live && (
-        <Link
-          href={`/festival/${live.id}`}
-          style={{ textDecoration: "none", display: "block" }}
-        >
-          <section
-            className="f-hero"
-            style={{
-              background: `radial-gradient(120% 80% at 80% 0%, ${live.colors[0]} 0%, ${live.colors[1]} 35%, ${live.colors[2]} 100%)`,
-            }}
-          >
-            <svg
-              className="f-hero-scribble"
-              viewBox="0 0 200 200"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <circle cx="100" cy="100" r="80" />
-              <circle cx="100" cy="100" r="60" />
-              <circle cx="100" cy="100" r="40" />
-            </svg>
-            <div>
-              <div className="f-live-badge">LIVE NOW · 진행 중</div>
-              <h1 style={{ marginTop: 18 }}>
-                <span className="stroke">YOUR</span>
-                <br />
-                CAMPUS
-                <br />
-                IS ON.
-              </h1>
-            </div>
-            <div className="meta">
-              <span>
-                <b>{live.name}</b> · {live.school}
-              </span>
-              <span>{fmtRange(live.start, live.end)}</span>
-              <span>
-                참여자 <b>{live.participants.toLocaleString()}</b>명
-              </span>
-            </div>
-          </section>
-        </Link>
-      )}
+    <div>
+      <Script
+        src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID}`}
+        onReady={() => {
+          if (typeof window.naver !== "undefined") {
+            const mapOptions = {
+              center: new window.naver.maps.LatLng(37.4963, 126.9574),
+              zoom: 16,
+              minZoom: 10,
+              zoomControl: true,
+              zoomControlOptions: {
+                position: window.naver.maps.Position.TOP_RIGHT,
+              },
+            };
 
+            const map = new window.naver.maps.Map("map", mapOptions);
+
+            // eslint-disable-next-line no-new
+            new window.naver.maps.Marker({
+              position: new window.naver.maps.LatLng(37.4963, 126.9574),
+              map,
+              title: "숭실대학교",
+            });
+          }
+        }}
+      />
+      <div
+        id="map"
+        style={{
+          width: "100%",
+          height: "400px",
+          borderRadius: "24px",
+          marginTop: "24px",
+          boxShadow: "0 12px 40px rgba(0,0,0,0.12)",
+          border: "1px solid rgba(0,0,0,0.05)",
+          backgroundColor: "#f0f0f0",
+        }}
+      />
       <section style={{ marginTop: 64 }}>
         <div className="f-h-row">
           <div>
@@ -274,6 +273,6 @@ export default function MainPage() {
           ))}
         </div>
       </section>
-    </>
+    </div>
   );
 }
