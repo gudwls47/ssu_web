@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   collection,
+  doc,
+  getDoc,
   getDocs,
   limit,
   orderBy,
@@ -43,5 +45,20 @@ export const useGetFestivals = (params: GetFestivalsParams) => {
     refetchInterval: false,
     refetchOnMount: false,
     refetchIntervalInBackground: false,
+  });
+};
+
+export const useGetFestival = (id: string) => {
+  return useQuery({
+    queryKey: ["festival", id],
+    queryFn: async () => {
+      const docRef = doc(db, "festivals", id);
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) {
+        throw new Error("Festival not found");
+      }
+      return docSnap.data() as FestivalResponse;
+    },
+    enabled: Boolean(id),
   });
 };

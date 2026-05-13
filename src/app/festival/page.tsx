@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { Timestamp } from "firebase/firestore";
 import { SearchIcon } from "lucide-react";
 import FestivalCard from "@/app/components/FestivalCard";

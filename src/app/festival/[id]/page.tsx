@@ -2,6 +2,8 @@
 
 import { useState, use } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useGetFestival } from "@/app/api/festivals";
 
 type FestivalStatus = "live" | "upcoming" | "ended";
 
@@ -805,16 +807,17 @@ const TABS: { value: Tab; label: string }[] = [
   { value: "community", label: "톡" },
 ];
 
-export default function FestivalDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+export default function FestivalDetailPage() {
+  const params = useParams<{ id: string }>();
+  const id = params.id;
   const fest = FESTIVALS.find((f) => f.id === id) ?? FESTIVALS[0];
   const s = STATUS[fest.status];
   const [tab, setTab] = useState<Tab>("lineup");
   const [c0, c1, c2] = fest.colors;
+
+  const { data } = useGetFestival(id);
+
+  console.log(data);
 
   return (
     <div style={{ paddingTop: 20 }}>
