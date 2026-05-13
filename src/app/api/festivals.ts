@@ -1,18 +1,47 @@
-import { collection, getDocs } from "firebase/firestore";
+import { useQuery } from "@tanstack/react-query";
+import {
+  collection,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
+import { FestivalResponse, GetFestivalsParams } from "./festivals.type";
 import { db } from "../utils/firebase/db";
 
-export const fetchFestivals = async () => {
-  try {
-    const querySnapshot = await getDocs(collection(db, "festivals"));
+export const useGetFestivals = (params: GetFestivalsParams) => {
+  return useQuery({
+    queryKey: ["festivals", params],
+    queryFn: async () => {
+      let queryBuilder = query(collection(db, "festivals"));
 
-    const festivalList = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+      if (params.status) {
+        queryBuilder = query(
+          queryBuilder,
+          where("status", "==", params.status),
+        );
+      }
 
-    console.log(festivalList);
-    return festivalList;
-  } catch (error) {
-    console.error("데이터를 불러오는 중 오류 발생:", error);
-  }
+      queryBuilder = query(
+        queryBuilder,
+        orderBy("createdAt", params.orderByCreatedTimestamp || "desc"),
+      );
+      queryBuilder = query(queryBuilder, limit(params.size || 10));
+
+      const querySnapshot = await getDocs(queryBuilder);
+
+      const festivalList: FestivalResponse[] = querySnapshot.docs.map(
+        (doc) => ({
+          ...(doc.data() as FestivalResponse),
+          id: doc.id,
+        }),
+      );
+
+      return festivalList;
+    },
+    refetchInterval: false,
+    refetchOnMount: false,
+    refetchIntervalInBackground: false,
+  });
 };

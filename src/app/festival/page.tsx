@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Timestamp } from "firebase/firestore";
+import { SearchIcon } from "lucide-react";
+import FestivalCard from "@/app/components/FestivalCard";
 
 type FestivalStatus = "live" | "upcoming" | "ended";
 
@@ -92,117 +95,6 @@ const FESTIVALS: Festival[] = [
     colors: ["#3D6EE6", "#F2C94C", "#14172B"],
   },
 ];
-
-const STATUS = {
-  live: { en: "LIVE", cls: "live", ko: "진행중" },
-  upcoming: { en: "UPCOMING", cls: "upcoming", ko: "예정" },
-  ended: { en: "ENDED", cls: "ended", ko: "종료" },
-};
-
-function fmtRange(start: string, end: string) {
-  const s = new Date(start);
-  const e = new Date(end);
-  const fmt = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`;
-  return `${fmt(s)} – ${fmt(e)}`;
-}
-
-function SearchIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    >
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3-3" />
-    </svg>
-  );
-}
-
-function PosterArt({ fest }: { fest: Festival }) {
-  const [c0, c1, c2] = fest.colors;
-  return (
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        background: `radial-gradient(120% 80% at 80% 0%, ${c0} 0%, ${c1} 35%, ${c2} 100%)`,
-        color: "#fff",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage:
-            "repeating-linear-gradient(45deg, transparent 0 10px, rgba(255,255,255,0.04) 10px 11px)",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          left: 16,
-          bottom: 14,
-          right: 16,
-          fontFamily: "var(--display-font)",
-          fontWeight: "var(--display-weight, 700)",
-          fontSize: 28,
-          lineHeight: 0.9,
-          letterSpacing: "-0.03em",
-          textShadow: "0 2px 16px rgba(0,0,0,0.3)",
-        }}
-      >
-        <div
-          style={{
-            fontSize: 9,
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            opacity: 0.85,
-            marginBottom: 8,
-            fontFamily: "var(--mono-font)",
-            fontWeight: 500,
-          }}
-        >
-          {fest.school} · {new Date(fest.start).getFullYear()}
-        </div>
-        {fest.en}
-      </div>
-    </div>
-  );
-}
-
-function FestCard({ fest }: { fest: Festival }) {
-  const s = STATUS[fest.status];
-  return (
-    <Link
-      href={`/festival/${fest.id}`}
-      className="f-card"
-      style={{ textDecoration: "none" }}
-    >
-      <div className="poster">
-        <PosterArt fest={fest} />
-        <div className="badge">
-          <span
-            className={`f-tag ${s.cls}${fest.status === "live" ? "pulse" : ""}`}
-          >
-            {s.en}
-          </span>
-        </div>
-      </div>
-      <div className="card-body">
-        <div className="card-title">{fest.name}</div>
-        <div className="card-meta">
-          <span>{fest.school}</span>
-          <span style={{ color: "var(--faint)" }}>·</span>
-          <span>{fmtRange(fest.start, fest.end)}</span>
-        </div>
-      </div>
-    </Link>
-  );
-}
 
 const STATUS_FILTERS = [
   { value: "all", label: "전체" },
@@ -305,7 +197,18 @@ export default function FestivalListPage() {
 
           <div className="f-grid">
             {filtered.map((f) => (
-              <FestCard key={f.id} fest={f} />
+              <FestivalCard
+                key={f.id}
+                data={{
+                  id: f.id,
+                  startDate: f.start as any,
+                  endDate: f.end as any,
+                  status: f.status.toUpperCase() as any,
+                  title: f.name,
+                  createdAt: Timestamp.fromDate(new Date(f.start)),
+                  target: f.school,
+                }}
+              />
             ))}
             {filtered.length === 0 && (
               <div
