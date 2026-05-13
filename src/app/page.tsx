@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import Script from "next/script";
+import { fetchFestivals } from "./api/festivals";
 
 declare global {
   interface Window {
@@ -205,6 +207,14 @@ export default function MainPage() {
   const live = FESTIVALS.find((f) => f.status === "live");
   const upcoming = FESTIVALS.filter((f) => f.status === "upcoming");
   const ended = FESTIVALS.filter((f) => f.status === "ended");
+
+  const getData = async () => {
+    const festivals = await fetchFestivals();
+  };
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return (
     <div>
