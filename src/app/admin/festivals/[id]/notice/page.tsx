@@ -2,30 +2,37 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { NOTICES, type Notice } from "@/app/admin/_mock/data";
+import {
+  useGetNotices,
+  useCreateNotice,
+  useUpdateNotice,
+  useDeleteNotice,
+} from "@/app/api/notices";
+import type { NoticeResponse, NoticeInput } from "@/app/api/festivals.type";
+
+type ModalState =
+  | null
+  | { mode: "new" }
+  | { mode: "edit"; notice: NoticeResponse };
 
 function NoticeModal({
-  notice,
+  initial,
   onClose,
   onSave,
+  isPending,
 }: {
-  notice: Partial<Notice> | null;
+  initial?: { title: string; content: string; pinned: boolean };
   onClose: () => void;
-  onSave: (n: Notice) => void;
+  onSave: (data: NoticeInput) => void;
+  isPending: boolean;
 }) {
-  const [title, setTitle] = useState(notice?.title ?? "");
-  const [preview, setPreview] = useState(notice?.preview ?? "");
-  const [pinned, setPinned] = useState(notice?.pinned ?? false);
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [content, setContent] = useState(initial?.content ?? "");
+  const [pinned, setPinned] = useState(initial?.pinned ?? false);
 
   const handleSave = () => {
     if (!title.trim()) return;
-    onSave({
-      id: notice?.id ?? `n${Date.now()}`,
-      title,
-      preview,
-      time: "방금",
-      pinned,
-    });
+    onSave({ title, content, pinned });
   };
 
   return (
@@ -63,11 +70,18 @@ function NoticeModal({
             color: "var(--fg)",
           }}
         >
-          {notice?.id ? "공지 수정" : "새 공지 작성"}
+          {initial ? "공지 수정" : "새 공지 작성"}
         </div>
 
         <label style={{ display: "block" }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "var(--fg)", marginBottom: 6 }}>
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--fg)",
+              marginBottom: 6,
+            }}
+          >
             제목
           </div>
           <input
@@ -80,13 +94,20 @@ function NoticeModal({
         </label>
 
         <label style={{ display: "block" }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "var(--fg)", marginBottom: 6 }}>
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--fg)",
+              marginBottom: 6,
+            }}
+          >
             내용
           </div>
           <textarea
             className="f-input"
-            value={preview}
-            onChange={(e) => setPreview(e.target.value)}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
             placeholder="공지 내용을 입력하세요"
             style={{
               height: 120,
@@ -115,7 +136,9 @@ function NoticeModal({
             style={{ width: 16, height: 16, accentColor: "var(--accent)" }}
           />
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>
+            <div
+              style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}
+            >
               긴급 공지로 상단 고정
             </div>
             <div
@@ -130,12 +153,18 @@ function NoticeModal({
           </div>
         </label>
 
-        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+        <div
+          style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}
+        >
           <button className="f-btn ghost" onClick={onClose}>
             취소
           </button>
-          <button className="f-btn accent" onClick={handleSave}>
-            {notice?.id ? "저장" : "등록"}
+          <button
+            className="f-btn accent"
+            onClick={handleSave}
+            disabled={isPending}
+          >
+            {isPending ? "저장 중…" : initial ? "저장" : "등록"}
           </button>
         </div>
       </div>
@@ -145,33 +174,47 @@ function NoticeModal({
 
 export default function NoticePage() {
   const params = useParams<{ id: string }>();
-  const initial = NOTICES[params.id] ?? NOTICES["ssu-daedongje-2026"];
-  const [notices, setNotices] = useState<Notice[]>(initial);
-  const [modal, setModal] = useState<Partial<Notice> | null>(null);
+  const festivalId = params.id;
 
-  const openNew = () => setModal({});
-  const openEdit = (n: Notice) => setModal(n);
+  const { data: notices = [], isLoading } = useGetNotices(festivalId);
+  const createNotice = useCreateNotice(festivalId);
+  const updateNotice = useUpdateNotice(festivalId);
+  const deleteNotice = useDeleteNotice(festivalId);
 
-  const handleSave = (saved: Notice) => {
-    setNotices((prev) => {
-      const idx = prev.findIndex((n) => n.id === saved.id);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = saved;
-        return next;
-      }
-      return [saved, ...prev];
-    });
-    setModal(null);
+  const [modal, setModal] = useState<ModalState>(null);
+
+  const handleSave = (data: NoticeInput) => {
+    if (modal === null) return;
+    if (modal.mode === "new") {
+      createNotice.mutate(data, { onSuccess: () => setModal(null) });
+    } else {
+      updateNotice.mutate(
+        { id: modal.notice.id, ...data },
+        { onSuccess: () => setModal(null) },
+      );
+    }
   };
 
-  const remove = (id: string) => {
-    setNotices((prev) => prev.filter((n) => n.id !== id));
+  const handleDelete = (id: string) => {
+    deleteNotice.mutate(id);
   };
 
-  const sorted = [...notices].sort((a, b) =>
-    a.pinned === b.pinned ? 0 : a.pinned ? -1 : 1,
-  );
+  const isPending = createNotice.isPending || updateNotice.isPending;
+
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          padding: 24,
+          color: "var(--muted)",
+          fontFamily: "var(--mono-font)",
+          fontSize: 13,
+        }}
+      >
+        불러오는 중…
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -192,13 +235,16 @@ export default function NoticePage() {
         >
           총 {notices.length}개 공지
         </div>
-        <button className="f-btn sm accent" onClick={openNew}>
+        <button
+          className="f-btn sm accent"
+          onClick={() => setModal({ mode: "new" })}
+        >
           ＋ 새 공지
         </button>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {sorted.map((n) => (
+        {notices.map((n) => (
           <div
             key={n.id}
             style={{
@@ -271,9 +317,10 @@ export default function NoticePage() {
                   color: "var(--muted)",
                   marginTop: 3,
                   lineHeight: 1.4,
+                  whiteSpace: "pre-wrap",
                 }}
               >
-                {n.preview}
+                {n.content}
               </div>
             </div>
 
@@ -294,17 +341,18 @@ export default function NoticePage() {
                   whiteSpace: "nowrap",
                 }}
               >
-                {n.time}
+                {new Date(n.updatedAt).toLocaleDateString("ko-KR")}
               </span>
               <button
                 className="f-btn ghost sm"
-                onClick={() => openEdit(n)}
+                onClick={() => setModal({ mode: "edit", notice: n })}
                 style={{ padding: "0 12px" }}
               >
                 수정
               </button>
               <button
-                onClick={() => remove(n.id)}
+                onClick={() => handleDelete(n.id)}
+                disabled={deleteNotice.isPending}
                 style={{
                   all: "unset",
                   cursor: "pointer",
@@ -341,9 +389,18 @@ export default function NoticePage() {
 
       {modal !== null && (
         <NoticeModal
-          notice={modal}
+          initial={
+            modal.mode === "edit"
+              ? {
+                  title: modal.notice.title,
+                  content: modal.notice.content,
+                  pinned: modal.notice.pinned,
+                }
+              : undefined
+          }
           onClose={() => setModal(null)}
           onSave={handleSave}
+          isPending={isPending}
         />
       )}
     </div>

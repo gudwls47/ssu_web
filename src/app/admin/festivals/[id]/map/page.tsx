@@ -1,27 +1,49 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { MAP_PINS, type MapPin } from "@/app/admin/_mock/data";
+import { useGetMapPins, useSaveMapPins } from "@/app/api/mapPins";
+import type { MapPinType, MapPinInput } from "@/app/api/festivals.type";
 
 const PIN_PALETTE = [
-  { type: "stage" as const, label: "무대", emoji: "🎤", bg: "var(--fg)" },
-  { type: "booth" as const, label: "부스", emoji: "🛒", bg: "var(--accent)" },
-  { type: "toilet" as const, label: "화장실", emoji: "🚻", bg: "var(--upcoming)" },
-  { type: "smoking" as const, label: "흡연구역", emoji: "🚬", bg: "var(--muted)" },
-  { type: "info" as const, label: "안내소", emoji: "ℹ️", bg: "var(--accent-2)" },
+  { type: "stage"   as const, label: "무대",     emoji: "🎤", bg: "var(--fg)"      },
+  { type: "booth"   as const, label: "부스",     emoji: "🛒", bg: "var(--accent)"  },
+  { type: "toilet"  as const, label: "화장실",   emoji: "🚻", bg: "var(--upcoming)"},
+  { type: "smoking" as const, label: "흡연구역", emoji: "🚬", bg: "var(--muted)"   },
+  { type: "info"    as const, label: "안내소",   emoji: "ℹ️",  bg: "var(--accent-2)"},
 ] as const;
 
 const MAP_W = 320;
 const MAP_H = 420;
 
+type LocalPin = MapPinInput & { _key: string };
+
 export default function MapEditorPage() {
-  useParams<{ id: string }>();
-  const [pins, setPins] = useState<MapPin[]>(MAP_PINS);
-  const [selectedType, setSelectedType] = useState<MapPin["type"]>("booth");
+  const params = useParams<{ id: string }>();
+  const festivalId = params.id;
+
+  const { data: pinData, isLoading } = useGetMapPins(festivalId);
+  const saveMapPins = useSaveMapPins(festivalId);
+
+  const [pins, setPins] = useState<LocalPin[]>([]);
+  const [selectedType, setSelectedType] = useState<MapPinType>("booth");
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  const getPaletteItem = (type: MapPin["type"]) =>
+  useEffect(() => {
+    if (pinData) {
+      setPins(
+        pinData.map((p) => ({
+          _key: p.id,
+          type: p.type,
+          label: p.label,
+          x: p.x,
+          y: p.y,
+        })),
+      );
+    }
+  }, [pinData]);
+
+  const getPaletteItem = (type: MapPinType) =>
     PIN_PALETTE.find((p) => p.type === type)!;
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -32,7 +54,7 @@ export default function MapEditorPage() {
     setPins((prev) => [
       ...prev,
       {
-        id: `p${Date.now()}`,
+        _key: `new_${Date.now()}`,
         type: selectedType,
         label: palItem.label,
         x,
@@ -41,9 +63,46 @@ export default function MapEditorPage() {
     ]);
   };
 
-  const removePin = (id: string) => {
-    setPins((prev) => prev.filter((p) => p.id !== id));
+  const removePin = (key: string) => {
+    setPins((prev) => prev.filter((p) => p._key !== key));
   };
+
+  const handleSave = () => {
+    saveMapPins.mutate(
+      pins.map(({ _key: _k, ...rest }) => rest),
+    );
+  };
+
+  const handleReset = () => {
+    if (pinData) {
+      setPins(
+        pinData.map((p) => ({
+          _key: p.id,
+          type: p.type,
+          label: p.label,
+          x: p.x,
+          y: p.y,
+        })),
+      );
+    } else {
+      setPins([]);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          padding: 24,
+          color: "var(--muted)",
+          fontFamily: "var(--mono-font)",
+          fontSize: 13,
+        }}
+      >
+        불러오는 중…
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 20 }}>
@@ -69,14 +128,34 @@ export default function MapEditorPage() {
           </div>
           <div style={{ display: "flex", gap: 6 }}>
             <button className="f-btn sm ghost">↑ 이미지 변경</button>
-            <button
-              className="f-btn sm ghost"
-              onClick={() => setPins(MAP_PINS)}
-            >
+            <button className="f-btn sm ghost" onClick={handleReset}>
               ↺ 리셋
+            </button>
+            <button
+              className="f-btn sm accent"
+              onClick={handleSave}
+              disabled={saveMapPins.isPending}
+            >
+              {saveMapPins.isPending ? "저장 중…" : "저장"}
             </button>
           </div>
         </div>
+
+        {saveMapPins.isSuccess && (
+          <div
+            style={{
+              marginBottom: 8,
+              padding: "6px 12px",
+              borderRadius: 8,
+              background: "rgba(32,201,151,0.1)",
+              color: "#20C997",
+              fontFamily: "var(--mono-font)",
+              fontSize: 12,
+            }}
+          >
+            저장됨 ✓
+          </div>
+        )}
 
         <div
           ref={canvasRef}
@@ -111,14 +190,22 @@ export default function MapEditorPage() {
               rx="14"
             />
             {/* Buildings */}
-            <rect x="20" y="60" width="50" height="80" fill="var(--faint)" rx="4" />
-            <rect x="20" y="220" width="60" height="90" fill="var(--faint)" rx="4" />
-            <rect x="240" y="60" width="60" height="70" fill="var(--faint)" rx="4" />
-            <rect x="245" y="220" width="55" height="100" fill="var(--faint)" rx="4" />
-            <rect x="120" y="20" width="80" height="22" fill="var(--faint)" rx="4" />
-            <rect x="100" y="380" width="120" height="22" fill="var(--faint)" rx="4" />
+            <rect x="20"  y="60"  width="50"  height="80"  fill="var(--faint)" rx="4" />
+            <rect x="20"  y="220" width="60"  height="90"  fill="var(--faint)" rx="4" />
+            <rect x="240" y="60"  width="60"  height="70"  fill="var(--faint)" rx="4" />
+            <rect x="245" y="220" width="55"  height="100" fill="var(--faint)" rx="4" />
+            <rect x="120" y="20"  width="80"  height="22"  fill="var(--faint)" rx="4" />
+            <rect x="100" y="380" width="120" height="22"  fill="var(--faint)" rx="4" />
             {/* Stage zone */}
-            <rect x="100" y="80" width="120" height="100" fill="var(--accent)" opacity="0.1" rx="8" />
+            <rect
+              x="100"
+              y="80"
+              width="120"
+              height="100"
+              fill="var(--accent)"
+              opacity="0.1"
+              rx="8"
+            />
             <text
               x="160"
               y="135"
@@ -132,10 +219,22 @@ export default function MapEditorPage() {
             {/* Grid overlay */}
             <g stroke="var(--border)" strokeWidth="0.5" opacity="0.4">
               {Array.from({ length: 9 }).map((_, i) => (
-                <line key={`v${i}`} x1={i * 40} y1="0" x2={i * 40} y2={MAP_H} />
+                <line
+                  key={`v${i}`}
+                  x1={i * 40}
+                  y1="0"
+                  x2={i * 40}
+                  y2={MAP_H}
+                />
               ))}
               {Array.from({ length: 11 }).map((_, i) => (
-                <line key={`h${i}`} x1="0" y1={i * 40} x2={MAP_W} y2={i * 40} />
+                <line
+                  key={`h${i}`}
+                  x1="0"
+                  y1={i * 40}
+                  x2={MAP_W}
+                  y2={i * 40}
+                />
               ))}
             </g>
           </svg>
@@ -145,7 +244,7 @@ export default function MapEditorPage() {
             const pal = getPaletteItem(pin.type);
             return (
               <div
-                key={pin.id}
+                key={pin._key}
                 style={{
                   position: "absolute",
                   left: `${(pin.x / MAP_W) * 100}%`,
@@ -189,7 +288,8 @@ export default function MapEditorPage() {
         >
           클릭하여 핀을 배치하세요 · 현재 선택:{" "}
           <strong style={{ color: "var(--fg)" }}>
-            {getPaletteItem(selectedType).emoji} {getPaletteItem(selectedType).label}
+            {getPaletteItem(selectedType).emoji}{" "}
+            {getPaletteItem(selectedType).label}
           </strong>
         </div>
       </div>
@@ -256,7 +356,14 @@ export default function MapEditorPage() {
                 >
                   {p.emoji}
                 </div>
-                <div style={{ flex: 1, fontSize: 13, fontWeight: 500, color: "var(--fg)" }}>
+                <div
+                  style={{
+                    flex: 1,
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "var(--fg)",
+                  }}
+                >
                   {p.label}
                 </div>
                 <span
@@ -309,7 +416,7 @@ export default function MapEditorPage() {
               const pal = getPaletteItem(pin.type);
               return (
                 <div
-                  key={pin.id}
+                  key={pin._key}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -335,7 +442,12 @@ export default function MapEditorPage() {
                     {pal.emoji}
                   </div>
                   <span
-                    style={{ flex: 1, fontSize: 12, fontWeight: 500, color: "var(--fg)" }}
+                    style={{
+                      flex: 1,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: "var(--fg)",
+                    }}
                   >
                     {pin.label}
                   </span>
@@ -349,7 +461,7 @@ export default function MapEditorPage() {
                     {pin.x},{pin.y}
                   </span>
                   <button
-                    onClick={() => removePin(pin.id)}
+                    onClick={() => removePin(pin._key)}
                     style={{
                       all: "unset",
                       cursor: "pointer",

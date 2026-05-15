@@ -1,8 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { FESTIVALS, STATUS_META } from "@/app/admin/_mock/data";
+import { useGetFestival, useUpdateFestival } from "@/app/api/festivals";
+import type { FestivalStatus } from "@/app/api/festivals.type";
+
+const STATUS_META: Record<FestivalStatus, { cls: string; en: string }> = {
+  LIVE:     { cls: "live",     en: "LIVE NOW" },
+  UPCOMING: { cls: "upcoming", en: "UPCOMING" },
+  ENDED:    { cls: "ended",    en: "ENDED"    },
+};
 
 function Field({
   label,
@@ -45,18 +52,48 @@ function Field({
 
 export default function BasicInfoPage() {
   const params = useParams<{ id: string }>();
-  const fest = FESTIVALS.find((f) => f.id === params.id) ?? FESTIVALS[0];
+  const { data: fest, isLoading } = useGetFestival(params.id);
+  const update = useUpdateFestival(params.id);
+
+  const [name, setName] = useState("");
+  const [nameEn, setNameEn] = useState("");
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+  const [tagline, setTagline] = useState("");
+  const [description, setDescription] = useState("");
+
+  useEffect(() => {
+    if (fest) {
+      setName(fest.name);
+      setNameEn(fest.nameEn);
+      setStart(fest.start);
+      setEnd(fest.end);
+      setTagline(fest.tagline ?? "");
+      setDescription(fest.description ?? "");
+    }
+  }, [fest]);
+
+  if (isLoading || !fest) {
+    return (
+      <div
+        style={{
+          padding: 24,
+          color: "var(--muted)",
+          fontFamily: "var(--mono-font)",
+          fontSize: 13,
+        }}
+      >
+        불러오는 중…
+      </div>
+    );
+  }
+
   const [c0, c1, c2] = fest.colors;
   const meta = STATUS_META[fest.status];
 
-  const [name, setName] = useState(fest.name);
-  const [en, setEn] = useState(fest.en);
-  const [start, setStart] = useState(fest.start);
-  const [end, setEnd] = useState(fest.end);
-  const [tagline, setTagline] = useState(fest.tagline);
-  const [description, setDescription] = useState(
-    `${fest.school}의 봄을 알리는 사흘. 메인 무대 라인업과 함께 학과별 부스, 굿즈샵, 사주 카페 등 캠퍼스 전체가 무대가 됩니다.`,
-  );
+  const handleSave = () => {
+    update.mutate({ name, nameEn, start, end, tagline, description });
+  };
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 24 }}>
@@ -73,8 +110,8 @@ export default function BasicInfoPage() {
         <Field label="영문/표기명" hint="배너 등 디스플레이용">
           <input
             className="f-input"
-            value={en}
-            onChange={(e) => setEn(e.target.value)}
+            value={nameEn}
+            onChange={(e) => setNameEn(e.target.value)}
           />
         </Field>
 
@@ -120,6 +157,38 @@ export default function BasicInfoPage() {
             }}
           />
         </Field>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button
+            className="f-btn accent"
+            onClick={handleSave}
+            disabled={update.isPending}
+          >
+            {update.isPending ? "저장 중…" : "변경사항 저장"}
+          </button>
+          {update.isSuccess && (
+            <span
+              style={{
+                fontSize: 12,
+                color: "var(--live)",
+                fontFamily: "var(--mono-font)",
+              }}
+            >
+              저장됨 ✓
+            </span>
+          )}
+          {update.isError && (
+            <span
+              style={{
+                fontSize: 12,
+                color: "#FF6B6B",
+                fontFamily: "var(--mono-font)",
+              }}
+            >
+              저장 실패
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Right — thumbnail + meta */}
@@ -170,7 +239,7 @@ export default function BasicInfoPage() {
                   letterSpacing: "-0.03em",
                 }}
               >
-                {en || fest.en}
+                {nameEn || fest.nameEn}
               </div>
             </div>
           </div>

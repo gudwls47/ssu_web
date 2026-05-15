@@ -1,57 +1,111 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { LINEUPS, type LineupSet } from "@/app/admin/_mock/data";
+import { useGetLineup, useGetLineupDays, useSaveLineupByDay } from "@/app/api/lineup";
 
 const TAGS = ["K-POP", "BAND", "HIPHOP", "R&B", "DJ", "INDIE", "POP"] as const;
 const STAGES = ["메인", "서브"] as const;
 
+type LineupRow = {
+  _key: string;
+  id?: string;
+  time: string;
+  artist: string;
+  sub: string;
+  tag: string;
+  stage: string;
+};
+
 export default function LineupEditorPage() {
   const params = useParams<{ id: string }>();
   const festId = params.id;
-  const lineupData = LINEUPS[festId] ?? LINEUPS["ssu-daedongje-2026"];
-  const days = Object.keys(lineupData);
 
-  const [activeDay, setActiveDay] = useState(days[0]);
-  const [lineups, setLineups] = useState<Record<string, LineupSet[]>>(lineupData);
+  const { data: days = [], isLoading: daysLoading } = useGetLineupDays(festId);
+  const [activeDay, setActiveDay] = useState<string>("");
 
-  const rows = lineups[activeDay] ?? [];
+  // Set initial active day once days load
+  useEffect(() => {
+    if (days.length > 0 && !activeDay) {
+      setActiveDay(days[0]);
+    }
+  }, [days, activeDay]);
 
-  const update = (day: string, idx: number, key: keyof LineupSet, value: string) => {
-    setLineups((prev) => {
-      const updated = [...(prev[day] ?? [])];
-      updated[idx] = { ...updated[idx], [key]: value };
-      return { ...prev, [day]: updated };
-    });
+  const { data: lineupData, isLoading: lineupLoading } = useGetLineup(
+    festId,
+    activeDay,
+  );
+  const saveLineup = useSaveLineupByDay(festId);
+
+  const [rows, setRows] = useState<LineupRow[]>([]);
+
+  useEffect(() => {
+    if (lineupData) {
+      setRows(
+        lineupData.map((l) => ({
+          _key: l.id,
+          id: l.id,
+          time: l.time,
+          artist: l.artist,
+          sub: l.sub,
+          tag: l.tag,
+          stage: l.stage,
+        })),
+      );
+    } else {
+      setRows([]);
+    }
+  }, [lineupData, activeDay]);
+
+  const update = (key: string, field: keyof Omit<LineupRow, "_key" | "id">, value: string) => {
+    setRows((prev) =>
+      prev.map((r) => (r._key === key ? { ...r, [field]: value } : r)),
+    );
   };
 
   const addRow = () => {
-    setLineups((prev) => ({
+    setRows((prev) => [
       ...prev,
-      [activeDay]: [
-        ...(prev[activeDay] ?? []),
-        { time: "", artist: "", sub: "", tag: "K-POP", stage: "메인" },
-      ],
-    }));
+      {
+        _key: `new_${Date.now()}`,
+        time: "",
+        artist: "",
+        sub: "",
+        tag: "K-POP",
+        stage: "메인",
+      },
+    ]);
   };
 
-  const removeRow = (idx: number) => {
-    setLineups((prev) => ({
-      ...prev,
-      [activeDay]: (prev[activeDay] ?? []).filter((_, i) => i !== idx),
-    }));
+  const removeRow = (key: string) => {
+    setRows((prev) => prev.filter((r) => r._key !== key));
   };
 
   const addDay = () => {
-    const lastDay = days[days.length - 1];
+    const sortedDays = [...days].sort();
+    const lastDay = sortedDays[sortedDays.length - 1] ?? new Date().toISOString().split("T")[0];
     const next = new Date(lastDay);
     next.setDate(next.getDate() + 1);
     const nextStr = next.toISOString().split("T")[0];
-    if (!lineups[nextStr]) {
-      setLineups((prev) => ({ ...prev, [nextStr]: [] }));
+    if (!days.includes(nextStr)) {
       setActiveDay(nextStr);
+      setRows([]);
     }
+  };
+
+  const handleSave = () => {
+    if (!activeDay) return;
+    saveLineup.mutate({
+      day: activeDay,
+      items: rows.map(({ time, artist, sub, tag, stage }) => ({
+        day: activeDay,
+        time,
+        artist,
+        sub,
+        tag,
+        stage,
+      })),
+    });
   };
 
   const inputStyle: React.CSSProperties = {
@@ -73,9 +127,29 @@ export default function LineupEditorPage() {
     return { date: `${d.getMonth() + 1}.${d.getDate()}`, dow };
   };
 
+  // Merge saved days with any new unsaved day
+  const allDays = activeDay && !days.includes(activeDay)
+    ? [...days, activeDay].sort()
+    : days;
+
+  if (daysLoading) {
+    return (
+      <div
+        style={{
+          padding: 24,
+          color: "var(--muted)",
+          fontFamily: "var(--mono-font)",
+          fontSize: 13,
+        }}
+      >
+        불러오는 중…
+      </div>
+    );
+  }
+
   return (
     <div>
-      {/* Day chip row + stage selector */}
+      {/* Day chip row */}
       <div
         style={{
           display: "flex",
@@ -84,8 +158,8 @@ export default function LineupEditorPage() {
           marginBottom: 16,
         }}
       >
-        <div style={{ display: "flex", gap: 8 }}>
-          {Object.keys(lineups).map((d, i) => {
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {allDays.map((d, i) => {
             const { date, dow } = formatDay(d);
             const isActive = activeDay === d;
             return (
@@ -120,7 +194,33 @@ export default function LineupEditorPage() {
             ＋
           </button>
         </div>
+
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            className="f-btn sm accent"
+            onClick={handleSave}
+            disabled={saveLineup.isPending || !activeDay}
+          >
+            {saveLineup.isPending ? "저장 중…" : "이 날 저장"}
+          </button>
+        </div>
       </div>
+
+      {saveLineup.isSuccess && (
+        <div
+          style={{
+            marginBottom: 12,
+            padding: "8px 12px",
+            borderRadius: 8,
+            background: "rgba(32,201,151,0.1)",
+            color: "#20C997",
+            fontFamily: "var(--mono-font)",
+            fontSize: 12,
+          }}
+        >
+          저장됨 ✓
+        </div>
+      )}
 
       {/* Table */}
       <div
@@ -155,7 +255,19 @@ export default function LineupEditorPage() {
           <span />
         </div>
 
-        {rows.length === 0 ? (
+        {lineupLoading ? (
+          <div
+            style={{
+              padding: "32px 16px",
+              textAlign: "center",
+              color: "var(--muted)",
+              fontSize: 13,
+              fontFamily: "var(--mono-font)",
+            }}
+          >
+            불러오는 중…
+          </div>
+        ) : rows.length === 0 ? (
           <div
             style={{
               padding: "32px 16px",
@@ -170,7 +282,7 @@ export default function LineupEditorPage() {
         ) : (
           rows.map((row, i) => (
             <div
-              key={i}
+              key={row._key}
               style={{
                 display: "grid",
                 gridTemplateColumns: "28px 120px 1fr 160px 120px 36px",
@@ -195,7 +307,7 @@ export default function LineupEditorPage() {
                 style={{ ...inputStyle, fontFamily: "var(--mono-font)" }}
                 value={row.time}
                 placeholder="19:00"
-                onChange={(e) => update(activeDay, i, "time", e.target.value)}
+                onChange={(e) => update(row._key, "time", e.target.value)}
               />
 
               <div style={{ display: "flex", gap: 6 }}>
@@ -203,20 +315,20 @@ export default function LineupEditorPage() {
                   style={{ ...inputStyle, flex: 1 }}
                   value={row.artist}
                   placeholder="아티스트"
-                  onChange={(e) => update(activeDay, i, "artist", e.target.value)}
+                  onChange={(e) => update(row._key, "artist", e.target.value)}
                 />
                 <input
                   style={{ ...inputStyle, flex: 1 }}
                   value={row.sub}
                   placeholder="서브명 (영문 등)"
-                  onChange={(e) => update(activeDay, i, "sub", e.target.value)}
+                  onChange={(e) => update(row._key, "sub", e.target.value)}
                 />
               </div>
 
               <select
                 style={{ ...inputStyle, cursor: "pointer" }}
                 value={row.tag}
-                onChange={(e) => update(activeDay, i, "tag", e.target.value)}
+                onChange={(e) => update(row._key, "tag", e.target.value)}
               >
                 {TAGS.map((t) => (
                   <option key={t} value={t}>
@@ -228,7 +340,7 @@ export default function LineupEditorPage() {
               <select
                 style={{ ...inputStyle, cursor: "pointer" }}
                 value={row.stage}
-                onChange={(e) => update(activeDay, i, "stage", e.target.value)}
+                onChange={(e) => update(row._key, "stage", e.target.value)}
               >
                 {STAGES.map((s) => (
                   <option key={s} value={s}>
@@ -238,7 +350,7 @@ export default function LineupEditorPage() {
               </select>
 
               <button
-                onClick={() => removeRow(i)}
+                onClick={() => removeRow(row._key)}
                 style={{
                   all: "unset",
                   cursor: "pointer",
@@ -285,7 +397,9 @@ export default function LineupEditorPage() {
           color: "var(--muted)",
         }}
       >
-        DAY {Object.keys(lineups).indexOf(activeDay) + 1} ·{" "}
+        {activeDay
+          ? `DAY ${allDays.indexOf(activeDay) + 1} · `
+          : ""}
         <strong style={{ color: "var(--fg)" }}>{rows.length}팀</strong> 등록됨
       </div>
     </div>

@@ -1,18 +1,28 @@
-import Link from "next/link";
-import { FESTIVALS, STATUS_META, fmtRange } from "@/app/admin/_mock/data";
+"use client";
 
-function StatusTag({ status }: { status: keyof typeof STATUS_META }) {
+import Link from "next/link";
+import { useGetFestivals } from "@/app/api/festivals";
+import type { FestivalStatus } from "@/app/api/festivals.type";
+
+const STATUS_META: Record<FestivalStatus, { cls: string; en: string }> = {
+  LIVE:     { cls: "live",     en: "LIVE NOW" },
+  UPCOMING: { cls: "upcoming", en: "UPCOMING" },
+  ENDED:    { cls: "ended",    en: "ENDED"    },
+};
+
+function fmtRange(start: string, end: string) {
+  const [ys, ms, ds] = start.split("-");
+  const [, me, de] = end.split("-");
+  if (ms === me) return `${ys}.${ms}.${ds}–${de}`;
+  return `${ys}.${ms}.${ds}–${me}.${de}`;
+}
+
+function StatusTag({ status }: { status: FestivalStatus }) {
   const meta = STATUS_META[status];
   return <span className={`f-tag ${meta.cls}`}>{meta.en}</span>;
 }
 
-function PosterThumb({
-  colors,
-  en,
-}: {
-  colors: [string, string, string];
-  en: string;
-}) {
+function PosterThumb({ colors, nameEn }: { colors: string[]; nameEn: string }) {
   const [c0, c1, c2] = colors;
   return (
     <div
@@ -48,17 +58,34 @@ function PosterThumb({
           padding: "0 4px",
         }}
       >
-        {en.split(" ")[0].slice(0, 5)}
+        {nameEn.split(" ")[0].slice(0, 5)}
       </span>
     </div>
   );
 }
 
-const live = FESTIVALS.filter((f) => f.status === "live");
-const upcoming = FESTIVALS.filter((f) => f.status === "upcoming");
-const totalParticipants = FESTIVALS.reduce((s, f) => s + f.participants, 0);
-
 export default function AdminFestivalsPage() {
+  const { data: festivals = [], isLoading } = useGetFestivals({ size: 50 });
+
+  const live = festivals.filter((f) => f.status === "LIVE");
+  const upcoming = festivals.filter((f) => f.status === "UPCOMING");
+  const totalParticipants = festivals.reduce((s, f) => s + f.participants, 0);
+
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          padding: "24px 32px",
+          color: "var(--muted)",
+          fontFamily: "var(--mono-font)",
+          fontSize: 13,
+        }}
+      >
+        불러오는 중…
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: "24px 32px" }}>
       {/* Header */}
@@ -94,14 +121,8 @@ export default function AdminFestivalsPage() {
             }}
           >
             내 축제{" "}
-            <span
-              style={{
-                color: "var(--muted)",
-                fontSize: 22,
-                fontWeight: 500,
-              }}
-            >
-              {FESTIVALS.length}
+            <span style={{ color: "var(--muted)", fontSize: 22, fontWeight: 500 }}>
+              {festivals.length}
             </span>
           </div>
         </div>
@@ -124,13 +145,13 @@ export default function AdminFestivalsPage() {
           {
             label: "진행중",
             value: String(live.length),
-            sub: live.map((f) => f.en).join(" · ") || "없음",
+            sub: live.map((f) => f.nameEn).join(" · ") || "없음",
             accent: "var(--live)",
           },
           {
             label: "예정",
             value: String(upcoming.length),
-            sub: upcoming.map((f) => f.en.split(" ")[0]).join(" · ") || "없음",
+            sub: upcoming.map((f) => f.nameEn.split(" ")[0]).join(" · ") || "없음",
             accent: "var(--upcoming)",
           },
           {
@@ -140,9 +161,9 @@ export default function AdminFestivalsPage() {
             accent: null,
           },
           {
-            label: "등록 부스",
-            value: String(FESTIVALS.reduce((s, f) => s + f.boothCount, 0)),
-            sub: "전체 부스 합계",
+            label: "등록 축제",
+            value: String(festivals.length),
+            sub: "전체 축제 수",
             accent: null,
           },
         ].map((s) => (
@@ -205,7 +226,7 @@ export default function AdminFestivalsPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "76px 1fr 140px 130px 110px 110px 110px 80px",
+            gridTemplateColumns: "76px 1fr 140px 130px 110px 140px 80px",
             padding: "12px 18px",
             borderBottom: "1px solid var(--border)",
             fontFamily: "var(--mono-font)",
@@ -221,98 +242,98 @@ export default function AdminFestivalsPage() {
           <span>기간</span>
           <span>상태</span>
           <span>참여자</span>
-          <span>부스</span>
           <span>마지막 수정</span>
           <span />
         </div>
 
-        {/* Rows */}
-        {FESTIVALS.map((fest, i) => (
+        {festivals.length === 0 ? (
           <div
-            key={fest.id}
             style={{
-              display: "grid",
-              gridTemplateColumns:
-                "76px 1fr 140px 130px 110px 110px 110px 80px",
-              padding: "14px 18px",
-              borderBottom:
-                i < FESTIVALS.length - 1 ? "1px solid var(--border)" : "none",
-              alignItems: "center",
-              gap: 0,
+              padding: 48,
+              textAlign: "center",
+              color: "var(--muted)",
+              fontSize: 13,
+              fontFamily: "var(--mono-font)",
             }}
           >
-            <PosterThumb colors={fest.colors} en={fest.en} />
+            등록된 축제가 없습니다.
+          </div>
+        ) : (
+          festivals.map((fest, i) => (
+            <div
+              key={fest.id}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "76px 1fr 140px 130px 110px 140px 80px",
+                padding: "14px 18px",
+                borderBottom:
+                  i < festivals.length - 1 ? "1px solid var(--border)" : "none",
+                alignItems: "center",
+              }}
+            >
+              <PosterThumb colors={fest.colors} nameEn={fest.nameEn} />
 
-            <div>
-              <div style={{ fontWeight: 600, fontSize: 14, color: "var(--fg)" }}>
-                {fest.name}
+              <div>
+                <div style={{ fontWeight: 600, fontSize: 14, color: "var(--fg)" }}>
+                  {fest.name}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "var(--mono-font)",
+                    fontSize: 11,
+                    color: "var(--muted)",
+                    marginTop: 2,
+                  }}
+                >
+                  {fest.school}
+                </div>
               </div>
+
+              <div
+                style={{
+                  fontFamily: "var(--mono-font)",
+                  fontSize: 12,
+                  color: "var(--fg)",
+                }}
+              >
+                {fmtRange(fest.start, fest.end)}
+              </div>
+
+              <div>
+                <StatusTag status={fest.status} />
+              </div>
+
+              <div
+                style={{
+                  fontFamily: "var(--mono-font)",
+                  fontSize: 13,
+                  color: "var(--fg)",
+                }}
+              >
+                {fest.participants.toLocaleString()}
+              </div>
+
               <div
                 style={{
                   fontFamily: "var(--mono-font)",
                   fontSize: 11,
                   color: "var(--muted)",
-                  marginTop: 2,
                 }}
               >
-                {fest.school}
+                {new Date(fest.updatedAt).toLocaleDateString("ko-KR")}
               </div>
-            </div>
 
-            <div
-              style={{
-                fontFamily: "var(--mono-font)",
-                fontSize: 12,
-                color: "var(--fg)",
-              }}
-            >
-              {fmtRange(fest.start, fest.end)}
+              <Link
+                href={`/admin/festivals/${fest.id}/basic`}
+                style={{ textDecoration: "none" }}
+              >
+                <button className="f-btn ghost sm" style={{ width: 64 }}>
+                  편집
+                </button>
+              </Link>
             </div>
-
-            <div>
-              <StatusTag status={fest.status} />
-            </div>
-
-            <div
-              style={{
-                fontFamily: "var(--mono-font)",
-                fontSize: 13,
-                color: "var(--fg)",
-              }}
-            >
-              {fest.participants.toLocaleString()}
-            </div>
-
-            <div
-              style={{
-                fontFamily: "var(--mono-font)",
-                fontSize: 13,
-                color: "var(--fg)",
-              }}
-            >
-              {fest.boothCount}개
-            </div>
-
-            <div
-              style={{
-                fontFamily: "var(--mono-font)",
-                fontSize: 11,
-                color: "var(--muted)",
-              }}
-            >
-              {fest.lastModified}
-            </div>
-
-            <Link
-              href={`/admin/festivals/${fest.id}/basic`}
-              style={{ textDecoration: "none" }}
-            >
-              <button className="f-btn ghost sm" style={{ width: 64 }}>
-                편집
-              </button>
-            </Link>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

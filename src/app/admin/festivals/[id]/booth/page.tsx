@@ -1,18 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { BOOTHS, type Booth } from "@/app/admin/_mock/data";
+import { useGetBooths, useSaveBooths } from "@/app/api/booths";
+import type { BoothTag } from "@/app/api/festivals.type";
 
 const TAGS = ["FOOD", "BAR", "GAME", "GOODS", "EXP"] as const;
 
-function TagBadge({ tag }: { tag: Booth["tag"] }) {
-  const colors: Record<Booth["tag"], string> = {
-    FOOD: "#FF6B6B",
-    BAR: "#845EF7",
-    GAME: "#339AF0",
+type BoothRow = {
+  _key: string;
+  id?: string;
+  name: string;
+  dept: string;
+  loc: string;
+  schedule: string;
+  tag: BoothTag;
+};
+
+function TagBadge({ tag }: { tag: BoothTag }) {
+  const colors: Record<BoothTag, string> = {
+    FOOD:  "#FF6B6B",
+    BAR:   "#845EF7",
+    GAME:  "#339AF0",
     GOODS: "#20C997",
-    EXP: "#FCC419",
+    EXP:   "#FCC419",
   };
   return (
     <span
@@ -37,20 +48,43 @@ function TagBadge({ tag }: { tag: Booth["tag"] }) {
 
 export default function BoothEditorPage() {
   const params = useParams<{ id: string }>();
-  const initial = BOOTHS[params.id] ?? BOOTHS["ssu-daedongje-2026"];
-  const [booths, setBooths] = useState<Booth[]>(initial);
+  const festivalId = params.id;
+  const { data: boothData, isLoading } = useGetBooths(festivalId);
+  const saveBooths = useSaveBooths(festivalId);
 
-  const update = <K extends keyof Booth>(id: string, key: K, value: Booth[K]) => {
-    setBooths((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, [key]: value } : b)),
+  const [rows, setRows] = useState<BoothRow[]>([]);
+
+  useEffect(() => {
+    if (boothData) {
+      setRows(
+        boothData.map((b) => ({
+          _key: b.id,
+          id: b.id,
+          name: b.name,
+          dept: b.dept,
+          loc: b.loc,
+          schedule: b.schedule,
+          tag: b.tag,
+        })),
+      );
+    }
+  }, [boothData]);
+
+  const update = <K extends keyof Omit<BoothRow, "_key">>(
+    key: string,
+    field: K,
+    value: BoothRow[K],
+  ) => {
+    setRows((prev) =>
+      prev.map((r) => (r._key === key ? { ...r, [field]: value } : r)),
     );
   };
 
   const addRow = () => {
-    setBooths((prev) => [
+    setRows((prev) => [
       ...prev,
       {
-        id: `b${Date.now()}`,
+        _key: `new_${Date.now()}`,
         name: "",
         dept: "",
         loc: "",
@@ -60,8 +94,21 @@ export default function BoothEditorPage() {
     ]);
   };
 
-  const removeRow = (id: string) => {
-    setBooths((prev) => prev.filter((b) => b.id !== id));
+  const removeRow = (key: string) => {
+    setRows((prev) => prev.filter((r) => r._key !== key));
+  };
+
+  const handleSave = () => {
+    saveBooths.mutate(
+      rows.map(({ _key: _k, id, name, dept, loc, schedule, tag }) => ({
+        id,
+        name,
+        dept,
+        loc,
+        schedule,
+        tag,
+      })),
+    );
   };
 
   const inputStyle: React.CSSProperties = {
@@ -76,6 +123,21 @@ export default function BoothEditorPage() {
     fontFamily: "var(--body-font)",
     outline: "none",
   };
+
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          padding: 24,
+          color: "var(--muted)",
+          fontFamily: "var(--mono-font)",
+          fontSize: 13,
+        }}
+      >
+        불러오는 중…
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -94,12 +156,37 @@ export default function BoothEditorPage() {
             color: "var(--muted)",
           }}
         >
-          총 {booths.length}개 부스
+          총 {rows.length}개 부스
         </div>
-        <button className="f-btn sm accent" onClick={addRow}>
-          ＋ 부스 추가
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="f-btn sm ghost" onClick={addRow}>
+            ＋ 부스 추가
+          </button>
+          <button
+            className="f-btn sm accent"
+            onClick={handleSave}
+            disabled={saveBooths.isPending}
+          >
+            {saveBooths.isPending ? "저장 중…" : "저장"}
+          </button>
+        </div>
       </div>
+
+      {saveBooths.isSuccess && (
+        <div
+          style={{
+            marginBottom: 12,
+            padding: "8px 12px",
+            borderRadius: 8,
+            background: "rgba(32,201,151,0.1)",
+            color: "#20C997",
+            fontFamily: "var(--mono-font)",
+            fontSize: 12,
+          }}
+        >
+          저장됨 ✓
+        </div>
+      )}
 
       <div
         style={{
@@ -135,16 +222,16 @@ export default function BoothEditorPage() {
         </div>
 
         {/* Rows */}
-        {booths.map((b, i) => (
+        {rows.map((b, i) => (
           <div
-            key={b.id}
+            key={b._key}
             style={{
               display: "grid",
               gridTemplateColumns: "28px 1fr 140px 90px 1fr 110px 36px",
               padding: "10px 16px",
               alignItems: "center",
               borderBottom:
-                i < booths.length - 1 ? "1px solid var(--border)" : "none",
+                i < rows.length - 1 ? "1px solid var(--border)" : "none",
               gap: 8,
             }}
           >
@@ -162,35 +249,39 @@ export default function BoothEditorPage() {
               style={inputStyle}
               value={b.name}
               placeholder="부스명"
-              onChange={(e) => update(b.id, "name", e.target.value)}
+              onChange={(e) => update(b._key, "name", e.target.value)}
             />
 
             <input
               style={inputStyle}
               value={b.dept}
               placeholder="학과"
-              onChange={(e) => update(b.id, "dept", e.target.value)}
+              onChange={(e) => update(b._key, "dept", e.target.value)}
             />
 
             <input
-              style={{ ...inputStyle, fontFamily: "var(--mono-font)", fontSize: 12 }}
+              style={{
+                ...inputStyle,
+                fontFamily: "var(--mono-font)",
+                fontSize: 12,
+              }}
               value={b.loc}
               placeholder="A-01"
-              onChange={(e) => update(b.id, "loc", e.target.value)}
+              onChange={(e) => update(b._key, "loc", e.target.value)}
             />
 
             <input
               style={inputStyle}
               value={b.schedule}
               placeholder="10:00–18:00"
-              onChange={(e) => update(b.id, "schedule", e.target.value)}
+              onChange={(e) => update(b._key, "schedule", e.target.value)}
             />
 
             <select
               style={{ ...inputStyle, cursor: "pointer" }}
               value={b.tag}
               onChange={(e) =>
-                update(b.id, "tag", e.target.value as Booth["tag"])
+                update(b._key, "tag", e.target.value as BoothTag)
               }
             >
               {TAGS.map((t) => (
@@ -201,7 +292,7 @@ export default function BoothEditorPage() {
             </select>
 
             <button
-              onClick={() => removeRow(b.id)}
+              onClick={() => removeRow(b._key)}
               style={{
                 all: "unset",
                 cursor: "pointer",
@@ -255,15 +346,16 @@ export default function BoothEditorPage() {
         }}
       >
         {TAGS.map((t) => (
-          <div
-            key={t}
-            style={{ display: "flex", alignItems: "center", gap: 6 }}
-          >
+          <div key={t} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <TagBadge tag={t} />
             <span
-              style={{ fontSize: 11, color: "var(--muted)", fontFamily: "var(--mono-font)" }}
+              style={{
+                fontSize: 11,
+                color: "var(--muted)",
+                fontFamily: "var(--mono-font)",
+              }}
             >
-              {booths.filter((b) => b.tag === t).length}개
+              {rows.filter((b) => b.tag === t).length}개
             </span>
           </div>
         ))}

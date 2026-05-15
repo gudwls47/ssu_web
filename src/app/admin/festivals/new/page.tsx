@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useCreateFestival } from "@/app/api/festivals";
 
 function Field({
   label,
@@ -42,26 +44,31 @@ function Field({
   );
 }
 
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  height: 44,
-  padding: "0 14px",
-  borderRadius: 12,
-  background: "var(--surface)",
-  border: "1px solid var(--border)",
-  color: "var(--fg)",
-  fontSize: 14,
-  fontFamily: "var(--body-font)",
-  outline: "none",
-};
-
 export default function NewFestivalPage() {
+  const router = useRouter();
+  const createFestival = useCreateFestival();
+
   const [name, setName] = useState("");
-  const [en, setEn] = useState("");
+  const [nameEn, setNameEn] = useState("");
+  const [school, setSchool] = useState("");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [tagline, setTagline] = useState("");
   const [description, setDescription] = useState("");
+
+  const handleSubmit = () => {
+    if (!name || !nameEn || !school || !start || !end) return;
+    createFestival.mutate(
+      { name, nameEn, school, start, end, tagline, description },
+      {
+        onSuccess: (created) => {
+          router.push(`/admin/festivals/${created.id}/basic`);
+        },
+      },
+    );
+  };
+
+  const isValid = Boolean(name && nameEn && school && start && end);
 
   return (
     <div style={{ padding: "24px 32px", maxWidth: 900 }}>
@@ -103,8 +110,30 @@ export default function NewFestivalPage() {
         >
           새 축제 등록
         </div>
-        <button className="f-btn accent">저장하고 계속 →</button>
+        <button
+          className="f-btn accent"
+          onClick={handleSubmit}
+          disabled={!isValid || createFestival.isPending}
+        >
+          {createFestival.isPending ? "등록 중…" : "저장하고 계속 →"}
+        </button>
       </div>
+
+      {createFestival.isError && (
+        <div
+          style={{
+            marginBottom: 16,
+            padding: "10px 14px",
+            borderRadius: 10,
+            background: "rgba(255,107,107,0.1)",
+            color: "#FF6B6B",
+            fontFamily: "var(--mono-font)",
+            fontSize: 12,
+          }}
+        >
+          등록 실패. 다시 시도해주세요.
+        </div>
+      )}
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 24 }}>
         {/* Left */}
@@ -122,8 +151,17 @@ export default function NewFestivalPage() {
             <input
               className="f-input"
               placeholder="예: DAEDONGJE"
-              value={en}
-              onChange={(e) => setEn(e.target.value)}
+              value={nameEn}
+              onChange={(e) => setNameEn(e.target.value)}
+            />
+          </Field>
+
+          <Field label="학교명" hint="필수">
+            <input
+              className="f-input"
+              placeholder="예: 숭실대학교"
+              value={school}
+              onChange={(e) => setSchool(e.target.value)}
             />
           </Field>
 
@@ -132,7 +170,7 @@ export default function NewFestivalPage() {
               <input
                 type="date"
                 className="f-input"
-                style={inputStyle}
+                style={{ fontFamily: "var(--mono-font)" }}
                 value={start}
                 onChange={(e) => setStart(e.target.value)}
               />
@@ -141,7 +179,7 @@ export default function NewFestivalPage() {
               <input
                 type="date"
                 className="f-input"
-                style={inputStyle}
+                style={{ fontFamily: "var(--mono-font)" }}
                 value={end}
                 onChange={(e) => setEnd(e.target.value)}
               />
@@ -205,7 +243,13 @@ export default function NewFestivalPage() {
                 <div style={{ fontSize: 13, color: "var(--muted)" }}>
                   이미지를 끌어다 놓거나
                 </div>
-                <div style={{ fontSize: 13, color: "var(--accent)", fontWeight: 600 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: "var(--accent)",
+                    fontWeight: 600,
+                  }}
+                >
                   클릭하여 업로드
                 </div>
               </div>
@@ -243,15 +287,13 @@ export default function NewFestivalPage() {
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               {start && end ? (
-                <>
-                  {new Date(start) > new Date() ? (
-                    <span className="f-tag upcoming">UPCOMING</span>
-                  ) : new Date(end) >= new Date() ? (
-                    <span className="f-tag live">LIVE NOW</span>
-                  ) : (
-                    <span className="f-tag ended">ENDED</span>
-                  )}
-                </>
+                new Date(start) > new Date() ? (
+                  <span className="f-tag upcoming">UPCOMING</span>
+                ) : new Date(end) >= new Date() ? (
+                  <span className="f-tag live">LIVE NOW</span>
+                ) : (
+                  <span className="f-tag ended">ENDED</span>
+                )
               ) : (
                 <span
                   style={{
@@ -296,8 +338,7 @@ export default function NewFestivalPage() {
                     padding: "6px 0",
                     fontSize: 12,
                     color: "var(--muted)",
-                    borderBottom:
-                      i < 3 ? "1px solid var(--border)" : undefined,
+                    borderBottom: i < 3 ? "1px solid var(--border)" : undefined,
                   }}
                 >
                   <span

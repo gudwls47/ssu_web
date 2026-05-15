@@ -94,7 +94,7 @@ export default function FestivalCard({ data }: FestivalCardProps) {
     const date = typeof ts.toDate === "function" ? ts.toDate() : new Date(ts);
     return Number.isNaN(date.getTime()) ? 2026 : date.getFullYear();
   };
-  const year = getYear(data.startDate);
+  const year = getYear(data.start);
 
   return (
     <Link
@@ -103,10 +103,10 @@ export default function FestivalCard({ data }: FestivalCardProps) {
     >
       <div className="relative aspect-16/10 overflow-hidden">
         <PosterArt
-          colors={dummy.colors}
-          school={dummy.school}
+          colors={(data.colors ?? dummy.colors) as [string, string, string]}
+          school={data.school || dummy.school}
           year={year}
-          title={dummy.en}
+          title={data.nameEn || dummy.en}
         />
         <div className="absolute top-[12px] left-[12px] flex gap-[6px]">
           <span className={cn(tagCva({ status: data.status }))}>
@@ -116,13 +116,13 @@ export default function FestivalCard({ data }: FestivalCardProps) {
       </div>
       <div className="grid flex-1 gap-[8px] p-[18px]">
         <div className="text-[20px] leading-[1.05] font-(--display-font) font-(--display-weight,700) tracking-[-0.02em] text-(--fg)">
-          {data.title}
+          {data.name}
         </div>
         <div className="text-muted flex flex-wrap gap-[12px] pt-[4px] text-[12px] leading-[1.4] font-(--mono-font) font-medium">
-          <span>{dummy.school}</span>
+          <span>{data.school || dummy.school}</span>
           <span className="text-(--faint)">·</span>
           <span>
-            {fmtTimestamp(data.startDate)} – {fmtTimestamp(data.endDate)}
+            {fmtTimestamp(data.start)} – {fmtTimestamp(data.end)}
           </span>
           {data.status === "LIVE" && (
             <>

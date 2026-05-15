@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Timestamp } from "firebase/firestore";
 import { SearchIcon } from "lucide-react";
 import FestivalCard from "@/app/components/FestivalCard";
 
@@ -200,12 +199,19 @@ export default function FestivalListPage() {
                 key={f.id}
                 data={{
                   id: f.id,
-                  startDate: f.start as any,
-                  endDate: f.end as any,
-                  status: f.status.toUpperCase() as any,
-                  title: f.name,
-                  createdAt: Timestamp.fromDate(new Date(f.start)),
-                  target: f.school,
+                  name: f.name,
+                  nameEn: f.en,
+                  school: f.school,
+                  tagline: f.tagline,
+                  description: "",
+                  thumbnail: "",
+                  colors: f.colors,
+                  participants: f.participants,
+                  start: f.start,
+                  end: f.end,
+                  status: f.status.toUpperCase() as import("@/app/api/festivals.type").FestivalStatus,
+                  createdAt: f.start,
+                  updatedAt: f.start,
                 }}
               />
             ))}
