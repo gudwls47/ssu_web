@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCreateFestival } from "@/app/api/festivals";
-import { uploadImage } from "@/app/utils/firebase/uploadImage";
 
 function Field({
   label,
@@ -48,7 +47,6 @@ function Field({
 export default function NewFestivalPage() {
   const router = useRouter();
   const createFestival = useCreateFestival();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState("");
   const [nameEn, setNameEn] = useState("");
@@ -58,24 +56,6 @@ export default function NewFestivalPage() {
   const [tagline, setTagline] = useState("");
   const [description, setDescription] = useState("");
   const [thumbnail, setThumbnail] = useState("");
-  const [uploading, setUploading] = useState(false);
-
-  const handleImageClick = () => fileInputRef.current?.click();
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const url = await uploadImage(file, "festivals/thumbnails");
-      setThumbnail(url);
-    } catch (err) {
-      console.error("이미지 업로드 실패:", err);
-      alert("이미지 업로드에 실패했어요. Firebase Storage 규칙을 확인해주세요.");
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const handleSubmit = () => {
     if (!name || !nameEn || !school || !start || !end) return;
@@ -248,115 +228,61 @@ export default function NewFestivalPage() {
               썸네일 이미지
             </div>
 
-            {/* 숨긴 파일 인풋 */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handleImageChange}
-            />
-
-            {thumbnail ? (
-              /* 업로드된 이미지 미리보기 */
-              <div
-                style={{
-                  height: 200,
-                  borderRadius: 14,
-                  overflow: "hidden",
-                  position: "relative",
-                  cursor: "pointer",
-                }}
-                onClick={handleImageClick}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+            {/* 미리보기 */}
+            <div
+              style={{
+                height: 200,
+                borderRadius: 14,
+                overflow: "hidden",
+                background: "var(--surface-2)",
+                border: "1.5px dashed var(--border)",
+                marginBottom: 8,
+                display: "grid",
+                placeItems: "center",
+              }}
+            >
+              {thumbnail ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={thumbnail}
-                  alt="썸네일"
+                  alt="썸네일 미리보기"
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                  }}
                 />
+              ) : (
                 <div
                   style={{
-                    position: "absolute",
-                    inset: 0,
-                    background: "rgba(0,0,0,0.35)",
-                    display: "grid",
-                    placeItems: "center",
-                    opacity: 0,
-                    transition: "opacity 0.15s",
+                    textAlign: "center",
+                    color: "var(--muted)",
+                    fontSize: 12,
+                    fontFamily: "var(--mono-font)",
                   }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLDivElement).style.opacity = "1")
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLDivElement).style.opacity = "0")
-                  }
                 >
-                  <span
-                    style={{
-                      color: "#fff",
-                      fontWeight: 600,
-                      fontSize: 13,
-                    }}
-                  >
-                    클릭하여 변경
-                  </span>
+                  <div style={{ fontSize: 24, marginBottom: 6 }}>🖼️</div>
+                  URL 입력 시 미리보기
                 </div>
-              </div>
-            ) : (
-              /* 업로드 전 빈 영역 */
-              <div
-                onClick={handleImageClick}
-                style={{
-                  height: 200,
-                  borderRadius: 14,
-                  background: "var(--surface-2)",
-                  border: "2px dashed var(--border)",
-                  display: "grid",
-                  placeItems: "center",
-                  cursor: uploading ? "wait" : "pointer",
-                  transition: "border-color 0.12s",
-                }}
-              >
-                {uploading ? (
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: "var(--muted)",
-                      fontFamily: "var(--mono-font)",
-                    }}
-                  >
-                    업로드 중…
-                  </div>
-                ) : (
-                  <div style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: 28, marginBottom: 8 }}>↑</div>
-                    <div style={{ fontSize: 13, color: "var(--muted)" }}>
-                      이미지를 끌어다 놓거나
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 13,
-                        color: "var(--accent)",
-                        fontWeight: 600,
-                      }}
-                    >
-                      클릭하여 업로드
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+              )}
+            </div>
 
+            {/* URL 입력창 */}
+            <input
+              className="f-input"
+              value={thumbnail}
+              onChange={(e) => setThumbnail(e.target.value)}
+              placeholder="이미지 URL 붙여넣기 (Imgur, Google Drive 등)"
+            />
             <div
               style={{
                 fontFamily: "var(--mono-font)",
                 fontSize: 10,
                 color: "var(--muted)",
                 marginTop: 6,
+                lineHeight: 1.6,
               }}
             >
-              권장 1080 × 1350 · 5MB 이하 · JPG, PNG, WEBP
+              Imgur · Google Drive 공유링크 · 외부 이미지 URL 가능
             </div>
           </div>
 

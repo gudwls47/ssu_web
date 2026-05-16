@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useGetFestival, useUpdateFestival } from "@/app/api/festivals";
 import type { FestivalStatus } from "@/app/api/festivals.type";
-import { uploadImage } from "@/app/utils/firebase/uploadImage";
 
 const STATUS_META: Record<FestivalStatus, { cls: string; en: string }> = {
   LIVE:     { cls: "live",     en: "LIVE NOW" },
@@ -55,7 +54,6 @@ export default function BasicInfoPage() {
   const params = useParams<{ id: string }>();
   const { data: fest, isLoading } = useGetFestival(params.id);
   const update = useUpdateFestival(params.id);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState("");
   const [nameEn, setNameEn] = useState("");
@@ -64,7 +62,6 @@ export default function BasicInfoPage() {
   const [tagline, setTagline] = useState("");
   const [description, setDescription] = useState("");
   const [thumbnail, setThumbnail] = useState("");
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (fest) {
@@ -77,23 +74,6 @@ export default function BasicInfoPage() {
       setThumbnail(fest.thumbnail ?? "");
     }
   }, [fest]);
-
-  const handleImageClick = () => fileInputRef.current?.click();
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const url = await uploadImage(file, "festivals/thumbnails");
-      setThumbnail(url);
-    } catch (err) {
-      console.error("이미지 업로드 실패:", err);
-      alert("이미지 업로드에 실패했어요. Firebase Storage 규칙을 확인해주세요.");
-    } finally {
-      setUploading(false);
-    }
-  };
 
   if (isLoading || !fest) {
     return (
@@ -228,140 +208,79 @@ export default function BasicInfoPage() {
           >
             썸네일 이미지
           </div>
-          {/* 숨긴 파일 인풋 */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={handleImageChange}
-          />
-
-          {thumbnail ? (
-            /* 업로드된 이미지 미리보기 */
-            <div
-              style={{
-                height: 200,
-                borderRadius: 14,
-                overflow: "hidden",
-                position: "relative",
-                cursor: "pointer",
-              }}
-              onClick={handleImageClick}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+          {/* 미리보기 */}
+          <div
+            style={{
+              height: 200,
+              borderRadius: 14,
+              overflow: "hidden",
+              marginBottom: 8,
+              position: "relative",
+            }}
+          >
+            {thumbnail ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={thumbnail}
-                alt="썸네일"
+                alt="썸네일 미리보기"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
               />
+            ) : (
+              /* 썸네일 없을 때: 색상 그라디언트 */
               <div
                 style={{
-                  position: "absolute",
-                  inset: 0,
-                  background: "rgba(0,0,0,0.35)",
-                  display: "grid",
-                  placeItems: "center",
-                  opacity: 0,
-                  transition: "opacity 0.15s",
+                  width: "100%",
+                  height: "100%",
+                  background: `radial-gradient(120% 120% at 80% 0%, ${c0} 0%, ${c1} 50%, ${c2} 100%)`,
+                  position: "relative",
                 }}
-                onMouseEnter={(e) =>
-                  ((e.currentTarget as HTMLDivElement).style.opacity = "1")
-                }
-                onMouseLeave={(e) =>
-                  ((e.currentTarget as HTMLDivElement).style.opacity = "0")
-                }
               >
-                <span style={{ color: "#fff", fontWeight: 600, fontSize: 13 }}>
-                  클릭하여 변경
-                </span>
-              </div>
-            </div>
-          ) : (
-            /* 업로드 전: 색상 그라디언트 + 클릭 유도 */
-            <div
-              onClick={handleImageClick}
-              style={{
-                height: 200,
-                borderRadius: 14,
-                background: `radial-gradient(120% 120% at 80% 0%, ${c0} 0%, ${c1} 50%, ${c2} 100%)`,
-                position: "relative",
-                overflow: "hidden",
-                cursor: uploading ? "wait" : "pointer",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  backgroundImage:
-                    "repeating-linear-gradient(135deg, transparent 0 12px, rgba(255,255,255,0.06) 12px 13px)",
-                }}
-              />
-              {uploading ? (
                 <div
                   style={{
                     position: "absolute",
                     inset: 0,
-                    display: "grid",
-                    placeItems: "center",
+                    backgroundImage:
+                      "repeating-linear-gradient(135deg, transparent 0 12px, rgba(255,255,255,0.06) 12px 13px)",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 14,
+                    left: 14,
                     color: "#fff",
-                    fontFamily: "var(--mono-font)",
-                    fontSize: 13,
+                    fontFamily: "var(--display-font)",
+                    fontSize: 22,
+                    fontWeight: 700,
+                    letterSpacing: "-0.03em",
                   }}
                 >
-                  업로드 중…
+                  {nameEn || fest.nameEn}
                 </div>
-              ) : (
-                <>
-                  <div
-                    style={{
-                      position: "absolute",
-                      bottom: 14,
-                      left: 14,
-                      color: "#fff",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontFamily: "var(--display-font)",
-                        fontSize: 22,
-                        fontWeight: 700,
-                        letterSpacing: "-0.03em",
-                      }}
-                    >
-                      {nameEn || fest.nameEn}
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 10,
-                      right: 10,
-                      background: "rgba(0,0,0,0.4)",
-                      color: "#fff",
-                      fontSize: 11,
-                      fontFamily: "var(--mono-font)",
-                      padding: "4px 8px",
-                      borderRadius: 6,
-                    }}
-                  >
-                    ↑ 클릭하여 업로드
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
 
+          {/* URL 입력창 */}
+          <input
+            className="f-input"
+            value={thumbnail}
+            onChange={(e) => setThumbnail(e.target.value)}
+            placeholder="이미지 URL 붙여넣기 (Imgur, Google Drive 등)"
+          />
           <div
             style={{
               fontFamily: "var(--mono-font)",
               fontSize: 10,
               color: "var(--muted)",
               marginTop: 6,
+              lineHeight: 1.6,
             }}
           >
-            권장 1080 × 1350 · 5MB 이하 · JPG, PNG, WEBP
+            Imgur · Google Drive 공유링크 · 외부 이미지 URL 가능
           </div>
         </div>
 
