@@ -60,6 +60,7 @@ export interface BoothDoc {
   schedule: string;
   tag: BoothTag;
   order: number;
+  days: string[];   // 운영 날짜 목록 ["2026-05-18", ...], 비어있으면 전체 기간
 }
 
 export interface BoothResponse extends BoothDoc {
