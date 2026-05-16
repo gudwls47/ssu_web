@@ -37,9 +37,17 @@ function deriveStatus(start: string, end: string): FestivalStatus {
 }
 
 // ── Firestore doc → FestivalResponse 변환 ────────────────
+function tsToIso(ts: unknown): string {
+  if (!ts) return new Date().toISOString();
+  if (typeof (ts as Timestamp).toDate === "function") {
+    return (ts as Timestamp).toDate().toISOString();
+  }
+  return new Date().toISOString();
+}
+
 function toResponse(id: string, data: FestivalDoc): FestivalResponse {
-  const start = (data.startDate as Timestamp).toDate().toISOString().split("T")[0];
-  const end = (data.endDate as Timestamp).toDate().toISOString().split("T")[0];
+  const start = tsToIso(data.startDate).split("T")[0];
+  const end   = tsToIso(data.endDate).split("T")[0];
   return {
     id,
     name: data.name,
@@ -53,8 +61,8 @@ function toResponse(id: string, data: FestivalDoc): FestivalResponse {
     start,
     end,
     status: deriveStatus(start, end),
-    createdAt: (data.createdAt as Timestamp).toDate().toISOString(),
-    updatedAt: (data.updatedAt as Timestamp).toDate().toISOString(),
+    createdAt: tsToIso(data.createdAt),
+    updatedAt: tsToIso(data.updatedAt),
   };
 }
 

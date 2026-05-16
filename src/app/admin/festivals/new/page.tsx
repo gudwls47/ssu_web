@@ -132,7 +132,7 @@ export default function NewFestivalPage() {
             fontSize: 12,
           }}
         >
-          등록 실패. 다시 시도해주세요.
+          등록 실패: {(createFestival.error as Error)?.message ?? "알 수 없는 오류"}
         </div>
       )}
 
