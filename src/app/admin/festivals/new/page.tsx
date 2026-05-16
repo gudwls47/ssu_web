@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCreateFestival } from "@/app/api/festivals";
+import { uploadImage } from "@/app/utils/firebase/uploadImage";
 
 function Field({
   label,
@@ -47,6 +48,7 @@ function Field({
 export default function NewFestivalPage() {
   const router = useRouter();
   const createFestival = useCreateFestival();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState("");
   const [nameEn, setNameEn] = useState("");
@@ -55,11 +57,30 @@ export default function NewFestivalPage() {
   const [end, setEnd] = useState("");
   const [tagline, setTagline] = useState("");
   const [description, setDescription] = useState("");
+  const [thumbnail, setThumbnail] = useState("");
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageClick = () => fileInputRef.current?.click();
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadImage(file, "festivals/thumbnails");
+      setThumbnail(url);
+    } catch (err) {
+      console.error("이미지 업로드 실패:", err);
+      alert("이미지 업로드에 실패했어요. Firebase Storage 규칙을 확인해주세요.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = () => {
     if (!name || !nameEn || !school || !start || !end) return;
     createFestival.mutate(
-      { name, nameEn, school, start, end, tagline, description },
+      { name, nameEn, school, start, end, tagline, description, thumbnail },
       {
         onSuccess: (created) => {
           router.push(`/admin/festivals/${created.id}/basic`);
@@ -226,34 +247,107 @@ export default function NewFestivalPage() {
             >
               썸네일 이미지
             </div>
-            <div
-              style={{
-                height: 200,
-                borderRadius: 14,
-                background: "var(--surface-2)",
-                border: "2px dashed var(--border)",
-                display: "grid",
-                placeItems: "center",
-                cursor: "pointer",
-                transition: "border-color 0.12s",
-              }}
-            >
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 28, marginBottom: 8 }}>↑</div>
-                <div style={{ fontSize: 13, color: "var(--muted)" }}>
-                  이미지를 끌어다 놓거나
-                </div>
+
+            {/* 숨긴 파일 인풋 */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleImageChange}
+            />
+
+            {thumbnail ? (
+              /* 업로드된 이미지 미리보기 */
+              <div
+                style={{
+                  height: 200,
+                  borderRadius: 14,
+                  overflow: "hidden",
+                  position: "relative",
+                  cursor: "pointer",
+                }}
+                onClick={handleImageClick}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={thumbnail}
+                  alt="썸네일"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
                 <div
                   style={{
-                    fontSize: 13,
-                    color: "var(--accent)",
-                    fontWeight: 600,
+                    position: "absolute",
+                    inset: 0,
+                    background: "rgba(0,0,0,0.35)",
+                    display: "grid",
+                    placeItems: "center",
+                    opacity: 0,
+                    transition: "opacity 0.15s",
                   }}
+                  onMouseEnter={(e) =>
+                    ((e.currentTarget as HTMLDivElement).style.opacity = "1")
+                  }
+                  onMouseLeave={(e) =>
+                    ((e.currentTarget as HTMLDivElement).style.opacity = "0")
+                  }
                 >
-                  클릭하여 업로드
+                  <span
+                    style={{
+                      color: "#fff",
+                      fontWeight: 600,
+                      fontSize: 13,
+                    }}
+                  >
+                    클릭하여 변경
+                  </span>
                 </div>
               </div>
-            </div>
+            ) : (
+              /* 업로드 전 빈 영역 */
+              <div
+                onClick={handleImageClick}
+                style={{
+                  height: 200,
+                  borderRadius: 14,
+                  background: "var(--surface-2)",
+                  border: "2px dashed var(--border)",
+                  display: "grid",
+                  placeItems: "center",
+                  cursor: uploading ? "wait" : "pointer",
+                  transition: "border-color 0.12s",
+                }}
+              >
+                {uploading ? (
+                  <div
+                    style={{
+                      fontSize: 13,
+                      color: "var(--muted)",
+                      fontFamily: "var(--mono-font)",
+                    }}
+                  >
+                    업로드 중…
+                  </div>
+                ) : (
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 28, marginBottom: 8 }}>↑</div>
+                    <div style={{ fontSize: 13, color: "var(--muted)" }}>
+                      이미지를 끌어다 놓거나
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: "var(--accent)",
+                        fontWeight: 600,
+                      }}
+                    >
+                      클릭하여 업로드
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div
               style={{
                 fontFamily: "var(--mono-font)",
@@ -262,7 +356,7 @@ export default function NewFestivalPage() {
                 marginTop: 6,
               }}
             >
-              권장 1080 × 1350 · 5MB 이하
+              권장 1080 × 1350 · 5MB 이하 · JPG, PNG, WEBP
             </div>
           </div>
 
