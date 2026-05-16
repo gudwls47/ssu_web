@@ -187,6 +187,21 @@ export default function BoothEditorPage() {
           저장됨 ✓
         </div>
       )}
+      {saveBooths.isError && (
+        <div
+          style={{
+            marginBottom: 12,
+            padding: "8px 12px",
+            borderRadius: 8,
+            background: "rgba(255,107,107,0.1)",
+            color: "#FF6B6B",
+            fontFamily: "var(--mono-font)",
+            fontSize: 12,
+          }}
+        >
+          저장 실패: {(saveBooths.error as Error)?.message ?? "알 수 없는 오류"}
+        </div>
+      )}
 
       <div
         style={{

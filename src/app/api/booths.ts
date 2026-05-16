@@ -91,8 +91,8 @@ export const useSaveBooths = (festivalId: string) => {
       const existing = await getDocs(col(festivalId));
       await Promise.all(existing.docs.map((d) => deleteDoc(d.ref)));
       await Promise.all(
-        booths.map((b, i) =>
-          addDoc(col(festivalId), { ...b, order: i, updatedAt: serverTimestamp() }),
+        booths.map(({ id: _id, ...rest }, i) =>
+          addDoc(col(festivalId), { ...rest, order: i, updatedAt: serverTimestamp() }),
         ),
       );
     },
