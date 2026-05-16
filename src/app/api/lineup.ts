@@ -9,7 +9,6 @@ import {
   deleteDoc,
   query,
   where,
-  orderBy,
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "@/app/utils/firebase/db";
@@ -31,10 +30,11 @@ export const useGetLineup = (festivalId: string, day?: string) => {
   return useQuery({
     queryKey: ["lineup", festivalId, day],
     queryFn: async () => {
-      let q = query(col(festivalId), orderBy("order", "asc"));
-      if (day) q = query(col(festivalId), where("day", "==", day), orderBy("order", "asc"));
-      const snap = await getDocs(q);
-      return snap.docs.map((d) => toResponse(festivalId, d.id, d.data() as LineupDoc));
+      // 복합 인덱스 없이도 동작하도록 클라이언트에서 필터·정렬
+      const snap = await getDocs(col(festivalId));
+      const all = snap.docs.map((d) => toResponse(festivalId, d.id, d.data() as LineupDoc));
+      const filtered = day ? all.filter((item) => item.day === day) : all;
+      return filtered.sort((a, b) => a.order - b.order);
     },
     enabled: Boolean(festivalId),
   });
