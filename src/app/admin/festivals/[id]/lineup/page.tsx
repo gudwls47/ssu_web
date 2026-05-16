@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
-import { useGetLineup, useGetLineupDays, useSaveLineupByDay } from "@/app/api/lineup";
+import { useGetLineup, useSaveLineupByDay } from "@/app/api/lineup";
+import { useGetFestival } from "@/app/api/festivals";
 
 const TAGS = ["K-POP", "BAND", "HIPHOP", "R&B", "DJ", "INDIE", "POP"] as const;
 const STAGES = ["메인", "서브"] as const;
@@ -17,19 +18,38 @@ type LineupRow = {
   stage: string;
 };
 
+/** 시작일~종료일 사이 날짜 배열 생성 ("2026-05-18" 형식) */
+function dateRange(start: string, end: string): string[] {
+  const days: string[] = [];
+  const cur = new Date(start);
+  const last = new Date(end);
+  while (cur <= last) {
+    days.push(cur.toISOString().split("T")[0]);
+    cur.setDate(cur.getDate() + 1);
+  }
+  return days;
+}
+
 export default function LineupEditorPage() {
   const params = useParams<{ id: string }>();
   const festId = params.id;
 
-  const { data: days = [], isLoading: daysLoading } = useGetLineupDays(festId);
+  const { data: fest } = useGetFestival(festId);
+
+  // 축제 날짜 범위로 DAY 목록 자동 생성
+  const festivalDays = useMemo(
+    () => (fest ? dateRange(fest.start, fest.end) : []),
+    [fest],
+  );
+
   const [activeDay, setActiveDay] = useState<string>("");
 
-  // Set initial active day once days load
+  // 축제 날짜가 로드되면 첫째 날로 초기화
   useEffect(() => {
-    if (days.length > 0 && !activeDay) {
-      setActiveDay(days[0]);
+    if (festivalDays.length > 0 && !activeDay) {
+      setActiveDay(festivalDays[0]);
     }
-  }, [days, activeDay]);
+  }, [festivalDays, activeDay]);
 
   const { data: lineupData, isLoading: lineupLoading } = useGetLineup(
     festId,
@@ -57,7 +77,11 @@ export default function LineupEditorPage() {
     }
   }, [lineupData, activeDay]);
 
-  const update = (key: string, field: keyof Omit<LineupRow, "_key" | "id">, value: string) => {
+  const update = (
+    key: string,
+    field: keyof Omit<LineupRow, "_key" | "id">,
+    value: string,
+  ) => {
     setRows((prev) =>
       prev.map((r) => (r._key === key ? { ...r, [field]: value } : r)),
     );
@@ -79,18 +103,6 @@ export default function LineupEditorPage() {
 
   const removeRow = (key: string) => {
     setRows((prev) => prev.filter((r) => r._key !== key));
-  };
-
-  const addDay = () => {
-    const sortedDays = [...days].sort();
-    const lastDay = sortedDays[sortedDays.length - 1] ?? new Date().toISOString().split("T")[0];
-    const next = new Date(lastDay);
-    next.setDate(next.getDate() + 1);
-    const nextStr = next.toISOString().split("T")[0];
-    if (!days.includes(nextStr)) {
-      setActiveDay(nextStr);
-      setRows([]);
-    }
   };
 
   const handleSave = () => {
@@ -127,12 +139,7 @@ export default function LineupEditorPage() {
     return { date: `${d.getMonth() + 1}.${d.getDate()}`, dow };
   };
 
-  // Merge saved days with any new unsaved day
-  const allDays = activeDay && !days.includes(activeDay)
-    ? [...days, activeDay].sort()
-    : days;
-
-  if (daysLoading) {
+  if (!fest) {
     return (
       <div
         style={{
@@ -159,7 +166,7 @@ export default function LineupEditorPage() {
         }}
       >
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {allDays.map((d, i) => {
+          {festivalDays.map((d, i) => {
             const { date, dow } = formatDay(d);
             const isActive = activeDay === d;
             return (
@@ -186,24 +193,15 @@ export default function LineupEditorPage() {
               </button>
             );
           })}
-          <button
-            className="f-chip"
-            onClick={addDay}
-            style={{ height: 38, padding: "0 14px" }}
-          >
-            ＋
-          </button>
         </div>
 
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            className="f-btn sm accent"
-            onClick={handleSave}
-            disabled={saveLineup.isPending || !activeDay}
-          >
-            {saveLineup.isPending ? "저장 중…" : "이 날 저장"}
-          </button>
-        </div>
+        <button
+          className="f-btn sm accent"
+          onClick={handleSave}
+          disabled={saveLineup.isPending || !activeDay}
+        >
+          {saveLineup.isPending ? "저장 중…" : "이 날 저장"}
+        </button>
       </div>
 
       {saveLineup.isSuccess && (
@@ -412,9 +410,7 @@ export default function LineupEditorPage() {
           color: "var(--muted)",
         }}
       >
-        {activeDay
-          ? `DAY ${allDays.indexOf(activeDay) + 1} · `
-          : ""}
+        {activeDay && `DAY ${festivalDays.indexOf(activeDay) + 1} · `}
         <strong style={{ color: "var(--fg)" }}>{rows.length}팀</strong> 등록됨
       </div>
     </div>
