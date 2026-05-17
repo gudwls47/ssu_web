@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useAuthState } from "@/app/api/auth";
 import { useGetFestivals } from "@/app/api/festivals";
 import type { FestivalStatus } from "@/app/api/festivals.type";
 
 const STATUS_META: Record<FestivalStatus, { cls: string; en: string }> = {
-  LIVE:     { cls: "live",     en: "LIVE NOW" },
+  LIVE: { cls: "live", en: "LIVE NOW" },
   UPCOMING: { cls: "upcoming", en: "UPCOMING" },
-  ENDED:    { cls: "ended",    en: "ENDED"    },
+  ENDED: { cls: "ended", en: "ENDED" },
 };
 
 function fmtRange(start: string, end: string) {
@@ -22,7 +23,15 @@ function StatusTag({ status }: { status: FestivalStatus }) {
   return <span className={`f-tag ${meta.cls}`}>{meta.en}</span>;
 }
 
-function PosterThumb({ colors, nameEn }: { colors: string[]; nameEn: string }) {
+function PosterThumb({
+  colors,
+  nameEn,
+  thumbnail,
+}: {
+  colors: string[];
+  nameEn: string;
+  thumbnail?: string;
+}) {
   const [c0, c1, c2] = colors;
   return (
     <div
@@ -38,34 +47,57 @@ function PosterThumb({ colors, nameEn }: { colors: string[]; nameEn: string }) {
         flexShrink: 0,
       }}
     >
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage:
-            "repeating-linear-gradient(45deg, transparent 0 6px, rgba(255,255,255,0.06) 6px 7px)",
-        }}
-      />
-      <span
-        style={{
-          fontFamily: "var(--display-font)",
-          fontSize: 10,
-          fontWeight: 700,
-          color: "#fff",
-          letterSpacing: "-0.02em",
-          position: "relative",
-          textAlign: "center",
-          padding: "0 4px",
-        }}
-      >
-        {nameEn.split(" ")[0].slice(0, 5)}
-      </span>
+      {thumbnail ? (
+        <img
+          src={thumbnail}
+          alt={nameEn}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).style.display = "none";
+          }}
+        />
+      ) : (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage:
+                "repeating-linear-gradient(45deg, transparent 0 6px, rgba(255,255,255,0.06) 6px 7px)",
+            }}
+          />
+          <span
+            style={{
+              fontFamily: "var(--display-font)",
+              fontSize: 10,
+              fontWeight: 700,
+              color: "#fff",
+              letterSpacing: "-0.02em",
+              position: "relative",
+              textAlign: "center",
+              padding: "0 4px",
+            }}
+          >
+            {nameEn.split(" ")[0].slice(0, 5)}
+          </span>
+        </>
+      )}
     </div>
   );
 }
 
 export default function AdminFestivalsPage() {
-  const { data: festivals = [], isLoading } = useGetFestivals({ size: 50 });
+  const { user } = useAuthState();
+  const { data: festivals = [], isLoading } = useGetFestivals({
+    size: 50,
+    ownerUid: user?.uid,
+  });
 
   const live = festivals.filter((f) => f.status === "LIVE");
   const upcoming = festivals.filter((f) => f.status === "UPCOMING");
@@ -121,7 +153,9 @@ export default function AdminFestivalsPage() {
             }}
           >
             내 축제{" "}
-            <span style={{ color: "var(--muted)", fontSize: 22, fontWeight: 500 }}>
+            <span
+              style={{ color: "var(--muted)", fontSize: 22, fontWeight: 500 }}
+            >
               {festivals.length}
             </span>
           </div>
@@ -151,7 +185,8 @@ export default function AdminFestivalsPage() {
           {
             label: "예정",
             value: String(upcoming.length),
-            sub: upcoming.map((f) => f.nameEn.split(" ")[0]).join(" · ") || "없음",
+            sub:
+              upcoming.map((f) => f.nameEn.split(" ")[0]).join(" · ") || "없음",
             accent: "var(--upcoming)",
           },
           {
@@ -226,7 +261,7 @@ export default function AdminFestivalsPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "76px 1fr 140px 130px 110px 140px 80px",
+            gridTemplateColumns: "76px 1fr 140px 130px 110px 140px 130px",
             padding: "12px 18px",
             borderBottom: "1px solid var(--border)",
             fontFamily: "var(--mono-font)",
@@ -264,17 +299,23 @@ export default function AdminFestivalsPage() {
               key={fest.id}
               style={{
                 display: "grid",
-                gridTemplateColumns: "76px 1fr 140px 130px 110px 140px 80px",
+                gridTemplateColumns: "76px 1fr 140px 130px 110px 140px 130px",
                 padding: "14px 18px",
                 borderBottom:
                   i < festivals.length - 1 ? "1px solid var(--border)" : "none",
                 alignItems: "center",
               }}
             >
-              <PosterThumb colors={fest.colors} nameEn={fest.nameEn} />
+              <PosterThumb
+                colors={fest.colors}
+                nameEn={fest.nameEn}
+                thumbnail={fest.thumbnail}
+              />
 
               <div>
-                <div style={{ fontWeight: 600, fontSize: 14, color: "var(--fg)" }}>
+                <div
+                  style={{ fontWeight: 600, fontSize: 14, color: "var(--fg)" }}
+                >
                   {fest.name}
                 </div>
                 <div
@@ -323,14 +364,26 @@ export default function AdminFestivalsPage() {
                 {new Date(fest.updatedAt).toLocaleDateString("ko-KR")}
               </div>
 
-              <Link
-                href={`/admin/festivals/${fest.id}/basic`}
-                style={{ textDecoration: "none" }}
-              >
-                <button className="f-btn ghost sm" style={{ width: 64 }}>
-                  편집
-                </button>
-              </Link>
+              <div style={{ display: "flex", gap: 6 }}>
+                <Link
+                  href={`/festival/${fest.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: "none" }}
+                >
+                  <button className="f-btn ghost sm" style={{ width: 64 }}>
+                    미리보기
+                  </button>
+                </Link>
+                <Link
+                  href={`/admin/festivals/${fest.id}/basic`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <button className="f-btn accent sm" style={{ width: 48 }}>
+                    편집
+                  </button>
+                </Link>
+              </div>
             </div>
           ))
         )}

@@ -1,11 +1,49 @@
-import Link from "next/link";
-import { FESTIVALS, STATUS_META, fmtRange } from "@/app/admin/_mock/data";
+"use client";
 
-const live = FESTIVALS.filter((f) => f.status === "live");
-const upcoming = FESTIVALS.filter((f) => f.status === "upcoming");
-const totalParticipants = FESTIVALS.reduce((s, f) => s + f.participants, 0);
+import Link from "next/link";
+import { useAuthState } from "@/app/api/auth";
+import { useGetFestivals } from "@/app/api/festivals";
+import type { FestivalStatus } from "@/app/api/festivals.type";
+
+const STATUS_META: Record<FestivalStatus, { cls: string; en: string }> = {
+  LIVE: { cls: "live", en: "LIVE NOW" },
+  UPCOMING: { cls: "upcoming", en: "UPCOMING" },
+  ENDED: { cls: "ended", en: "ENDED" },
+};
+
+function fmtRange(start: string, end: string) {
+  const [ys, ms, ds] = start.split("-");
+  const [, me, de] = end.split("-");
+  if (ms === me) return `${ys}.${ms}.${ds}–${de}`;
+  return `${ys}.${ms}.${ds}–${me}.${de}`;
+}
 
 export default function DashboardPage() {
+  const { user } = useAuthState();
+  const { data: festivals = [], isLoading } = useGetFestivals({
+    size: 50,
+    ownerUid: user?.uid,
+  });
+
+  const live = festivals.filter((f) => f.status === "LIVE");
+  const upcoming = festivals.filter((f) => f.status === "UPCOMING");
+  const totalParticipants = festivals.reduce((s, f) => s + f.participants, 0);
+
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          padding: "24px 32px",
+          color: "var(--muted)",
+          fontFamily: "var(--mono-font)",
+          fontSize: 13,
+        }}
+      >
+        불러오는 중…
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: "24px 32px" }}>
       <div
@@ -44,9 +82,24 @@ export default function DashboardPage() {
         }}
       >
         {[
-          { label: "진행 중 축제", value: String(live.length), sub: live[0]?.name ?? "없음", accent: "var(--live)" },
-          { label: "예정 축제", value: String(upcoming.length), sub: `${upcoming.length}개 예정됨`, accent: "var(--upcoming)" },
-          { label: "누적 참여자", value: totalParticipants.toLocaleString(), sub: "전체 축제 합산", accent: null },
+          {
+            label: "진행 중 축제",
+            value: String(live.length),
+            sub: live[0]?.name ?? "없음",
+            accent: "var(--live)",
+          },
+          {
+            label: "예정 축제",
+            value: String(upcoming.length),
+            sub: upcoming.length > 0 ? `${upcoming.length}개 예정됨` : "없음",
+            accent: "var(--upcoming)",
+          },
+          {
+            label: "누적 참여자",
+            value: totalParticipants.toLocaleString(),
+            sub: "전체 축제 합산",
+            accent: null,
+          },
         ].map((s) => (
           <div
             key={s.label}
@@ -122,6 +175,7 @@ export default function DashboardPage() {
                     cursor: "pointer",
                     position: "relative",
                     overflow: "hidden",
+                    marginBottom: 8,
                   }}
                 >
                   <div
@@ -132,8 +186,25 @@ export default function DashboardPage() {
                         "repeating-linear-gradient(45deg, transparent 0 14px, rgba(255,255,255,0.04) 14px 15px)",
                     }}
                   />
+                  {fest.thumbnail && (
+                    <img
+                      src={fest.thumbnail}
+                      alt=""
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        opacity: 0.2,
+                      }}
+                    />
+                  )}
                   <div style={{ position: "relative" }}>
-                    <span className="f-tag live" style={{ marginBottom: 10, display: "inline-flex" }}>
+                    <span
+                      className="f-tag live"
+                      style={{ marginBottom: 10, display: "inline-flex" }}
+                    >
                       ● LIVE NOW
                     </span>
                     <div
@@ -160,7 +231,9 @@ export default function DashboardPage() {
                       {fest.participants.toLocaleString()}명 참여 중
                     </div>
                   </div>
-                  <div style={{ position: "relative", fontSize: 22, opacity: 0.8 }}>
+                  <div
+                    style={{ position: "relative", fontSize: 22, opacity: 0.8 }}
+                  >
                     →
                   </div>
                 </div>
@@ -171,71 +244,123 @@ export default function DashboardPage() {
       )}
 
       {/* Upcoming festivals */}
-      <div>
-        <div
-          style={{
-            fontFamily: "var(--mono-font)",
-            fontSize: 10,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            color: "var(--muted)",
-            marginBottom: 10,
-          }}
-        >
-          UPCOMING · 예정 축제
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {upcoming.map((fest) => (
-            <Link
-              key={fest.id}
-              href={`/admin/festivals/${fest.id}/basic`}
-              style={{ textDecoration: "none" }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 14,
-                  padding: "14px 18px",
-                  borderRadius: 12,
-                  background: "var(--surface)",
-                  border: "1px solid var(--border)",
-                  transition: "border-color 0.12s",
-                  cursor: "pointer",
-                }}
+      {upcoming.length > 0 && (
+        <div>
+          <div
+            style={{
+              fontFamily: "var(--mono-font)",
+              fontSize: 10,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "var(--muted)",
+              marginBottom: 10,
+            }}
+          >
+            UPCOMING · 예정 축제
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {upcoming.map((fest) => (
+              <Link
+                key={fest.id}
+                href={`/admin/festivals/${fest.id}/basic`}
+                style={{ textDecoration: "none" }}
               >
                 <div
                   style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 8,
-                    background: `radial-gradient(120% 120% at 80% 0%, ${fest.colors[0]} 0%, ${fest.colors[1]} 50%, ${fest.colors[2]} 100%)`,
-                    flexShrink: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 14,
+                    padding: "14px 18px",
+                    borderRadius: 12,
+                    background: "var(--surface)",
+                    border: "1px solid var(--border)",
+                    cursor: "pointer",
                   }}
-                />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)" }}>
-                    {fest.name}
-                  </div>
+                >
                   <div
                     style={{
-                      fontFamily: "var(--mono-font)",
-                      fontSize: 11,
-                      color: "var(--muted)",
-                      marginTop: 2,
+                      width: 40,
+                      height: 40,
+                      borderRadius: 8,
+                      background: `radial-gradient(120% 120% at 80% 0%, ${fest.colors[0]} 0%, ${fest.colors[1]} 50%, ${fest.colors[2]} 100%)`,
+                      flexShrink: 0,
+                      overflow: "hidden",
+                      position: "relative",
                     }}
                   >
-                    {fmtRange(fest.start, fest.end)}
+                    {fest.thumbnail && (
+                      <img
+                        src={fest.thumbnail}
+                        alt=""
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    )}
                   </div>
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: "var(--fg)",
+                      }}
+                    >
+                      {fest.name}
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: "var(--mono-font)",
+                        fontSize: 11,
+                        color: "var(--muted)",
+                        marginTop: 2,
+                      }}
+                    >
+                      {fest.school} · {fmtRange(fest.start, fest.end)}
+                    </div>
+                  </div>
+                  <span className={`f-tag ${STATUS_META[fest.status].cls}`}>
+                    {STATUS_META[fest.status].en}
+                  </span>
                 </div>
-                <span className={`f-tag ${STATUS_META[fest.status].cls}`}>
-                  {STATUS_META[fest.status].en}
-                </span>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* 축제가 하나도 없을 때 */}
+      {festivals.length === 0 && (
+        <div
+          style={{
+            padding: "48px 24px",
+            textAlign: "center",
+            color: "var(--muted)",
+            fontFamily: "var(--mono-font)",
+            fontSize: 13,
+            background: "var(--surface)",
+            borderRadius: 14,
+            border: "1px solid var(--border)",
+          }}
+        >
+          <div style={{ fontSize: 32, marginBottom: 12 }}>🎪</div>
+          아직 등록된 축제가 없습니다.
+          <br />
+          <Link
+            href="/admin/festivals/new"
+            style={{
+              color: "var(--accent)",
+              textDecoration: "none",
+              marginTop: 8,
+              display: "inline-block",
+            }}
+          >
+            첫 축제 등록하기 →
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

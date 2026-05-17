@@ -18,4 +18,4 @@ const realtime = getDatabase(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-export { db, realtime, storage };
+export { app, db, realtime, storage };

@@ -8,7 +8,18 @@ import {
   useUpdateNotice,
   useDeleteNotice,
 } from "@/app/api/notices";
-import type { NoticeResponse, NoticeInput } from "@/app/api/festivals.type";
+import type {
+  NoticeResponse,
+  NoticeInput,
+  NoticeCategory,
+} from "@/app/api/festivals.type";
+
+const CATEGORIES: { value: NoticeCategory; label: string; color: string }[] = [
+  { value: "긴급", label: "긴급", color: "var(--accent)" },
+  { value: "안내", label: "안내", color: "var(--muted)" },
+  { value: "교통", label: "교통", color: "var(--muted)" },
+  { value: "굿즈", label: "굿즈", color: "var(--muted)" },
+];
 
 type ModalState =
   | null
@@ -21,18 +32,20 @@ function NoticeModal({
   onSave,
   isPending,
 }: {
-  initial?: { title: string; content: string; pinned: boolean };
+  initial?: { title: string; content: string; category: NoticeCategory };
   onClose: () => void;
   onSave: (data: NoticeInput) => void;
   isPending: boolean;
 }) {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [content, setContent] = useState(initial?.content ?? "");
-  const [pinned, setPinned] = useState(initial?.pinned ?? false);
+  const [category, setCategory] = useState<NoticeCategory>(
+    initial?.category ?? "안내",
+  );
 
   const handleSave = () => {
     if (!title.trim()) return;
-    onSave({ title, content, pinned });
+    onSave({ title, content, category });
   };
 
   return (
@@ -73,6 +86,58 @@ function NoticeModal({
           {initial ? "공지 수정" : "새 공지 작성"}
         </div>
 
+        {/* 카테고리 */}
+        <div>
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--fg)",
+              marginBottom: 8,
+            }}
+          >
+            카테고리
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.value}
+                onClick={() => setCategory(cat.value)}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: 8,
+                  border:
+                    category === cat.value
+                      ? "2px solid var(--accent)"
+                      : "1.5px solid var(--border)",
+                  background:
+                    category === cat.value ? "var(--faint)" : "transparent",
+                  color: category === cat.value ? "var(--fg)" : "var(--muted)",
+                  fontFamily: "var(--mono-font)",
+                  fontSize: 12,
+                  fontWeight: category === cat.value ? 700 : 400,
+                  cursor: "pointer",
+                  transition: "all 0.12s",
+                }}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+          {category === "긴급" && (
+            <div
+              style={{
+                fontSize: 11,
+                color: "var(--accent)",
+                fontFamily: "var(--mono-font)",
+                marginTop: 6,
+              }}
+            >
+              목록 최상단에 빨간 뱃지와 함께 표시됩니다
+            </div>
+          )}
+        </div>
+
         <label style={{ display: "block" }}>
           <div
             style={{
@@ -89,6 +154,7 @@ function NoticeModal({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="공지 제목을 입력하세요"
+            // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
           />
         </label>
@@ -118,44 +184,7 @@ function NoticeModal({
           />
         </label>
 
-        <label
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            cursor: "pointer",
-            padding: "10px 14px",
-            borderRadius: 10,
-            background: "var(--surface-2)",
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={pinned}
-            onChange={(e) => setPinned(e.target.checked)}
-            style={{ width: 16, height: 16, accentColor: "var(--accent)" }}
-          />
-          <div>
-            <div
-              style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}
-            >
-              긴급 공지로 상단 고정
-            </div>
-            <div
-              style={{
-                fontSize: 11,
-                color: "var(--muted)",
-                fontFamily: "var(--mono-font)",
-              }}
-            >
-              목록 최상단에 빨간 뱃지와 함께 표시됩니다
-            </div>
-          </div>
-        </label>
-
-        <div
-          style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}
-        >
+        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
           <button className="f-btn ghost" onClick={onClose}>
             취소
           </button>
@@ -260,43 +289,26 @@ export default function NoticePage() {
           >
             {/* Badge col */}
             <div style={{ width: 56 }}>
-              {n.pinned ? (
-                <span
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    height: 24,
-                    padding: "0 8px",
-                    borderRadius: 6,
-                    background: "var(--accent)",
-                    color: "var(--accent-fg)",
-                    fontFamily: "var(--mono-font)",
-                    fontSize: 10,
-                    fontWeight: 700,
-                    letterSpacing: "0.04em",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  긴급
-                </span>
-              ) : (
-                <span
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    height: 24,
-                    padding: "0 8px",
-                    borderRadius: 6,
-                    background: "var(--faint)",
-                    color: "var(--muted)",
-                    fontFamily: "var(--mono-font)",
-                    fontSize: 10,
-                    letterSpacing: "0.04em",
-                  }}
-                >
-                  일반
-                </span>
-              )}
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  height: 24,
+                  padding: "0 8px",
+                  borderRadius: 6,
+                  background:
+                    n.category === "긴급" ? "var(--accent)" : "var(--faint)",
+                  color:
+                    n.category === "긴급" ? "var(--accent-fg)" : "var(--muted)",
+                  fontFamily: "var(--mono-font)",
+                  fontSize: 10,
+                  fontWeight: n.category === "긴급" ? 700 : 400,
+                  letterSpacing: "0.04em",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {n.category}
+              </span>
             </div>
 
             {/* Content */}
@@ -394,9 +406,9 @@ export default function NoticePage() {
               ? {
                   title: modal.notice.title,
                   content: modal.notice.content,
-                  pinned: modal.notice.pinned,
+                  category: modal.notice.category,
                 }
-              : undefined
+              : void 0
           }
           onClose={() => setModal(null)}
           onSave={handleSave}

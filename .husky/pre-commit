@@ -1,5 +1,3 @@
 #!/usr/bin/env sh
 
-export PATH="/Users/jungyookyung/.nvm/versions/node/v24.14.0/bin:$PATH"
-
-pnpm husky:type && pnpm dlx lint-staged
+pnpm husky:type && pnpm lint-staged

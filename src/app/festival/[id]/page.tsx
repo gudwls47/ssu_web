@@ -1,369 +1,46 @@
 "use client";
 
-import { useState, use } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useGetBooths } from "@/app/api/booths";
 import { useGetFestival } from "@/app/api/festivals";
+import { useGetLineup } from "@/app/api/lineup";
+import { useGetMapPins } from "@/app/api/mapPins";
+import { useGetNotices } from "@/app/api/notices";
+import {
+  isPresetId,
+  getTemplate,
+  MAP_W,
+  MAP_H,
+} from "@/app/components/MapTemplates";
+import type {
+  FestivalResponse,
+  FestivalStatus,
+  LineupResponse,
+  BoothResponse,
+  NoticeResponse,
+  MapPinResponse,
+  MapPinType,
+} from "@/app/api/festivals.type";
 
-type FestivalStatus = "live" | "upcoming" | "ended";
+// ── 상수 ─────────────────────────────────────────────────
+const STATUS_META: Record<FestivalStatus, { cls: string; en: string }> = {
+  LIVE: { cls: "live", en: "LIVE" },
+  UPCOMING: { cls: "upcoming", en: "UPCOMING" },
+  ENDED: { cls: "ended", en: "ENDED" },
+};
 
-interface Festival {
-  id: string;
-  name: string;
-  en: string;
-  school: string;
-  start: string;
-  end: string;
-  status: FestivalStatus;
-  participants: number;
-  tagline: string;
-  colors: [string, string, string];
+function dateRange(start: string, end: string): string[] {
+  const days: string[] = [];
+  const cur = new Date(start);
+  const last = new Date(end);
+  while (cur <= last) {
+    days.push(cur.toISOString().split("T")[0]);
+    cur.setDate(cur.getDate() + 1);
+  }
+  return days;
 }
-
-const FESTIVALS: Festival[] = [
-  {
-    id: "ssu-daedongje-2026",
-    name: "2026 숭실 대동제",
-    en: "DAEDONGJE",
-    school: "숭실대학교",
-    start: "2026-05-12",
-    end: "2026-05-14",
-    status: "live",
-    participants: 8420,
-    tagline: "숭실의 봄이 깨어나다",
-    colors: ["#FF1E7A", "#BDFF1E", "#2A0F4E"],
-  },
-  {
-    id: "ssu-itfest-2026",
-    name: "제25회 IT대학 학술제",
-    en: "IT FESTA",
-    school: "숭실대학교",
-    start: "2026-05-20",
-    end: "2026-05-22",
-    status: "upcoming",
-    participants: 3200,
-    tagline: "기술과 축제의 만남",
-    colors: ["#6B2EE6", "#BDFF1E", "#1B0832"],
-  },
-  {
-    id: "ssu-sportsfest-2026",
-    name: "2026 숭실 체육대회",
-    en: "SPORTS FEST",
-    school: "숭실대학교",
-    start: "2026-06-05",
-    end: "2026-06-05",
-    status: "upcoming",
-    participants: 2100,
-    tagline: "하나 되는 숭실인",
-    colors: ["#FF7A66", "#F2C94C", "#14172B"],
-  },
-  {
-    id: "ssu-artfest-2026",
-    name: "숭실 예술문화제",
-    en: "ART WAVE",
-    school: "숭실대학교",
-    start: "2026-06-18",
-    end: "2026-06-20",
-    status: "upcoming",
-    participants: 1800,
-    tagline: "예술로 물드는 캠퍼스",
-    colors: ["#00CFE6", "#FF00B8", "#0A0A0F"],
-  },
-  {
-    id: "ssu-daedongje-2025",
-    name: "2025 숭실 대동제",
-    en: "DAEDONGJE 2025",
-    school: "숭실대학교",
-    start: "2025-09-20",
-    end: "2025-09-22",
-    status: "ended",
-    participants: 7800,
-    tagline: "지난 가을의 추억",
-    colors: ["#E85D4A", "#FBF6EC", "#14172B"],
-  },
-  {
-    id: "ssu-itfest-2025",
-    name: "제24회 IT대학 학술제",
-    en: "IT FESTA 2025",
-    school: "숭실대학교",
-    start: "2025-05-18",
-    end: "2025-05-20",
-    status: "ended",
-    participants: 2900,
-    tagline: "코드로 쓰는 축제",
-    colors: ["#3D6EE6", "#F2C94C", "#14172B"],
-  },
-];
-
-const LINEUP = {
-  "ssu-daedongje-2026": {
-    "2026-05-12": [
-      {
-        time: "16:30",
-        artist: "PLAVE",
-        sub: "플레이브",
-        stage: "메인",
-        tag: "K-POP",
-      },
-      {
-        time: "17:40",
-        artist: "SILICA GEL",
-        sub: "실리카겔",
-        stage: "메인",
-        tag: "BAND",
-      },
-      {
-        time: "19:00",
-        artist: "윤하",
-        sub: "YOUNHA",
-        stage: "메인",
-        tag: "POP",
-      },
-      {
-        time: "20:20",
-        artist: "BIG NAUGHTY",
-        sub: "빅나티",
-        stage: "메인",
-        tag: "HIPHOP",
-      },
-      {
-        time: "21:30",
-        artist: "DJ KIRARA",
-        sub: "키라라",
-        stage: "서브",
-        tag: "DJ",
-      },
-    ],
-    "2026-05-13": [
-      {
-        time: "16:00",
-        artist: "잔나비",
-        sub: "JANNABI",
-        stage: "메인",
-        tag: "BAND",
-      },
-      { time: "17:10", artist: "BIBI", sub: "비비", stage: "메인", tag: "R&B" },
-      {
-        time: "18:30",
-        artist: "TXT",
-        sub: "투모로우바이투게더",
-        stage: "메인",
-        tag: "K-POP",
-      },
-      {
-        time: "20:00",
-        artist: "COLDE",
-        sub: "콜드",
-        stage: "메인",
-        tag: "R&B",
-      },
-      {
-        time: "21:20",
-        artist: "10CM",
-        sub: "십센치",
-        stage: "메인",
-        tag: "POP",
-      },
-    ],
-    "2026-05-14": [
-      {
-        time: "16:30",
-        artist: "NewJeans",
-        sub: "뉴진스",
-        stage: "메인",
-        tag: "K-POP",
-      },
-      {
-        time: "17:40",
-        artist: "검정치마",
-        sub: "THE BLACK SKIRTS",
-        stage: "메인",
-        tag: "INDIE",
-      },
-      { time: "19:00", artist: "DEAN", sub: "딘", stage: "메인", tag: "R&B" },
-      {
-        time: "20:20",
-        artist: "IVE",
-        sub: "아이브",
-        stage: "메인",
-        tag: "K-POP",
-      },
-      {
-        time: "21:40",
-        artist: "EPIK HIGH",
-        sub: "에픽하이",
-        stage: "메인",
-        tag: "HIPHOP",
-      },
-    ],
-  },
-};
-
-const BOOTHS = {
-  "ssu-daedongje-2026": [
-    {
-      id: "b1",
-      name: "경영대 떡볶이",
-      dept: "경영대학",
-      loc: "A-12",
-      desc: "국물떡볶이 + 튀김 모듬",
-      schedule: "5/12–5/14 · 16:00–23:00",
-      tag: "FOOD",
-    },
-    {
-      id: "b2",
-      name: "IT대 맥주바",
-      dept: "IT대학",
-      loc: "A-04",
-      desc: "학교 양조 IPA / 흑맥주",
-      schedule: "5/12–5/14 · 17:00–24:00",
-      tag: "BAR",
-    },
-    {
-      id: "b3",
-      name: "인문대 사주카페",
-      dept: "인문대학",
-      loc: "B-02",
-      desc: "타로 + MBTI 운세 5,000원",
-      schedule: "5/12–5/14 · 14:00–22:00",
-      tag: "GAME",
-    },
-    {
-      id: "b4",
-      name: "미디어학부 굿즈샵",
-      dept: "미디어학부",
-      loc: "C-08",
-      desc: "학교 한정 키링·스티커",
-      schedule: "5/12–5/14 · 11:00–21:00",
-      tag: "GOODS",
-    },
-    {
-      id: "b5",
-      name: "간호대 야끼소바",
-      dept: "간호대학",
-      loc: "A-15",
-      desc: "일본식 야끼소바 + 사이다",
-      schedule: "5/12–5/13 · 16:00–23:00",
-      tag: "FOOD",
-    },
-    {
-      id: "b6",
-      name: "체교과 포토부스",
-      dept: "사범대학",
-      loc: "D-01",
-      desc: "4컷 즉석 인화 3,000원",
-      schedule: "5/12–5/14 · 12:00–22:00",
-      tag: "EXP",
-    },
-  ],
-};
-
-const NOTICES = {
-  "ssu-daedongje-2026": [
-    {
-      id: "n1",
-      pinned: true,
-      time: "12분 전",
-      title: "[긴급] 오늘 강수 확률 60% — 우천 시 메인공연 시간 조정",
-      body: "오후 6시 이후 비 소식. 메인 무대 1시간 단축 가능성 있음.",
-    },
-    {
-      id: "n2",
-      time: "1시간 전",
-      title: "PLAVE 무대 16:30 예정 — 인원 분산 안내",
-      body: "메인 무대 앞 인파 집중 예상. 사이드 입장 권장.",
-    },
-    {
-      id: "n3",
-      time: "3시간 전",
-      title: "셔틀버스 노선 변경",
-      body: "숭실대입구역 ↔ 정문 셔틀이 우회 운행 중.",
-    },
-    {
-      id: "n4",
-      time: "어제",
-      title: "굿즈 한정판 판매 시작",
-      body: "미디어학부 굿즈샵에서 한정 200개 키링 판매. 1인 2개 제한.",
-    },
-  ],
-};
-
-const COMMUNITY = {
-  "ssu-daedongje-2026": [
-    {
-      id: "c1",
-      author: "익명의 숭실인",
-      time: "방금",
-      body: "경영대 떡볶이 줄 거의 없음 ㄱㄱ",
-      likes: 12,
-      replies: 3,
-    },
-    {
-      id: "c2",
-      author: "상도동냥이",
-      time: "4분 전",
-      body: "여자 화장실 D동 비교적 한산해요. A동은 줄 30명+",
-      likes: 47,
-      replies: 8,
-    },
-    {
-      id: "c3",
-      author: "숭실26",
-      time: "11분 전",
-      body: "PLAVE 무대 어디서 보기 좋을까요?",
-      likes: 9,
-      replies: 21,
-    },
-    {
-      id: "c4",
-      author: "IT대생",
-      time: "32분 전",
-      body: "IT대 IPA 품절 임박이래요",
-      likes: 28,
-      replies: 5,
-    },
-  ],
-};
-
-const MAP_LANDMARKS = {
-  "ssu-daedongje-2026": {
-    stages: [
-      { id: "s1", label: "메인 스테이지", x: 160, y: 130, type: "stage" },
-      { id: "s2", label: "서브 스테이지", x: 245, y: 280, type: "stage" },
-    ],
-    booths: [
-      { id: "b1", label: "A-12 떡볶이", x: 85, y: 220, type: "booth" },
-      { id: "b2", label: "A-04 맥주", x: 130, y: 200, type: "booth" },
-      { id: "b3", label: "B-02 사주", x: 200, y: 220, type: "booth" },
-    ],
-    toilets: [
-      {
-        id: "t1",
-        label: "화장실 A",
-        x: 50,
-        y: 90,
-        type: "toilet",
-        rating: 3.2,
-      },
-      {
-        id: "t2",
-        label: "화장실 D",
-        x: 270,
-        y: 100,
-        type: "toilet",
-        rating: 4.6,
-      },
-    ],
-    smoking: [{ id: "sm1", label: "흡연구역", x: 30, y: 360, type: "smoking" }],
-    info: [{ id: "i1", label: "안내소", x: 160, y: 30, type: "info" }],
-  },
-};
-
-const STATUS = {
-  live: { en: "LIVE", cls: "live", ko: "진행중" },
-  upcoming: { en: "UPCOMING", cls: "upcoming", ko: "예정" },
-  ended: { en: "ENDED", cls: "ended", ko: "종료" },
-};
 
 function fmtRange(start: string, end: string) {
   const s = new Date(start);
@@ -389,14 +66,26 @@ function BackIcon() {
 }
 
 // ── Tab: Lineup ──────────────────────────────────────────
-function LineupTab({ fest }: { fest: Festival }) {
-  const lineupData =
-    LINEUP[fest.id as keyof typeof LINEUP] ?? LINEUP["ssu-daedongje-2026"];
-  const days = Object.keys(lineupData);
-  const [day, setDay] = useState(days[0]);
+function LineupTab({
+  fest,
+  items,
+}: {
+  fest: FestivalResponse;
+  items: LineupResponse[];
+}) {
+  const days = useMemo(
+    () => dateRange(fest.start, fest.end),
+    [fest.start, fest.end],
+  );
+  const [day, setDay] = useState(days[0] ?? "");
 
-  const stages = ["메인", "서브"];
-  const todayLineup = lineupData[day as keyof typeof lineupData] ?? [];
+  // 해당 날짜 아이템을 시간순으로 정렬
+  const todayItems = items
+    .filter((item) => item.day === day)
+    .sort((a, b) => a.time.localeCompare(b.time));
+
+  // 스테이지 목록은 전체 아이템 기준 (순서 유지)
+  const stages = [...new Set(items.map((i) => i.stage))];
 
   return (
     <div>
@@ -413,84 +102,86 @@ function LineupTab({ fest }: { fest: Festival }) {
           </button>
         ))}
       </div>
-      <div className="f-lineup-grid">
-        {stages.map((stage) => {
-          const sets = todayLineup.filter((s) => s.stage === stage);
-          if (sets.length === 0) return null;
-          return (
-            <div key={stage} className="f-stage-col">
-              <h3>{stage} 스테이지</h3>
-              <div>
-                {sets.map((s, i) => (
-                  <div key={i} className="f-set-row">
-                    <div className="time">{s.time}</div>
-                    <div className="artist">
-                      <div className="avatar">{s.sub.slice(0, 2)}</div>
-                      <div style={{ minWidth: 0 }}>
-                        <div className="artist-name">{s.artist}</div>
-                        <div className="artist-sub">
-                          {s.sub} · {s.tag}
+
+      {todayItems.length === 0 ? (
+        <div
+          style={{
+            padding: "40px 0",
+            textAlign: "center",
+            color: "var(--muted)",
+            fontFamily: "var(--mono-font)",
+            fontSize: 13,
+          }}
+        >
+          이 날짜에 등록된 라인업이 없습니다.
+        </div>
+      ) : (
+        <div className="f-lineup-grid">
+          {stages.map((stage) => {
+            const sets = todayItems.filter((s) => s.stage === stage);
+            if (sets.length === 0) return null;
+            return (
+              <div key={stage} className="f-stage-col">
+                <h3>{stage} 스테이지</h3>
+                <div>
+                  {sets.map((s) => (
+                    <div key={s.id} className="f-set-row">
+                      <div className="time">{s.time}</div>
+                      <div className="artist">
+                        <div className="avatar">
+                          {(s.sub || s.artist).slice(0, 2)}
+                        </div>
+                        <div style={{ minWidth: 0 }}>
+                          <div className="artist-name">{s.artist}</div>
+                          <div className="artist-sub">
+                            {s.sub} · {s.tag}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
 
+/** 부스가 특정 날짜에 운영하는지 확인 (days[] 비어있으면 전체 기간) */
+function boothRunsOnDay(booth: BoothResponse, day: string | null): boolean {
+  if (!day) return true;
+  return booth.days.length === 0 || booth.days.includes(day);
+}
+
 // ── Tab: Map ─────────────────────────────────────────────
-function MapTab({ fest }: { fest: Festival }) {
-  const m =
-    MAP_LANDMARKS[fest.id as keyof typeof MAP_LANDMARKS] ??
-    MAP_LANDMARKS["ssu-daedongje-2026"];
+function MapTab({
+  fest,
+  pins,
+  booths,
+}: {
+  fest: FestivalResponse;
+  pins: MapPinResponse[];
+  booths: BoothResponse[];
+}) {
+  const days = useMemo(
+    () => dateRange(fest.start, fest.end),
+    [fest.start, fest.end],
+  );
+  const [filterDay, setFilterDay] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
 
-  type LandmarkType = "stage" | "booth" | "toilet" | "smoking" | "info";
-  type LandmarkPin = {
-    id: string;
-    label: string;
-    x: number;
-    y: number;
-    type: LandmarkType;
-    color: string;
-    rating?: number;
+  const pinColor: Record<MapPinType, string> = {
+    stage: "var(--accent)",
+    booth: "var(--upcoming)",
+    toilet: "#5A6FCF",
+    smoking: "#888",
+    info: "var(--fg)",
   };
 
-  const all: LandmarkPin[] = [
-    ...m.stages.map((x) => ({
-      ...x,
-      type: "stage" as LandmarkType,
-      color: "var(--accent)",
-    })),
-    ...m.booths.map((x) => ({
-      ...x,
-      type: "booth" as LandmarkType,
-      color: "var(--upcoming)",
-    })),
-    ...m.toilets.map((x) => ({
-      ...x,
-      type: "toilet" as LandmarkType,
-      color: "#5A6FCF",
-    })),
-    ...m.smoking.map((x) => ({
-      ...x,
-      type: "smoking" as LandmarkType,
-      color: "#888",
-    })),
-    ...m.info.map((x) => ({
-      ...x,
-      type: "info" as LandmarkType,
-      color: "var(--fg)",
-    })),
-  ];
-
-  const pinLabel = (type: LandmarkType) => {
+  const pinLabel = (type: MapPinType) => {
     if (type === "stage") return "♪";
     if (type === "booth") return "B";
     if (type === "toilet") return "W";
@@ -498,160 +189,238 @@ function MapTab({ fest }: { fest: Festival }) {
     return "i";
   };
 
+  /** 핀에 연결된 부스 중 선택된 날짜에 운영하는 것 */
+  const getActiveBooothsForPin = (pin: MapPinResponse) => {
+    if (!pin.boothIds?.length) return [];
+    return booths.filter(
+      (b) => pin.boothIds!.includes(b.id) && boothRunsOnDay(b, filterDay),
+    );
+  };
+
   return (
-    <div className="f-map-wrap">
-      <div className="f-map-canvas">
-        <svg viewBox="0 0 320 420" preserveAspectRatio="xMidYMid meet">
-          <rect x="0" y="0" width="320" height="420" fill="var(--surface-2)" />
-          <path
-            d="M 20 200 L 300 200"
-            stroke="var(--faint)"
-            strokeWidth="20"
-            strokeLinecap="round"
-          />
-          <path
-            d="M 160 40 L 160 380"
-            stroke="var(--faint)"
-            strokeWidth="20"
-            strokeLinecap="round"
-          />
-          <rect
-            x="35"
-            y="50"
-            width="80"
-            height="50"
-            fill="var(--faint)"
-            rx="4"
-          />
-          <rect
-            x="200"
-            y="60"
-            width="60"
-            height="40"
-            fill="var(--faint)"
-            rx="4"
-          />
-          <rect
-            x="40"
-            y="320"
-            width="60"
-            height="50"
-            fill="var(--faint)"
-            rx="4"
-          />
-          <rect
-            x="210"
-            y="320"
-            width="80"
-            height="50"
-            fill="var(--faint)"
-            rx="4"
-          />
-          {m.stages.map((s) => (
-            <rect
-              key={s.id}
-              x={s.x - 28}
-              y={s.y - 14}
-              width="56"
-              height="28"
-              rx="4"
-              fill="var(--accent)"
-              fillOpacity="0.18"
-              stroke="var(--accent)"
-              strokeWidth="1.5"
-            />
-          ))}
-          {all.map((p) => (
-            <g
-              key={p.id}
-              onMouseEnter={() => setHovered(p.id)}
-              onMouseLeave={() => setHovered(null)}
-              style={{ cursor: "pointer" }}
+    <div>
+      {/* DAY 필터 */}
+      <div className="f-day-row">
+        <button
+          className="f-chip"
+          data-active={filterDay === null ? "true" : "false"}
+          onClick={() => setFilterDay(null)}
+        >
+          전체
+        </button>
+        {days.map((d, i) => {
+          const date = new Date(d);
+          const dow = ["일", "월", "화", "수", "목", "금", "토"][date.getDay()];
+          return (
+            <button
+              key={d}
+              className="f-chip"
+              data-active={filterDay === d ? "true" : "false"}
+              onClick={() => setFilterDay(d)}
             >
-              <circle
-                cx={p.x}
-                cy={p.y}
-                r="11"
-                fill={p.color}
-                stroke="#fff"
-                strokeWidth="2"
+              DAY {i + 1}
+              <span style={{ opacity: 0.6, marginLeft: 4 }}>
+                {date.getMonth() + 1}/{date.getDate()} {dow}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="f-map-wrap">
+        <div className="f-map-canvas">
+          <svg
+            viewBox={`0 0 ${MAP_W} ${MAP_H}`}
+            preserveAspectRatio="xMidYMid meet"
+          >
+            {/* 배경: 선택된 템플릿 또는 커스텀 이미지 */}
+            {fest.mapImage && !isPresetId(fest.mapImage) ? (
+              <image
+                href={fest.mapImage}
+                x="0"
+                y="0"
+                width={MAP_W}
+                height={MAP_H}
+                preserveAspectRatio="xMidYMid slice"
               />
-              <text
-                x={p.x}
-                y={p.y + 3.5}
-                fontSize="9"
-                textAnchor="middle"
-                fill="#fff"
-                fontWeight="700"
-                fontFamily="var(--mono-font)"
-              >
-                {pinLabel(p.type)}
-              </text>
-              {hovered === p.id && (
-                <g>
-                  <rect
-                    x={p.x + 14}
-                    y={p.y - 14}
-                    width={p.label.length * 7 + 12}
-                    height="22"
-                    rx="4"
-                    fill="var(--fg)"
+            ) : (
+              getTemplate(fest.mapImage || "basic").render(MAP_W, MAP_H)
+            )}
+
+            {pins
+              .filter((p) => p.type === "stage")
+              .map((p) => (
+                <rect
+                  key={`stage-bg-${p.id}`}
+                  x={p.x - 28}
+                  y={p.y - 14}
+                  width="56"
+                  height="28"
+                  rx="4"
+                  fill="var(--accent)"
+                  fillOpacity="0.18"
+                  stroke="var(--accent)"
+                  strokeWidth="1.5"
+                />
+              ))}
+
+            {pins.map((p) => {
+              const activeBooths = getActiveBooothsForPin(p);
+              const displayLabel =
+                activeBooths.length > 0
+                  ? activeBooths.length === 1
+                    ? activeBooths[0].name
+                    : `${activeBooths[0].name} 외 ${activeBooths.length - 1}`
+                  : p.label;
+              // 이 날짜에 부스가 없는 booth 핀은 흐리게
+              const isInactive =
+                p.type === "booth" &&
+                (p.boothIds?.length ?? 0) > 0 &&
+                activeBooths.length === 0;
+              return (
+                <g
+                  key={p.id}
+                  onMouseEnter={() => setHovered(p.id)}
+                  onMouseLeave={() => setHovered(null)}
+                  style={{ cursor: "pointer", opacity: isInactive ? 0.3 : 1 }}
+                >
+                  <circle
+                    cx={p.x}
+                    cy={p.y}
+                    r="11"
+                    fill={pinColor[p.type]}
+                    stroke="#fff"
+                    strokeWidth="2"
                   />
                   <text
-                    x={p.x + 20}
-                    y={p.y + 1}
-                    fontSize="11"
-                    fill="var(--bg)"
-                    fontWeight="600"
+                    x={p.x}
+                    y={p.y + 3.5}
+                    fontSize="9"
+                    textAnchor="middle"
+                    fill="#fff"
+                    fontWeight="700"
+                    fontFamily="var(--mono-font)"
                   >
-                    {p.label}
+                    {pinLabel(p.type)}
                   </text>
+                  {hovered === p.id && !isInactive && (
+                    <g>
+                      <rect
+                        x={p.x + 14}
+                        y={p.y - 14}
+                        width={displayLabel.length * 7 + 12}
+                        height="22"
+                        rx="4"
+                        fill="var(--fg)"
+                      />
+                      <text
+                        x={p.x + 20}
+                        y={p.y + 1}
+                        fontSize="11"
+                        fill="var(--bg)"
+                        fontWeight="600"
+                      >
+                        {displayLabel}
+                      </text>
+                    </g>
+                  )}
                 </g>
-              )}
-            </g>
-          ))}
-        </svg>
-      </div>
-      <div>
-        <h4
-          style={{
-            font: "500 11px/1 var(--mono-font)",
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            color: "var(--muted)",
-            margin: "0 0 12px",
-          }}
-        >
-          장소 정보
-        </h4>
-        <div className="f-legend-list">
-          {all.map((p) => (
+              );
+            })}
+          </svg>
+        </div>
+
+        <div>
+          <h4
+            style={{
+              font: "500 11px/1 var(--mono-font)",
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "var(--muted)",
+              margin: "0 0 12px",
+            }}
+          >
+            장소 정보
+          </h4>
+          {pins.length === 0 ? (
             <div
-              key={p.id}
-              className="f-legend-row"
-              onMouseEnter={() => setHovered(p.id)}
-              onMouseLeave={() => setHovered(null)}
+              style={{
+                color: "var(--muted)",
+                fontFamily: "var(--mono-font)",
+                fontSize: 12,
+              }}
             >
-              <div className="pin" style={{ background: p.color }}>
-                {pinLabel(p.type)}
-              </div>
-              <div>
-                <div style={{ font: "600 14px/1.2 var(--body-font)" }}>
-                  {p.label}
-                </div>
-                <div
-                  style={{
-                    font: "500 11px/1 var(--mono-font)",
-                    color: "var(--muted)",
-                    marginTop: 3,
-                  }}
-                >
-                  {p.type.toUpperCase()}
-                  {p.rating != null && ` · ★ ${p.rating}`}
-                </div>
-              </div>
+              등록된 핀이 없습니다.
             </div>
-          ))}
+          ) : (
+            <div className="f-legend-list">
+              {pins.map((p) => {
+                const activeBooths = getActiveBooothsForPin(p);
+                const isInactive =
+                  p.type === "booth" &&
+                  (p.boothIds?.length ?? 0) > 0 &&
+                  activeBooths.length === 0;
+                return (
+                  <div
+                    key={p.id}
+                    className="f-legend-row"
+                    onMouseEnter={() => setHovered(p.id)}
+                    onMouseLeave={() => setHovered(null)}
+                    style={{ opacity: isInactive ? 0.35 : 1 }}
+                  >
+                    <div
+                      className="pin"
+                      style={{ background: pinColor[p.type] }}
+                    >
+                      {pinLabel(p.type)}
+                    </div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      {activeBooths.length > 0 ? (
+                        activeBooths.map((b) => (
+                          <div key={b.id} style={{ marginBottom: 4 }}>
+                            <div
+                              style={{ font: "600 14px/1.2 var(--body-font)" }}
+                            >
+                              {b.name}
+                            </div>
+                            <div
+                              style={{
+                                font: "500 11px/1.5 var(--mono-font)",
+                                color: "var(--muted)",
+                                marginTop: 2,
+                              }}
+                            >
+                              {b.dept} · {b.loc}
+                              {b.schedule ? ` · ${b.schedule}` : ""}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <>
+                          <div
+                            style={{ font: "600 14px/1.2 var(--body-font)" }}
+                          >
+                            {p.label}
+                          </div>
+                          <div
+                            style={{
+                              font: "500 11px/1 var(--mono-font)",
+                              color: "var(--muted)",
+                              marginTop: 3,
+                            }}
+                          >
+                            {isInactive
+                              ? "이 날짜 미운영"
+                              : p.type.toUpperCase()}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -659,9 +428,7 @@ function MapTab({ fest }: { fest: Festival }) {
 }
 
 // ── Tab: Booth ───────────────────────────────────────────
-function BoothTab({ fest }: { fest: Festival }) {
-  const booths =
-    BOOTHS[fest.id as keyof typeof BOOTHS] ?? BOOTHS["ssu-daedongje-2026"];
+function BoothTab({ booths }: { booths: BoothResponse[] }) {
   const [tag, setTag] = useState("ALL");
   const tags = ["ALL", ...Array.from(new Set(booths.map((b) => b.tag)))];
   const filtered = tag === "ALL" ? booths : booths.filter((b) => b.tag === tag);
@@ -680,45 +447,73 @@ function BoothTab({ fest }: { fest: Festival }) {
           </button>
         ))}
       </div>
-      <div className="f-booth-grid">
-        {filtered.map((b) => (
-          <div key={b.id} className="f-booth-card">
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                justifyContent: "space-between",
-              }}
-            >
-              <div className="name">{b.name}</div>
-              <span
-                className="f-tag"
-                style={{ background: "var(--faint)", color: "var(--fg)" }}
+
+      {filtered.length === 0 ? (
+        <div
+          style={{
+            padding: "40px 0",
+            textAlign: "center",
+            color: "var(--muted)",
+            fontFamily: "var(--mono-font)",
+            fontSize: 13,
+          }}
+        >
+          등록된 부스가 없습니다.
+        </div>
+      ) : (
+        <div className="f-booth-grid">
+          {filtered.map((b) => (
+            <div key={b.id} className="f-booth-card">
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  justifyContent: "space-between",
+                }}
               >
-                {b.tag}
-              </span>
+                <div className="name">{b.name}</div>
+                <span
+                  className="f-tag"
+                  style={{ background: "var(--faint)", color: "var(--fg)" }}
+                >
+                  {b.tag}
+                </span>
+              </div>
+              <div className="meta">
+                <span>{b.loc}</span>
+                <span>·</span>
+                <span>{b.dept}</span>
+              </div>
+              <div className="meta" style={{ color: "var(--fg)" }}>
+                {b.schedule}
+              </div>
             </div>
-            <div className="meta">
-              <span>{b.loc}</span>
-              <span>·</span>
-              <span>{b.dept}</span>
-            </div>
-            <div className="meta" style={{ color: "var(--fg)" }}>
-              {b.schedule}
-            </div>
-            <div className="desc">{b.desc}</div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
 // ── Tab: Notice ──────────────────────────────────────────
-function NoticeTab({ fest }: { fest: Festival }) {
-  const notices =
-    NOTICES[fest.id as keyof typeof NOTICES] ?? NOTICES["ssu-daedongje-2026"];
+function NoticeTab({ notices }: { notices: NoticeResponse[] }) {
+  if (notices.length === 0) {
+    return (
+      <div
+        style={{
+          padding: "40px 0",
+          textAlign: "center",
+          color: "var(--muted)",
+          fontFamily: "var(--mono-font)",
+          fontSize: 13,
+        }}
+      >
+        등록된 공지가 없습니다.
+      </div>
+    );
+  }
+
   return (
     <div className="f-notice-list">
       {notices.map((n) => (
@@ -730,9 +525,11 @@ function NoticeTab({ fest }: { fest: Festival }) {
           )}
           <div>
             <div className="notice-title">{n.title}</div>
-            <div className="notice-preview">{n.body}</div>
+            <div className="notice-preview">{n.content}</div>
           </div>
-          <div className="time">{n.time}</div>
+          <div className="time">
+            {new Date(n.updatedAt).toLocaleDateString("ko-KR")}
+          </div>
         </div>
       ))}
     </div>
@@ -740,25 +537,31 @@ function NoticeTab({ fest }: { fest: Festival }) {
 }
 
 // ── Tab: Community ───────────────────────────────────────
-function CommunityTab({ fest }: { fest: Festival }) {
-  const initial =
-    COMMUNITY[fest.id as keyof typeof COMMUNITY] ??
-    COMMUNITY["ssu-daedongje-2026"];
-  const [list, setList] = useState(initial);
+type CommunityPost = {
+  id: string;
+  author: string;
+  time: string;
+  body: string;
+  likes: number;
+  replies: number;
+};
+
+function CommunityTab() {
+  const [list, setList] = useState<CommunityPost[]>([]);
   const [text, setText] = useState("");
 
   const send = () => {
     if (!text.trim()) return;
-    setList([
+    setList((prev) => [
       {
-        id: `new-${Date.now()}`,
+        id: `p-${Date.now()}`,
         author: "나",
         time: "방금",
         body: text,
         likes: 0,
         replies: 0,
       },
-      ...list,
+      ...prev,
     ]);
     setText("");
   };
@@ -777,26 +580,41 @@ function CommunityTab({ fest }: { fest: Festival }) {
           올리기
         </button>
       </div>
-      <div className="f-comm-list">
-        {list.map((c) => (
-          <div key={c.id} className="f-comm-row">
-            <div className="head">
-              <b>{c.author}</b>
-              <span>·</span>
-              <span>{c.time}</span>
+      {list.length === 0 ? (
+        <div
+          style={{
+            padding: "40px 0",
+            textAlign: "center",
+            color: "var(--muted)",
+            fontFamily: "var(--mono-font)",
+            fontSize: 13,
+          }}
+        >
+          첫 번째 글을 작성해보세요!
+        </div>
+      ) : (
+        <div className="f-comm-list">
+          {list.map((c) => (
+            <div key={c.id} className="f-comm-row">
+              <div className="head">
+                <b>{c.author}</b>
+                <span>·</span>
+                <span>{c.time}</span>
+              </div>
+              <div className="text">{c.body}</div>
+              <div className="foot">
+                <span>♡ {c.likes}</span>
+                <span>💬 {c.replies}</span>
+              </div>
             </div>
-            <div className="text">{c.body}</div>
-            <div className="foot">
-              <span>♡ {c.likes}</span>
-              <span>💬 {c.replies}</span>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
+// ── Main ─────────────────────────────────────────────────
 type Tab = "lineup" | "map" | "booth" | "notice" | "community";
 
 const TABS: { value: Tab; label: string }[] = [
@@ -810,14 +628,33 @@ const TABS: { value: Tab; label: string }[] = [
 export default function FestivalDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
-  const fest = FESTIVALS.find((f) => f.id === id) ?? FESTIVALS[0];
-  const s = STATUS[fest.status];
+
+  const { data: fest, isLoading } = useGetFestival(id);
+  const { data: lineupItems = [] } = useGetLineup(id);
+  const { data: booths = [] } = useGetBooths(id);
+  const { data: notices = [] } = useGetNotices(id);
+  const { data: mapPins = [] } = useGetMapPins(id);
+
   const [tab, setTab] = useState<Tab>("lineup");
+
+  if (isLoading || !fest) {
+    return (
+      <div
+        style={{
+          padding: 40,
+          textAlign: "center",
+          color: "var(--muted)",
+          fontFamily: "var(--mono-font)",
+          fontSize: 13,
+        }}
+      >
+        불러오는 중…
+      </div>
+    );
+  }
+
   const [c0, c1, c2] = fest.colors;
-
-  const { data } = useGetFestival(id);
-
-  console.log(data);
+  const meta = STATUS_META[fest.status];
 
   return (
     <div style={{ paddingTop: 20 }}>
@@ -841,6 +678,20 @@ export default function FestivalDetailPage() {
           background: `radial-gradient(120% 80% at 80% 0%, ${c0} 0%, ${c1} 35%, ${c2} 100%)`,
         }}
       >
+        {fest.thumbnail && (
+          <img
+            src={fest.thumbnail}
+            alt={fest.name}
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              opacity: 0.35,
+            }}
+          />
+        )}
         <div
           style={{
             position: "absolute",
@@ -851,18 +702,42 @@ export default function FestivalDetailPage() {
         />
         <div className="grad" />
         <div className="detail-submeta">
-          <span
-            className={`f-tag ${s.cls}${fest.status === "live" ? "pulse" : ""}`}
-          >
-            {s.en}
-          </span>
+          <span className={`f-tag ${meta.cls}`}>{meta.en}</span>
           <span>{fest.school}</span>
           <span>{fmtRange(fest.start, fest.end)}</span>
-          {fest.status === "live" && (
+          {fest.status === "LIVE" && (
             <span>참여자 {fest.participants.toLocaleString()}명</span>
           )}
         </div>
         <div className="detail-name">{fest.name}</div>
+        {fest.nameEn && (
+          <div
+            style={{
+              position: "relative",
+              fontFamily: "var(--display-font)",
+              fontWeight: 700,
+              fontSize: 15,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.45)",
+              marginTop: 6,
+            }}
+          >
+            {fest.nameEn}
+          </div>
+        )}
+        {fest.tagline && (
+          <div
+            style={{
+              position: "relative",
+              color: "rgba(255,255,255,0.75)",
+              fontSize: 14,
+              marginTop: 4,
+            }}
+          >
+            {fest.tagline}
+          </div>
+        )}
       </div>
 
       {/* ── 탭 ── */}
@@ -882,11 +757,11 @@ export default function FestivalDetailPage() {
         </button>
       </div>
 
-      {tab === "lineup" && <LineupTab fest={fest} />}
-      {tab === "map" && <MapTab fest={fest} />}
-      {tab === "booth" && <BoothTab fest={fest} />}
-      {tab === "notice" && <NoticeTab fest={fest} />}
-      {tab === "community" && <CommunityTab fest={fest} />}
+      {tab === "lineup" && <LineupTab fest={fest} items={lineupItems} />}
+      {tab === "map" && <MapTab fest={fest} pins={mapPins} booths={booths} />}
+      {tab === "booth" && <BoothTab booths={booths} />}
+      {tab === "notice" && <NoticeTab notices={notices} />}
+      {tab === "community" && <CommunityTab />}
     </div>
   );
 }

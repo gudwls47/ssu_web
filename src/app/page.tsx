@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Script from "next/script";
 import FestivalCard from "@/app/components/FestivalCard";
 import { useGetFestivals } from "./api/festivals";
@@ -10,135 +11,97 @@ declare global {
   }
 }
 
-type FestivalStatus = "live" | "upcoming" | "ended";
-
-interface Festival {
-  id: string;
-  name: string;
-  en: string;
-  school: string;
-  start: string;
-  end: string;
-  status: FestivalStatus;
-  participants: number;
-  tagline: string;
-  colors: [string, string, string];
-}
-
-const FESTIVALS: Festival[] = [
-  {
-    id: "ssu-daedongje-2026",
-    name: "2026 숭실 대동제",
-    en: "DAEDONGJE",
-    school: "숭실대학교",
-    start: "2026-05-12",
-    end: "2026-05-14",
-    status: "live",
-    participants: 8420,
-    tagline: "숭실의 봄이 깨어나다",
-    colors: ["#FF1E7A", "#BDFF1E", "#2A0F4E"],
-  },
-  {
-    id: "ssu-itfest-2026",
-    name: "제25회 IT대학 학술제",
-    en: "IT FESTA",
-    school: "숭실대학교",
-    start: "2026-05-20",
-    end: "2026-05-22",
-    status: "upcoming",
-    participants: 3200,
-    tagline: "기술과 축제의 만남",
-    colors: ["#6B2EE6", "#BDFF1E", "#1B0832"],
-  },
-  {
-    id: "ssu-sportsfest-2026",
-    name: "2026 숭실 체육대회",
-    en: "SPORTS FEST",
-    school: "숭실대학교",
-    start: "2026-06-05",
-    end: "2026-06-05",
-    status: "upcoming",
-    participants: 2100,
-    tagline: "하나 되는 숭실인",
-    colors: ["#FF7A66", "#F2C94C", "#14172B"],
-  },
-  {
-    id: "ssu-artfest-2026",
-    name: "숭실 예술문화제",
-    en: "ART WAVE",
-    school: "숭실대학교",
-    start: "2026-06-18",
-    end: "2026-06-20",
-    status: "upcoming",
-    participants: 1800,
-    tagline: "예술로 물드는 캠퍼스",
-    colors: ["#00CFE6", "#FF00B8", "#0A0A0F"],
-  },
-  {
-    id: "ssu-daedongje-2025",
-    name: "2025 숭실 대동제",
-    en: "DAEDONGJE 2025",
-    school: "숭실대학교",
-    start: "2025-09-20",
-    end: "2025-09-22",
-    status: "ended",
-    participants: 7800,
-    tagline: "지난 가을의 추억",
-    colors: ["#E85D4A", "#FBF6EC", "#14172B"],
-  },
-  {
-    id: "ssu-itfest-2025",
-    name: "제24회 IT대학 학술제",
-    en: "IT FESTA 2025",
-    school: "숭실대학교",
-    start: "2025-05-18",
-    end: "2025-05-20",
-    status: "ended",
-    participants: 2900,
-    tagline: "코드로 쓰는 축제",
-    colors: ["#3D6EE6", "#F2C94C", "#14172B"],
-  },
-];
+const SSU = { lat: 37.4963, lng: 126.9574 };
 
 export default function MainPage() {
-  const { data: upcomingData } = useGetFestivals({
-    page: 1,
-    status: "UPCOMING",
-  });
+  const { data: upcomingData } = useGetFestivals(
+    { page: 1, status: "UPCOMING" },
+    { staleTime: 0 },
+  );
+  const { data: liveData } = useGetFestivals(
+    { page: 1, status: "LIVE" },
+    { staleTime: 0 },
+  );
   const { data: endedData } = useGetFestivals({ page: 1, status: "ENDED" });
+  const mapRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
 
-  console.log(upcomingData);
-  console.log(endedData);
+  const addFestivalMarkers = (festivals: typeof liveData) => {
+    if (!mapRef.current || typeof window.naver === "undefined") return;
+    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current = [];
+    (festivals ?? [])
+      .filter((f) => f.lat && f.lng)
+      .forEach((f) => {
+        const isLive = f.status === "LIVE";
+        const marker = new window.naver.maps.Marker({
+          position: new window.naver.maps.LatLng(f.lat!, f.lng!),
+          map: mapRef.current,
+          title: f.name,
+          icon: {
+            content: `<div style="width:36px;height:44px;cursor:pointer;"><svg viewBox="0 0 36 44" width="36" height="44" xmlns="http://www.w3.org/2000/svg"><path d="M18 2C10.268 2 4 8.268 4 16c0 10 14 26 14 26S32 26 32 16C32 8.268 25.732 2 18 2z" fill="${isLive ? "#FF1E7A" : "#FF6BAD"}" stroke="white" stroke-width="1.5"/><circle cx="18" cy="16" r="6" fill="white"/>${isLive ? `<circle cx="18" cy="16" r="3" fill="#FF1E7A"/>` : ""}</svg></div>`,
+            size: new window.naver.maps.Size(36, 44),
+            anchor: new window.naver.maps.Point(18, 44),
+          },
+        });
+        const infoWindow = new window.naver.maps.InfoWindow({
+          content: `<a href="/festival/${f.id}" style="display:block;padding:10px 14px;font-family:sans-serif;font-size:13px;font-weight:600;color:#111;min-width:120px;text-decoration:none;cursor:pointer;">${f.name}<div style="font-size:11px;font-weight:400;color:#888;margin-top:2px">${f.school}</div></a>`,
+          borderWidth: 0,
+          borderRadius: "12px",
+          disableAnchor: false,
+          backgroundColor: "#fff",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+        });
+        window.naver.maps.Event.addListener(marker, "click", () => {
+          if (infoWindow.getMap()) infoWindow.close();
+          else infoWindow.open(mapRef.current, marker);
+        });
+        markersRef.current.push(marker);
+      });
+  };
+
+  useEffect(() => {
+    const allFestivals = [...(liveData ?? []), ...(upcomingData ?? [])];
+    if (mapRef.current) {
+      addFestivalMarkers(allFestivals);
+    } else {
+      const handler = () => addFestivalMarkers(allFestivals);
+      window.addEventListener("naverMapReady", handler, { once: true });
+      return () => window.removeEventListener("naverMapReady", handler);
+    }
+  }, [liveData, upcomingData]);
 
   return (
     <div>
       <Script
         src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID}`}
         onReady={() => {
-          if (typeof window.naver !== "undefined") {
-            const mapOptions = {
-              center: new window.naver.maps.LatLng(37.4963, 126.9574),
-              zoom: 16,
-              minZoom: 10,
-              zoomControl: true,
-              zoomControlOptions: {
-                position: window.naver.maps.Position.TOP_RIGHT,
-              },
-            };
-
-            const map = new window.naver.maps.Map("map", mapOptions);
-
-            // eslint-disable-next-line no-new
-            new window.naver.maps.Marker({
-              position: new window.naver.maps.LatLng(37.4963, 126.9574),
-              map,
-              title: "숭실대학교",
-            });
-          }
+          if (typeof window.naver === "undefined") return;
+          mapRef.current = new window.naver.maps.Map("map", {
+            center: new window.naver.maps.LatLng(SSU.lat, SSU.lng),
+            zoom: 14,
+            minZoom: 6,
+            zoomControl: true,
+            zoomControlOptions: {
+              position: window.naver.maps.Position.TOP_RIGHT,
+            },
+          });
+          // 숭실대 현재 위치 마커 (파란 점)
+          // eslint-disable-next-line no-new
+          new window.naver.maps.Marker({
+            position: new window.naver.maps.LatLng(SSU.lat, SSU.lng),
+            map: mapRef.current,
+            title: "현재 위치",
+            icon: {
+              content: `<div style="width:16px;height:16px;background:#4A90E2;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(74,144,226,0.5);"></div>`,
+              size: new window.naver.maps.Size(16, 16),
+              anchor: new window.naver.maps.Point(8, 8),
+            },
+          });
+          window.dispatchEvent(new Event("naverMapReady"));
         }}
       />
       <div
-        id="map"
         style={{
           width: "100%",
           height: "400px",
@@ -146,41 +109,69 @@ export default function MainPage() {
           marginTop: "24px",
           boxShadow: "0 12px 40px rgba(0,0,0,0.12)",
           border: "1px solid rgba(0,0,0,0.05)",
-          backgroundColor: "#f0f0f0",
+          overflow: "hidden",
+          position: "relative",
+          contain: "paint",
+          transform: "translateZ(0)",
         }}
-      />
-      <section style={{ marginTop: 64 }}>
-        <div className="f-h-row">
-          <div>
-            <div className="f-tagline">Upcoming · 다가오는 축제</div>
-            <h2 className="f-h">곧 시작해요</h2>
+      >
+        <div
+          id="map"
+          style={{
+            position: "absolute",
+            inset: 0,
+          }}
+        />
+      </div>
+      {liveData && liveData.length > 0 && (
+        <section style={{ marginTop: 64 }}>
+          <div className="f-h-row">
+            <div>
+              <div className="f-tagline">Live Now · 지금 이 순간</div>
+              <h2 className="f-h">지금 하고 있어요</h2>
+            </div>
+            <div className="f-sub">{liveData.length}개 진행 중</div>
           </div>
-          <div className="f-sub">{upcomingData?.length || 0}개 예정</div>
-        </div>
-        <div className="f-grid">
-          {!upcomingData || upcomingData.length < 1 ? (
-            <p>데이터가 없습니다.</p>
-          ) : (
-            upcomingData.map((v) => <FestivalCard key={v.id} data={v} />)
-          )}
-        </div>
-      </section>
+          <div className="f-grid">
+            {liveData.map((v) => (
+              <FestivalCard key={v.id} data={v} />
+            ))}
+          </div>
+        </section>
+      )}
 
-      <section style={{ marginTop: 64 }}>
-        <div className="f-h-row">
-          <div>
-            <div className="f-tagline">Archive · 지나간 축제</div>
-            <h2 className="f-h">놓친 거 다시 보기</h2>
+      {upcomingData && upcomingData.length > 0 && (
+        <section style={{ marginTop: 64 }}>
+          <div className="f-h-row">
+            <div>
+              <div className="f-tagline">Upcoming · 다가오는 축제</div>
+              <h2 className="f-h">곧 시작해요</h2>
+            </div>
+            <div className="f-sub">{upcomingData.length}개 예정</div>
           </div>
-        </div>
-        <div className="f-grid">
-          {!endedData || endedData?.length < 1 ? (
-            <p>데이터가 없습니다.</p>
-          ) : (
-            endedData.map((v) => <FestivalCard key={v.id} data={v} />)
-          )}
-        </div>
-      </section>
+          <div className="f-grid">
+            {upcomingData.map((v) => (
+              <FestivalCard key={v.id} data={v} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {endedData && endedData.length > 0 && (
+        <section style={{ marginTop: 64 }}>
+          <div className="f-h-row">
+            <div>
+              <div className="f-tagline">Archive · 지나간 축제</div>
+              <h2 className="f-h">놓친 거 다시 보기</h2>
+            </div>
+          </div>
+          <div className="f-grid">
+            {endedData.map((v) => (
+              <FestivalCard key={v.id} data={v} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

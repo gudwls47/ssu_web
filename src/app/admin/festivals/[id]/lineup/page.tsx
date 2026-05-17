@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, type CSSProperties } from "react";
 import { useParams } from "next/navigation";
-import { useGetLineup, useSaveLineupByDay } from "@/app/api/lineup";
 import { useGetFestival } from "@/app/api/festivals";
+import { useGetLineup, useSaveLineupByDay } from "@/app/api/lineup";
 
 const TAGS = ["K-POP", "BAND", "HIPHOP", "R&B", "DJ", "INDIE", "POP"] as const;
 const STAGES = ["메인", "서브"] as const;
@@ -107,9 +107,11 @@ export default function LineupEditorPage() {
 
   const handleSave = () => {
     if (!activeDay) return;
+    // 저장 전 시간순 정렬
+    const sorted = [...rows].sort((a, b) => a.time.localeCompare(b.time));
     saveLineup.mutate({
       day: activeDay,
-      items: rows.map(({ time, artist, sub, tag, stage }) => ({
+      items: sorted.map(({ time, artist, sub, tag, stage }) => ({
         day: activeDay,
         time,
         artist,
@@ -118,9 +120,11 @@ export default function LineupEditorPage() {
         stage,
       })),
     });
+    // 화면도 정렬된 순서로 갱신
+    setRows(sorted);
   };
 
-  const inputStyle: React.CSSProperties = {
+  const inputStyle: CSSProperties = {
     width: "100%",
     height: 34,
     padding: "0 10px",

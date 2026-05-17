@@ -1,31 +1,36 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
-import type { ReactNode } from "react";
 import { useGetFestival } from "@/app/api/festivals";
 import type { FestivalStatus } from "@/app/api/festivals.type";
 
 const STATUS_META: Record<FestivalStatus, { cls: string; en: string }> = {
-  LIVE:     { cls: "live",     en: "LIVE NOW" },
+  LIVE: { cls: "live", en: "LIVE NOW" },
   UPCOMING: { cls: "upcoming", en: "UPCOMING" },
-  ENDED:    { cls: "ended",    en: "ENDED"    },
+  ENDED: { cls: "ended", en: "ENDED" },
 };
 
 const SUB_TABS = [
-  { id: "basic",  label: "기본 정보", en: "BASIC"  },
-  { id: "map",    label: "지도",      en: "MAP"    },
-  { id: "booth",  label: "부스",      en: "BOOTH"  },
-  { id: "lineup", label: "라인업",    en: "LINEUP" },
-  { id: "notice", label: "공지",      en: "NOTICE" },
+  { id: "basic", label: "기본 정보", en: "BASIC" },
+  { id: "booth", label: "부스", en: "BOOTH" },
+  { id: "map", label: "지도", en: "MAP" },
+  { id: "lineup", label: "라인업", en: "LINEUP" },
+  { id: "notice", label: "공지", en: "NOTICE" },
 ] as const;
 
-export default function FestivalEditLayout({ children }: { children: ReactNode }) {
+export default function FestivalEditLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const params = useParams<{ id: string }>();
   const pathname = usePathname();
   const { data: fest, isLoading } = useGetFestival(params.id);
 
-  const activeTab = SUB_TABS.find((t) => pathname.endsWith(`/${t.id}`))?.id ?? "basic";
+  const activeTab =
+    SUB_TABS.find((t) => pathname.endsWith(`/${t.id}`))?.id ?? "basic";
 
   if (isLoading || !fest) {
     return (
@@ -140,7 +145,14 @@ export default function FestivalEditLayout({ children }: { children: ReactNode }
         </div>
 
         <div style={{ display: "flex", gap: 8 }}>
-          <button className="f-btn ghost">미리보기 ↗</button>
+          <Link
+            href={`/festival/${fest.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: "none" }}
+          >
+            <button className="f-btn ghost">미리보기 ↗</button>
+          </Link>
         </div>
       </div>
 

@@ -209,9 +209,11 @@ export default function FestivalListPage() {
                   participants: f.participants,
                   start: f.start,
                   end: f.end,
-                  status: f.status.toUpperCase() as import("@/app/api/festivals.type").FestivalStatus,
+                  status:
+                    f.status.toUpperCase() as import("@/app/api/festivals.type").FestivalStatus,
                   createdAt: f.start,
                   updatedAt: f.start,
+                  ownerUid: "",
                 }}
               />
             ))}

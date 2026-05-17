@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, type ReactNode, type ChangeEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuthState } from "@/app/api/auth";
 import { useCreateFestival } from "@/app/api/festivals";
+import { imageToDataUrl } from "@/app/utils/imageToDataUrl";
 
 function Field({
   label,
@@ -12,7 +14,7 @@ function Field({
 }: {
   label: string;
   hint?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <label style={{ display: "block" }}>
@@ -46,7 +48,8 @@ function Field({
 
 export default function NewFestivalPage() {
   const router = useRouter();
-  const createFestival = useCreateFestival();
+  const { user } = useAuthState();
+  const createFestival = useCreateFestival(user?.uid ?? "");
 
   const [name, setName] = useState("");
   const [nameEn, setNameEn] = useState("");
@@ -56,20 +59,48 @@ export default function NewFestivalPage() {
   const [tagline, setTagline] = useState("");
   const [description, setDescription] = useState("");
   const [thumbnail, setThumbnail] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError("");
+    try {
+      const url = await imageToDataUrl(file);
+      setThumbnail(url);
+    } catch (err) {
+      setUploadError((err as Error).message ?? "업로드 실패");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
 
   const handleSubmit = () => {
-    if (!name || !nameEn || !school || !start || !end) return;
+    if (!name || !school || !start || !end) return;
+    if (!user?.uid) {
+      // eslint-disable-next-line no-console
+      console.error("[NewFestival] user uid is not available yet");
+      return;
+    }
     createFestival.mutate(
       { name, nameEn, school, start, end, tagline, description, thumbnail },
       {
         onSuccess: (created) => {
           router.push(`/admin/festivals/${created.id}/basic`);
         },
+        onError: (err) => {
+          // eslint-disable-next-line no-console
+          console.error("[NewFestival] 축제 등록 실패:", err);
+        },
       },
     );
   };
 
-  const isValid = Boolean(name && nameEn && school && start && end);
+  const isValid = Boolean(name && school && start && end && user?.uid);
 
   return (
     <div style={{ padding: "24px 32px", maxWidth: 900 }}>
@@ -124,19 +155,27 @@ export default function NewFestivalPage() {
         <div
           style={{
             marginBottom: 16,
-            padding: "10px 14px",
-            borderRadius: 10,
-            background: "rgba(255,107,107,0.1)",
+            padding: "14px 16px",
+            borderRadius: 12,
+            background: "rgba(255,107,107,0.12)",
+            border: "1px solid rgba(255,107,107,0.3)",
             color: "#FF6B6B",
             fontFamily: "var(--mono-font)",
-            fontSize: 12,
+            fontSize: 13,
           }}
         >
-          등록 실패: {(createFestival.error as Error)?.message ?? "알 수 없는 오류"}
+          ⚠️ 등록 실패:{" "}
+          {(createFestival.error as { message?: string })?.message ??
+            "알 수 없는 오류"}
+          <div style={{ fontSize: 11, marginTop: 4, opacity: 0.8 }}>
+            브라우저 개발자 도구 콘솔(F12)에서 자세한 오류를 확인하세요.
+          </div>
         </div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 24 }}>
+      <div
+        style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 24 }}
+      >
         {/* Left */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <Field label="축제 제목" hint="공식 명칭">
@@ -148,7 +187,7 @@ export default function NewFestivalPage() {
             />
           </Field>
 
-          <Field label="영문/표기명" hint="배너·포스터 표기용">
+          <Field label="영문/표기명" hint="선택 · 배너·포스터 표기용">
             <input
               className="f-input"
               placeholder="예: DAEDONGJE"
@@ -166,7 +205,9 @@ export default function NewFestivalPage() {
             />
           </Field>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div
+            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
+          >
             <Field label="시작일">
               <input
                 type="date"
@@ -228,27 +269,39 @@ export default function NewFestivalPage() {
               썸네일 이미지
             </div>
 
-            {/* 미리보기 */}
+            {/* 숨겨진 파일 인풋 */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+            />
+
+            {/* 미리보기 + 업로드 클릭 */}
             <div
+              onClick={() => !uploading && fileInputRef.current?.click()}
               style={{
                 height: 200,
                 borderRadius: 14,
                 overflow: "hidden",
                 background: "var(--surface-2)",
-                border: "1.5px dashed var(--border)",
+                border: `1.5px dashed ${uploading ? "var(--accent)" : "var(--border)"}`,
                 marginBottom: 8,
                 display: "grid",
                 placeItems: "center",
+                cursor: uploading ? "default" : "pointer",
+                position: "relative",
               }}
             >
               {thumbnail ? (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={thumbnail}
                   alt="썸네일 미리보기"
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                    (e.currentTarget as HTMLImageElement).style.display =
+                      "none";
                   }}
                 />
               ) : (
@@ -260,18 +313,68 @@ export default function NewFestivalPage() {
                     fontFamily: "var(--mono-font)",
                   }}
                 >
-                  <div style={{ fontSize: 24, marginBottom: 6 }}>🖼️</div>
-                  URL 입력 시 미리보기
+                  <div style={{ fontSize: 24, marginBottom: 6 }}>
+                    {uploading ? "⏳" : "📁"}
+                  </div>
+                  {uploading ? "업로드 중…" : "클릭하여 이미지 선택"}
+                </div>
+              )}
+              {thumbnail && !uploading && (
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background: "rgba(0,0,0,0)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    opacity: 0,
+                    transition: "opacity 0.15s",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.opacity = "1";
+                    (e.currentTarget as HTMLDivElement).style.background =
+                      "rgba(0,0,0,0.4)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.opacity = "0";
+                    (e.currentTarget as HTMLDivElement).style.background =
+                      "rgba(0,0,0,0)";
+                  }}
+                >
+                  <span
+                    style={{
+                      color: "#fff",
+                      fontSize: 12,
+                      fontFamily: "var(--mono-font)",
+                      fontWeight: 600,
+                    }}
+                  >
+                    클릭하여 변경
+                  </span>
                 </div>
               )}
             </div>
 
-            {/* URL 입력창 */}
+            {uploadError && (
+              <div
+                style={{
+                  fontSize: 11,
+                  color: "#FF6B6B",
+                  fontFamily: "var(--mono-font)",
+                  marginBottom: 6,
+                }}
+              >
+                ⚠️ {uploadError}
+              </div>
+            )}
+
+            {/* URL 직접 입력 (선택) */}
             <input
               className="f-input"
               value={thumbnail}
               onChange={(e) => setThumbnail(e.target.value)}
-              placeholder="이미지 URL 붙여넣기 (Imgur, Google Drive 등)"
+              placeholder="또는 이미지 URL 직접 붙여넣기"
             />
             <div
               style={{
@@ -282,7 +385,7 @@ export default function NewFestivalPage() {
                 lineHeight: 1.6,
               }}
             >
-              Imgur · Google Drive 공유링크 · 외부 이미지 URL 가능
+              파일 선택 시 자동 업로드 · URL 직접 입력도 가능
             </div>
           </div>
 
@@ -358,7 +461,7 @@ export default function NewFestivalPage() {
                     padding: "6px 0",
                     fontSize: 12,
                     color: "var(--muted)",
-                    borderBottom: i < 3 ? "1px solid var(--border)" : undefined,
+                    borderBottom: i < 3 ? "1px solid var(--border)" : void 0,
                   }}
                 >
                   <span

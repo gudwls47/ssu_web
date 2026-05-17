@@ -1,14 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  type ReactNode,
+  type ChangeEvent,
+} from "react";
 import { useParams } from "next/navigation";
 import { useGetFestival, useUpdateFestival } from "@/app/api/festivals";
+import { imageToDataUrl } from "@/app/utils/imageToDataUrl";
 import type { FestivalStatus } from "@/app/api/festivals.type";
 
 const STATUS_META: Record<FestivalStatus, { cls: string; en: string }> = {
-  LIVE:     { cls: "live",     en: "LIVE NOW" },
+  LIVE: { cls: "live", en: "LIVE NOW" },
   UPCOMING: { cls: "upcoming", en: "UPCOMING" },
-  ENDED:    { cls: "ended",    en: "ENDED"    },
+  ENDED: { cls: "ended", en: "ENDED" },
 };
 
 function Field({
@@ -18,7 +25,7 @@ function Field({
 }: {
   label: string;
   hint?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <label style={{ display: "block" }}>
@@ -62,6 +69,30 @@ export default function BasicInfoPage() {
   const [tagline, setTagline] = useState("");
   const [description, setDescription] = useState("");
   const [thumbnail, setThumbnail] = useState("");
+  const [address, setAddress] = useState("");
+  const [lat, setLat] = useState<number | undefined>();
+  const [lng, setLng] = useState<number | undefined>();
+  const [geocoding, setGeocoding] = useState(false);
+  const [geocodeError, setGeocodeError] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError("");
+    try {
+      const url = await imageToDataUrl(file);
+      setThumbnail(url);
+    } catch (err) {
+      setUploadError((err as Error).message ?? "업로드 실패");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
 
   useEffect(() => {
     if (fest) {
@@ -72,8 +103,33 @@ export default function BasicInfoPage() {
       setTagline(fest.tagline ?? "");
       setDescription(fest.description ?? "");
       setThumbnail(fest.thumbnail ?? "");
+      setAddress(fest.address ?? "");
+      setLat(fest.lat);
+      setLng(fest.lng);
     }
   }, [fest]);
+
+  const handleGeocode = async () => {
+    if (!address.trim()) return;
+    setGeocoding(true);
+    setGeocodeError("");
+    try {
+      const res = await fetch(
+        `/api/geocode?query=${encodeURIComponent(address)}`,
+      );
+      const json = await res.json();
+      if (json.lat && json.lng) {
+        setLat(json.lat);
+        setLng(json.lng);
+      } else {
+        setGeocodeError("주소를 찾을 수 없습니다. 더 구체적으로 입력해보세요.");
+      }
+    } catch {
+      setGeocodeError("좌표 검색 중 오류가 발생했습니다.");
+    } finally {
+      setGeocoding(false);
+    }
+  };
 
   if (isLoading || !fest) {
     return (
@@ -94,7 +150,18 @@ export default function BasicInfoPage() {
   const meta = STATUS_META[fest.status];
 
   const handleSave = () => {
-    update.mutate({ name, nameEn, start, end, tagline, description, thumbnail });
+    update.mutate({
+      name,
+      nameEn,
+      start,
+      end,
+      tagline,
+      description,
+      thumbnail,
+      address,
+      lat,
+      lng,
+    });
   };
 
   return (
@@ -117,7 +184,9 @@ export default function BasicInfoPage() {
           />
         </Field>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div
+          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
+        >
           <Field label="시작일">
             <input
               type="date"
@@ -137,6 +206,51 @@ export default function BasicInfoPage() {
             />
           </Field>
         </div>
+
+        <Field label="축제 장소 주소">
+          <div style={{ display: "flex", gap: 8 }}>
+            <input
+              className="f-input"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="예: 서울특별시 동작구 상도로 369 숭실대학교"
+              onKeyDown={(e) => e.key === "Enter" && handleGeocode()}
+              style={{ flex: 1 }}
+            />
+            <button
+              className="f-btn ghost"
+              onClick={handleGeocode}
+              disabled={geocoding || !address.trim()}
+              style={{ flexShrink: 0, whiteSpace: "nowrap" }}
+            >
+              {geocoding ? "검색 중…" : "좌표 검색"}
+            </button>
+          </div>
+          {geocodeError && (
+            <div
+              style={{
+                fontSize: 11,
+                color: "#FF6B6B",
+                fontFamily: "var(--mono-font)",
+                marginTop: 4,
+              }}
+            >
+              ⚠️ {geocodeError}
+            </div>
+          )}
+          {lat && lng && (
+            <div
+              style={{
+                fontSize: 11,
+                color: "var(--muted)",
+                fontFamily: "var(--mono-font)",
+                marginTop: 4,
+              }}
+            >
+              ✓ {lat.toFixed(5)}, {lng.toFixed(5)}
+            </div>
+          )}
+        </Field>
 
         <Field label="태그라인" hint="포스터 카피">
           <input
@@ -208,18 +322,29 @@ export default function BasicInfoPage() {
           >
             썸네일 이미지
           </div>
-          {/* 미리보기 */}
+          {/* 숨겨진 파일 인풋 */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+          />
+
+          {/* 미리보기 + 업로드 클릭 */}
           <div
+            onClick={() => !uploading && fileInputRef.current?.click()}
             style={{
               height: 200,
               borderRadius: 14,
               overflow: "hidden",
               marginBottom: 8,
               position: "relative",
+              cursor: uploading ? "default" : "pointer",
+              border: `1.5px dashed ${uploading ? "var(--accent)" : "var(--border)"}`,
             }}
           >
             {thumbnail ? (
-              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={thumbnail}
                 alt="썸네일 미리보기"
@@ -228,6 +353,28 @@ export default function BasicInfoPage() {
                   (e.currentTarget as HTMLImageElement).style.display = "none";
                 }}
               />
+            ) : uploading ? (
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  background: "var(--surface-2)",
+                  display: "grid",
+                  placeItems: "center",
+                }}
+              >
+                <div
+                  style={{
+                    textAlign: "center",
+                    color: "var(--muted)",
+                    fontSize: 12,
+                    fontFamily: "var(--mono-font)",
+                  }}
+                >
+                  <div style={{ fontSize: 24, marginBottom: 6 }}>⏳</div>
+                  업로드 중…
+                </div>
+              </div>
             ) : (
               /* 썸네일 없을 때: 색상 그라디언트 */
               <div
@@ -249,6 +396,30 @@ export default function BasicInfoPage() {
                 <div
                   style={{
                     position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                    gap: 6,
+                  }}
+                >
+                  <div style={{ fontSize: 20, color: "rgba(255,255,255,0.8)" }}>
+                    📁
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: "rgba(255,255,255,0.8)",
+                      fontFamily: "var(--mono-font)",
+                    }}
+                  >
+                    클릭하여 이미지 선택
+                  </div>
+                </div>
+                <div
+                  style={{
+                    position: "absolute",
                     bottom: 14,
                     left: 14,
                     color: "#fff",
@@ -262,14 +433,62 @@ export default function BasicInfoPage() {
                 </div>
               </div>
             )}
+            {thumbnail && !uploading && (
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: "rgba(0,0,0,0)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  opacity: 0,
+                  transition: "opacity 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.opacity = "1";
+                  (e.currentTarget as HTMLDivElement).style.background =
+                    "rgba(0,0,0,0.4)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.opacity = "0";
+                  (e.currentTarget as HTMLDivElement).style.background =
+                    "rgba(0,0,0,0)";
+                }}
+              >
+                <span
+                  style={{
+                    color: "#fff",
+                    fontSize: 12,
+                    fontFamily: "var(--mono-font)",
+                    fontWeight: 600,
+                  }}
+                >
+                  클릭하여 변경
+                </span>
+              </div>
+            )}
           </div>
 
-          {/* URL 입력창 */}
+          {uploadError && (
+            <div
+              style={{
+                fontSize: 11,
+                color: "#FF6B6B",
+                fontFamily: "var(--mono-font)",
+                marginBottom: 6,
+              }}
+            >
+              ⚠️ {uploadError}
+            </div>
+          )}
+
+          {/* URL 직접 입력 (선택) */}
           <input
             className="f-input"
             value={thumbnail}
             onChange={(e) => setThumbnail(e.target.value)}
-            placeholder="이미지 URL 붙여넣기 (Imgur, Google Drive 등)"
+            placeholder="또는 이미지 URL 직접 붙여넣기"
           />
           <div
             style={{
@@ -280,7 +499,7 @@ export default function BasicInfoPage() {
               lineHeight: 1.6,
             }}
           >
-            Imgur · Google Drive 공유링크 · 외부 이미지 URL 가능
+            파일 선택 시 자동 업로드 · URL 직접 입력도 가능
           </div>
         </div>
 

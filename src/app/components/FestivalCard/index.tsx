@@ -102,12 +102,26 @@ export default function FestivalCard({ data }: FestivalCardProps) {
       className="group border-border flex cursor-pointer flex-col overflow-hidden rounded-[20px] border bg-(--surface) no-underline transition-all duration-150 ease-in-out hover:-translate-y-[2px] hover:shadow-(--shadow)"
     >
       <div className="relative aspect-16/10 overflow-hidden">
-        <PosterArt
-          colors={(data.colors ?? dummy.colors) as [string, string, string]}
-          school={data.school || dummy.school}
-          year={year}
-          title={data.nameEn || dummy.en}
-        />
+        {data.thumbnail ? (
+          <img
+            src={data.thumbnail}
+            alt={data.name}
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        ) : (
+          <PosterArt
+            colors={(data.colors ?? dummy.colors) as [string, string, string]}
+            school={data.school || dummy.school}
+            year={year}
+            title={data.nameEn || dummy.en}
+          />
+        )}
         <div className="absolute top-[12px] left-[12px] flex gap-[6px]">
           <span className={cn(tagCva({ status: data.status }))}>
             {STATUS_TEXT[data.status]}
