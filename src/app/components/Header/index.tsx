@@ -1,7 +1,9 @@
 "use client";
 
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuthState, logOut } from "@/app/api/auth";
 import type { Palette, Mode } from "@/app/layouts/Layout";
 
 const NAV_ITEMS = [
@@ -46,6 +48,25 @@ export function Header({
   onModeChange,
 }: HeaderProps) {
   const pathname = usePathname();
+  const { user, profile, isAdmin } = useAuthState();
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const initial = profile?.displayName?.[0] ?? user?.email?.[0] ?? "?";
+  const displayName = profile?.displayName ?? user?.email?.split("@")[0] ?? "";
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   return (
     <nav className="f-nav">
@@ -170,10 +191,133 @@ export function Header({
         )}
       </button>
 
-      <div className="f-nav-user">
-        <div className="avatar">G</div>
-        <span>로그인</span>
-      </div>
+      {user ? (
+        <div ref={dropdownRef} style={{ position: "relative" }}>
+          <div
+            className="f-nav-user"
+            style={{ cursor: "pointer" }}
+            onClick={() => setOpen((v) => !v)}
+          >
+            <div className="avatar" style={{ textTransform: "uppercase" }}>
+              {initial}
+            </div>
+            <span
+              style={{
+                maxWidth: 80,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {displayName}
+            </span>
+          </div>
+          {open && (
+            <div
+              style={{
+                position: "absolute",
+                top: "calc(100% + 8px)",
+                right: 0,
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
+                borderRadius: 12,
+                padding: 6,
+                minWidth: 140,
+                zIndex: 100,
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+                boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+              }}
+            >
+              {!isAdmin && (
+                <Link
+                  href="/mypage"
+                  onClick={() => setOpen(false)}
+                  style={{
+                    textDecoration: "none",
+                    padding: "9px 12px",
+                    borderRadius: 8,
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "var(--fg)",
+                    display: "block",
+                    transition: "background 0.1s",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "var(--surface-2)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "transparent")
+                  }
+                >
+                  마이페이지
+                </Link>
+              )}
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  onClick={() => setOpen(false)}
+                  style={{
+                    textDecoration: "none",
+                    padding: "9px 12px",
+                    borderRadius: 8,
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "var(--fg)",
+                    display: "block",
+                    transition: "background 0.1s",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "var(--surface-2)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "transparent")
+                  }
+                >
+                  관리자 페이지
+                </Link>
+              )}
+              <button
+                onClick={() => {
+                  logOut();
+                  setOpen(false);
+                }}
+                style={{
+                  padding: "9px 12px",
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: "var(--fg)",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  width: "100%",
+                  transition: "background 0.1s",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "var(--surface-2)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "transparent")
+                }
+              >
+                로그아웃
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <Link
+          href="/login"
+          className="f-nav-user"
+          style={{ textDecoration: "none" }}
+        >
+          <div className="avatar">?</div>
+          <span>로그인</span>
+        </Link>
+      )}
     </nav>
   );
 }

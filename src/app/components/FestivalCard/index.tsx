@@ -94,7 +94,7 @@ export default function FestivalCard({ data }: FestivalCardProps) {
     const date = typeof ts.toDate === "function" ? ts.toDate() : new Date(ts);
     return Number.isNaN(date.getTime()) ? 2026 : date.getFullYear();
   };
-  const year = getYear(data.startDate);
+  const year = getYear(data.start);
 
   return (
     <Link
@@ -102,12 +102,26 @@ export default function FestivalCard({ data }: FestivalCardProps) {
       className="group border-border flex cursor-pointer flex-col overflow-hidden rounded-[20px] border bg-(--surface) no-underline transition-all duration-150 ease-in-out hover:-translate-y-[2px] hover:shadow-(--shadow)"
     >
       <div className="relative aspect-16/10 overflow-hidden">
-        <PosterArt
-          colors={dummy.colors}
-          school={dummy.school}
-          year={year}
-          title={dummy.en}
-        />
+        {data.thumbnail ? (
+          <img
+            src={data.thumbnail}
+            alt={data.name}
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        ) : (
+          <PosterArt
+            colors={(data.colors ?? dummy.colors) as [string, string, string]}
+            school={data.school || dummy.school}
+            year={year}
+            title={data.nameEn || dummy.en}
+          />
+        )}
         <div className="absolute top-[12px] left-[12px] flex gap-[6px]">
           <span className={cn(tagCva({ status: data.status }))}>
             {STATUS_TEXT[data.status]}
@@ -116,13 +130,13 @@ export default function FestivalCard({ data }: FestivalCardProps) {
       </div>
       <div className="grid flex-1 gap-[8px] p-[18px]">
         <div className="text-[20px] leading-[1.05] font-(--display-font) font-(--display-weight,700) tracking-[-0.02em] text-(--fg)">
-          {data.title}
+          {data.name}
         </div>
         <div className="text-muted flex flex-wrap gap-[12px] pt-[4px] text-[12px] leading-[1.4] font-(--mono-font) font-medium">
-          <span>{dummy.school}</span>
+          <span>{data.school || dummy.school}</span>
           <span className="text-(--faint)">·</span>
           <span>
-            {fmtTimestamp(data.startDate)} – {fmtTimestamp(data.endDate)}
+            {fmtTimestamp(data.start)} – {fmtTimestamp(data.end)}
           </span>
           {data.status === "LIVE" && (
             <>

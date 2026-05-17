@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { logOut, type UserProfile } from "@/app/api/auth";
+import type { User } from "firebase/auth";
 
 interface NavItem {
   id: string;
@@ -11,16 +13,41 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: "dashboard", label: "대시보드", en: "DASHBOARD", href: "/admin/dashboard" },
-  { id: "festivals", label: "내 축제", en: "FESTIVALS", href: "/admin/festivals" },
+  {
+    id: "dashboard",
+    label: "대시보드",
+    en: "DASHBOARD",
+    href: "/admin/dashboard",
+  },
+  {
+    id: "festivals",
+    label: "내 축제",
+    en: "FESTIVALS",
+    href: "/admin/festivals",
+  },
   { id: "notices", label: "공지", en: "NOTICES", href: "/admin/notices" },
   { id: "stats", label: "통계", en: "STATS", href: "/admin/stats" },
 ];
 
-export default function AdminSideMenu() {
+interface Props {
+  user: User;
+  profile: UserProfile;
+}
+
+export default function AdminSideMenu({ user, profile }: Props) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const isActive = (href: string) => pathname.startsWith(href);
+
+  const displayName =
+    profile.displayName || user.email?.split("@")[0] || "관리자";
+  const initial = displayName.charAt(0).toUpperCase();
+
+  const handleLogout = async () => {
+    await logOut();
+    router.replace("/admin/login");
+  };
 
   return (
     <div
@@ -67,7 +94,9 @@ export default function AdminSideMenu() {
       </div>
 
       {/* Nav */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 2, flex: 1 }}>
+      <div
+        style={{ display: "flex", flexDirection: "column", gap: 2, flex: 1 }}
+      >
         {NAV_ITEMS.map((item) => {
           const active = isActive(item.href);
           return (
@@ -122,13 +151,14 @@ export default function AdminSideMenu() {
             marginBottom: 10,
           }}
         >
+          {/* 아바타 */}
           <div
             style={{
               width: 28,
               height: 28,
               borderRadius: "50%",
               background: "var(--accent)",
-              color: "var(--accent-fg)",
+              color: "#fff",
               display: "grid",
               placeItems: "center",
               fontSize: 12,
@@ -136,26 +166,39 @@ export default function AdminSideMenu() {
               flexShrink: 0,
             }}
           >
-            숭
+            {initial}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--fg)" }}>
-              숭실대 학생회
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                color: "var(--fg)",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {displayName}
             </div>
             <div
               style={{
                 fontFamily: "var(--mono-font)",
                 fontSize: 10,
                 color: "var(--muted)",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
               }}
             >
-              admin · SSU
+              {profile.organization || user.email}
             </div>
           </div>
         </div>
         <button
           className="f-btn ghost sm"
           style={{ width: "100%", borderRadius: 8 }}
+          onClick={handleLogout}
         >
           로그아웃
         </button>
