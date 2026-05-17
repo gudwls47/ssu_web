@@ -653,7 +653,7 @@ export default function FestivalDetailPage() {
     );
   }
 
-  const [c0, c1, c2] = fest.colors;
+  const [c0, c1, c2] = fest.colors || ["#3D6EE6", "#F2C94C", "#14172B"];
   const meta = STATUS_META[fest.status];
 
   return (
@@ -675,7 +675,7 @@ export default function FestivalDetailPage() {
       <div
         className="f-detail-hero"
         style={{
-          background: `radial-gradient(120% 80% at 80% 0%, ${c0} 0%, ${c1} 35%, ${c2} 100%)`,
+          background: `radial-gradient(120% 80% at 80% 0%, ${c0 || "#3D6EE6"} 0%, ${c1 || "#F2C94C"} 35%, ${c2 || "#14172B"} 100%)`,
         }}
       >
         {fest.thumbnail && (

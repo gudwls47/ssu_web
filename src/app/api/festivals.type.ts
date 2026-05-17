@@ -22,19 +22,18 @@ export interface FestivalDoc {
   endDate: Timestamp;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  schoolName?: string;
+  enSchoolName?: string;
+  targetYear?: number;
+  title: string;
 }
 
 // ── API 응답 형식 (id 포함, 날짜는 ISO string) ────────────
-export interface FestivalResponse extends Omit<
-  FestivalDoc,
-  "startDate" | "endDate" | "createdAt" | "updatedAt"
-> {
+export interface FestivalResponse extends FestivalDoc {
   id: string;
   start: string; // ISO date "2026-05-12"
   end: string;
   status: FestivalStatus; // 날짜 기반 자동 계산
-  createdAt: string;
-  updatedAt: string;
   // ownerUid는 FestivalDoc 에서 상속
 }
 
