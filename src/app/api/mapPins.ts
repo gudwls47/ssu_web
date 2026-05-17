@@ -19,7 +19,11 @@ const col = (festivalId: string) =>
 const docRef = (festivalId: string, pinId: string) =>
   doc(db, "festivals", festivalId, "mapPins", pinId);
 
-function toResponse(festivalId: string, id: string, data: MapPinDoc): MapPinResponse {
+function toResponse(
+  festivalId: string,
+  id: string,
+  data: MapPinDoc,
+): MapPinResponse {
   return { id, festivalId, ...data };
 }
 
@@ -29,7 +33,9 @@ export const useGetMapPins = (festivalId: string) => {
     queryKey: ["mapPins", festivalId],
     queryFn: async () => {
       const snap = await getDocs(col(festivalId));
-      return snap.docs.map((d) => toResponse(festivalId, d.id, d.data() as MapPinDoc));
+      return snap.docs.map((d) =>
+        toResponse(festivalId, d.id, d.data() as MapPinDoc),
+      );
     },
     enabled: Boolean(festivalId),
   });
@@ -47,7 +53,8 @@ export const useCreateMapPin = (festivalId: string) => {
       const snap = await getDoc(ref);
       return toResponse(festivalId, snap.id, snap.data() as MapPinDoc);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["mapPins", festivalId] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["mapPins", festivalId] }),
   });
 };
 
@@ -55,13 +62,17 @@ export const useCreateMapPin = (festivalId: string) => {
 export const useUpdateMapPin = (festivalId: string) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...input }: Partial<MapPinInput> & { id: string }) => {
+    mutationFn: async ({
+      id,
+      ...input
+    }: Partial<MapPinInput> & { id: string }) => {
       await updateDoc(docRef(festivalId, id), {
         ...input,
         updatedAt: serverTimestamp(),
       });
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["mapPins", festivalId] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["mapPins", festivalId] }),
   });
 };
 
@@ -72,7 +83,8 @@ export const useDeleteMapPin = (festivalId: string) => {
     mutationFn: async (pinId: string) => {
       await deleteDoc(docRef(festivalId, pinId));
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["mapPins", festivalId] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["mapPins", festivalId] }),
   });
 };
 
@@ -89,6 +101,7 @@ export const useSaveMapPins = (festivalId: string) => {
         ),
       );
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["mapPins", festivalId] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["mapPins", festivalId] }),
   });
 };

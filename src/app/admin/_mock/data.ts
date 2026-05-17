@@ -109,42 +109,147 @@ export const FESTIVALS: Festival[] = [
 
 export const BOOTHS: Record<string, Booth[]> = {
   "ssu-daedongje-2026": [
-    { id: "b1", name: "컴공 과자전", dept: "컴퓨터학부", loc: "A-01", schedule: "12:00–18:00", tag: "FOOD" },
-    { id: "b2", name: "전자 노래방", dept: "전자정보공학부", loc: "A-02", schedule: "11:00–20:00", tag: "GAME" },
-    { id: "b3", name: "미디어 굿즈샵", dept: "미디어학부", loc: "B-01", schedule: "10:00–18:00", tag: "GOODS" },
-    { id: "b4", name: "경영 맥주바", dept: "경영학부", loc: "B-02", schedule: "16:00–21:00", tag: "BAR" },
-    { id: "b5", name: "사범대 체험관", dept: "사범대학", loc: "C-01", schedule: "10:00–17:00", tag: "EXP" },
-    { id: "b6", name: "법대 사주카페", dept: "법과대학", loc: "C-02", schedule: "11:00–19:00", tag: "EXP" },
+    {
+      id: "b1",
+      name: "컴공 과자전",
+      dept: "컴퓨터학부",
+      loc: "A-01",
+      schedule: "12:00–18:00",
+      tag: "FOOD",
+    },
+    {
+      id: "b2",
+      name: "전자 노래방",
+      dept: "전자정보공학부",
+      loc: "A-02",
+      schedule: "11:00–20:00",
+      tag: "GAME",
+    },
+    {
+      id: "b3",
+      name: "미디어 굿즈샵",
+      dept: "미디어학부",
+      loc: "B-01",
+      schedule: "10:00–18:00",
+      tag: "GOODS",
+    },
+    {
+      id: "b4",
+      name: "경영 맥주바",
+      dept: "경영학부",
+      loc: "B-02",
+      schedule: "16:00–21:00",
+      tag: "BAR",
+    },
+    {
+      id: "b5",
+      name: "사범대 체험관",
+      dept: "사범대학",
+      loc: "C-01",
+      schedule: "10:00–17:00",
+      tag: "EXP",
+    },
+    {
+      id: "b6",
+      name: "법대 사주카페",
+      dept: "법과대학",
+      loc: "C-02",
+      schedule: "11:00–19:00",
+      tag: "EXP",
+    },
   ],
 };
 
 export const LINEUPS: Record<string, Record<string, LineupSet[]>> = {
   "ssu-daedongje-2026": {
     "2026-05-12": [
-      { time: "17:00", artist: "오프닝 공연", sub: "숭실대 밴드부", tag: "BAND", stage: "메인" },
-      { time: "18:00", artist: "기리보이", sub: "Giriboy", tag: "HIPHOP", stage: "메인" },
+      {
+        time: "17:00",
+        artist: "오프닝 공연",
+        sub: "숭실대 밴드부",
+        tag: "BAND",
+        stage: "메인",
+      },
+      {
+        time: "18:00",
+        artist: "기리보이",
+        sub: "Giriboy",
+        tag: "HIPHOP",
+        stage: "메인",
+      },
       { time: "19:00", artist: "BIBI", sub: "비비", tag: "R&B", stage: "메인" },
-      { time: "20:00", artist: "pH-1", sub: "피에이치원", tag: "HIPHOP", stage: "메인" },
+      {
+        time: "20:00",
+        artist: "pH-1",
+        sub: "피에이치원",
+        tag: "HIPHOP",
+        stage: "메인",
+      },
     ],
     "2026-05-13": [
       { time: "17:00", artist: "아이유", sub: "IU", tag: "POP", stage: "메인" },
-      { time: "18:30", artist: "적재", sub: "Jukjae", tag: "INDIE", stage: "메인" },
+      {
+        time: "18:30",
+        artist: "적재",
+        sub: "Jukjae",
+        tag: "INDIE",
+        stage: "메인",
+      },
       { time: "20:00", artist: "DEAN", sub: "딘", tag: "R&B", stage: "메인" },
     ],
     "2026-05-14": [
-      { time: "17:00", artist: "EXO", sub: "엑소", tag: "K-POP", stage: "메인" },
-      { time: "19:00", artist: "DJ Soda", sub: "DJ소다", tag: "DJ", stage: "메인" },
-      { time: "21:00", artist: "피날레", sub: "전원", tag: "BAND", stage: "메인" },
+      {
+        time: "17:00",
+        artist: "EXO",
+        sub: "엑소",
+        tag: "K-POP",
+        stage: "메인",
+      },
+      {
+        time: "19:00",
+        artist: "DJ Soda",
+        sub: "DJ소다",
+        tag: "DJ",
+        stage: "메인",
+      },
+      {
+        time: "21:00",
+        artist: "피날레",
+        sub: "전원",
+        tag: "BAND",
+        stage: "메인",
+      },
     ],
   },
 };
 
 export const NOTICES: Record<string, Notice[]> = {
   "ssu-daedongje-2026": [
-    { id: "n1", title: "우천 시 행사 일정 변경 안내", preview: "강수량에 따라 야외 무대가 실내로 이동될 수 있습니다.", time: "2시간 전", pinned: true },
-    { id: "n2", title: "메인 무대 라인업 최종 확정", preview: "5/12~14 전체 아티스트 스케줄이 확정되었습니다.", time: "1일 전" },
-    { id: "n3", title: "부스 운영 안내 및 주의사항", preview: "음식 부스의 경우 위생 검사 필수 통과 후 운영 가능합니다.", time: "2일 전" },
-    { id: "n4", title: "셔틀버스 운행 일정", preview: "캠퍼스 주요 건물에서 메인 무대까지 셔틀버스가 운행됩니다.", time: "3일 전" },
+    {
+      id: "n1",
+      title: "우천 시 행사 일정 변경 안내",
+      preview: "강수량에 따라 야외 무대가 실내로 이동될 수 있습니다.",
+      time: "2시간 전",
+      pinned: true,
+    },
+    {
+      id: "n2",
+      title: "메인 무대 라인업 최종 확정",
+      preview: "5/12~14 전체 아티스트 스케줄이 확정되었습니다.",
+      time: "1일 전",
+    },
+    {
+      id: "n3",
+      title: "부스 운영 안내 및 주의사항",
+      preview: "음식 부스의 경우 위생 검사 필수 통과 후 운영 가능합니다.",
+      time: "2일 전",
+    },
+    {
+      id: "n4",
+      title: "셔틀버스 운행 일정",
+      preview: "캠퍼스 주요 건물에서 메인 무대까지 셔틀버스가 운행됩니다.",
+      time: "3일 전",
+    },
   ],
 };
 

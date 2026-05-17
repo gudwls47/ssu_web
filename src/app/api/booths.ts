@@ -21,7 +21,11 @@ const col = (festivalId: string) =>
 const docRef = (festivalId: string, boothId: string) =>
   doc(db, "festivals", festivalId, "booths", boothId);
 
-function toResponse(festivalId: string, id: string, data: BoothDoc): BoothResponse {
+function toResponse(
+  festivalId: string,
+  id: string,
+  data: BoothDoc,
+): BoothResponse {
   return { id, festivalId, ...data };
 }
 
@@ -32,7 +36,9 @@ export const useGetBooths = (festivalId: string) => {
     queryFn: async () => {
       const q = query(col(festivalId), orderBy("order", "asc"));
       const snap = await getDocs(q);
-      return snap.docs.map((d) => toResponse(festivalId, d.id, d.data() as BoothDoc));
+      return snap.docs.map((d) =>
+        toResponse(festivalId, d.id, d.data() as BoothDoc),
+      );
     },
     enabled: Boolean(festivalId),
   });
@@ -61,7 +67,10 @@ export const useCreateBooth = (festivalId: string) => {
 export const useUpdateBooth = (festivalId: string) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...input }: Partial<BoothInput> & { id: string }) => {
+    mutationFn: async ({
+      id,
+      ...input
+    }: Partial<BoothInput> & { id: string }) => {
       await updateDoc(docRef(festivalId, id), {
         ...input,
         updatedAt: serverTimestamp(),
@@ -92,7 +101,11 @@ export const useSaveBooths = (festivalId: string) => {
       await Promise.all(existing.docs.map((d) => deleteDoc(d.ref)));
       await Promise.all(
         booths.map(({ id: _id, ...rest }, i) =>
-          addDoc(col(festivalId), { ...rest, order: i, updatedAt: serverTimestamp() }),
+          addDoc(col(festivalId), {
+            ...rest,
+            order: i,
+            updatedAt: serverTimestamp(),
+          }),
         ),
       );
     },
