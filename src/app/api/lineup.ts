@@ -21,7 +21,11 @@ const col = (festivalId: string) =>
 const docRef = (festivalId: string, lineupId: string) =>
   doc(db, "festivals", festivalId, "lineup", lineupId);
 
-function toResponse(festivalId: string, id: string, data: LineupDoc): LineupResponse {
+function toResponse(
+  festivalId: string,
+  id: string,
+  data: LineupDoc,
+): LineupResponse {
   return { id, festivalId, ...data };
 }
 
@@ -32,7 +36,9 @@ export const useGetLineup = (festivalId: string, day?: string) => {
     queryFn: async () => {
       // 복합 인덱스 없이도 동작하도록 클라이언트에서 필터·정렬
       const snap = await getDocs(col(festivalId));
-      const all = snap.docs.map((d) => toResponse(festivalId, d.id, d.data() as LineupDoc));
+      const all = snap.docs.map((d) =>
+        toResponse(festivalId, d.id, d.data() as LineupDoc),
+      );
       const filtered = day ? all.filter((item) => item.day === day) : all;
       return filtered.sort((a, b) => a.order - b.order);
     },
@@ -46,7 +52,9 @@ export const useGetLineupDays = (festivalId: string) => {
     queryKey: ["lineup-days", festivalId],
     queryFn: async () => {
       const snap = await getDocs(col(festivalId));
-      const days = [...new Set(snap.docs.map((d) => (d.data() as LineupDoc).day))];
+      const days = [
+        ...new Set(snap.docs.map((d) => (d.data() as LineupDoc).day)),
+      ];
       return days.sort();
     },
     enabled: Boolean(festivalId),
@@ -81,7 +89,10 @@ export const useCreateLineup = (festivalId: string) => {
 export const useUpdateLineup = (festivalId: string) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...input }: Partial<LineupInput> & { id: string }) => {
+    mutationFn: async ({
+      id,
+      ...input
+    }: Partial<LineupInput> & { id: string }) => {
       await updateDoc(docRef(festivalId, id), {
         ...input,
         updatedAt: serverTimestamp(),
@@ -106,7 +117,13 @@ export const useDeleteLineup = (festivalId: string) => {
 export const useSaveLineupByDay = (festivalId: string) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ day, items }: { day: string; items: LineupInput[] }) => {
+    mutationFn: async ({
+      day,
+      items,
+    }: {
+      day: string;
+      items: LineupInput[];
+    }) => {
       // 해당 날짜 기존 항목 삭제
       const existing = await getDocs(
         query(col(festivalId), where("day", "==", day)),

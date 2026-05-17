@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, type CSSProperties } from "react";
 import { useParams } from "next/navigation";
 import { useGetBooths, useSaveBooths } from "@/app/api/booths";
 import { useGetFestival } from "@/app/api/festivals";
@@ -21,11 +21,11 @@ type BoothRow = {
 
 function TagBadge({ tag }: { tag: BoothTag }) {
   const colors: Record<BoothTag, string> = {
-    FOOD:  "#FF6B6B",
-    BAR:   "#845EF7",
-    GAME:  "#339AF0",
+    FOOD: "#FF6B6B",
+    BAR: "#845EF7",
+    GAME: "#339AF0",
     GOODS: "#20C997",
-    EXP:   "#FCC419",
+    EXP: "#FCC419",
   };
   return (
     <span
@@ -152,18 +152,20 @@ export default function BoothEditorPage() {
 
   const handleSave = () => {
     saveBooths.mutate(
-      rows.map(({ _key: _k, id: _id, name, dept, loc, schedule, tag, days }) => ({
-        name,
-        dept,
-        loc,
-        schedule,
-        tag,
-        days,
-      })),
+      rows.map(
+        ({ _key: _k, id: _id, name, dept, loc, schedule, tag, days }) => ({
+          name,
+          dept,
+          loc,
+          schedule,
+          tag,
+          days,
+        }),
+      ),
     );
   };
 
-  const inputStyle: React.CSSProperties = {
+  const inputStyle: CSSProperties = {
     width: "100%",
     height: 34,
     padding: "0 10px",
@@ -230,7 +232,9 @@ export default function BoothEditorPage() {
             ).length;
             const isActive = filterDay === d;
             const date = new Date(d);
-            const dow = ["일", "월", "화", "수", "목", "금", "토"][date.getDay()];
+            const dow = ["일", "월", "화", "수", "목", "금", "토"][
+              date.getDay()
+            ];
             return (
               <button
                 key={d}
@@ -239,7 +243,9 @@ export default function BoothEditorPage() {
                 onClick={() => setFilterDay(d)}
                 style={{ height: 34, padding: "0 14px" }}
               >
-                <span style={{ fontSize: 12, fontWeight: 700 }}>DAY {i + 1}</span>
+                <span style={{ fontSize: 12, fontWeight: 700 }}>
+                  DAY {i + 1}
+                </span>
                 <span
                   style={{
                     marginLeft: 6,
@@ -344,7 +350,9 @@ export default function BoothEditorPage() {
               fontFamily: "var(--mono-font)",
             }}
           >
-            {filterDay ? "이 날짜에 운영하는 부스가 없습니다." : "등록된 부스가 없습니다."}
+            {filterDay
+              ? "이 날짜에 운영하는 부스가 없습니다."
+              : "등록된 부스가 없습니다."}
           </div>
         ) : (
           visibleRows.map((b, i) => (
@@ -356,7 +364,9 @@ export default function BoothEditorPage() {
                 padding: "10px 16px",
                 alignItems: "start",
                 borderBottom:
-                  i < visibleRows.length - 1 ? "1px solid var(--border)" : "none",
+                  i < visibleRows.length - 1
+                    ? "1px solid var(--border)"
+                    : "none",
                 gap: 8,
               }}
             >
@@ -400,10 +410,10 @@ export default function BoothEditorPage() {
                           fontFamily: "var(--mono-font)",
                           fontWeight: 600,
                           letterSpacing: "0.03em",
-                          background: active
-                            ? "var(--accent)"
-                            : "var(--faint)",
-                          color: active ? "var(--accent-fg, #fff)" : "var(--muted)",
+                          background: active ? "var(--accent)" : "var(--faint)",
+                          color: active
+                            ? "var(--accent-fg, #fff)"
+                            : "var(--muted)",
                           border: "1.5px solid transparent",
                           transition: "background 0.1s",
                           whiteSpace: "nowrap",
@@ -428,8 +438,7 @@ export default function BoothEditorPage() {
                       fontWeight: 600,
                       background:
                         b.days.length === 0 ? "var(--fg)" : "var(--faint)",
-                      color:
-                        b.days.length === 0 ? "var(--bg)" : "var(--muted)",
+                      color: b.days.length === 0 ? "var(--bg)" : "var(--muted)",
                       transition: "background 0.1s",
                     }}
                   >
@@ -463,7 +472,9 @@ export default function BoothEditorPage() {
                 style={inputStyle}
                 value={b.schedule}
                 placeholder="10:00–18:00"
-                onChange={(e) => updateField(b._key, "schedule", e.target.value)}
+                onChange={(e) =>
+                  updateField(b._key, "schedule", e.target.value)
+                }
               />
 
               {/* 분류 */}
@@ -529,9 +540,14 @@ export default function BoothEditorPage() {
       </div>
 
       {/* 태그 범례 */}
-      <div style={{ marginTop: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
+      <div
+        style={{ marginTop: 16, display: "flex", gap: 10, flexWrap: "wrap" }}
+      >
         {TAGS.map((t) => (
-          <div key={t} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div
+            key={t}
+            style={{ display: "flex", alignItems: "center", gap: 6 }}
+          >
             <TagBadge tag={t} />
             <span
               style={{
