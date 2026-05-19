@@ -15,6 +15,7 @@ type BoothRow = {
   dept: string;
   loc: string;
   schedule: string;
+  desc: string;
   tag: BoothTag;
   days: string[];
 };
@@ -93,6 +94,7 @@ export default function BoothEditorPage() {
           dept: b.dept,
           loc: b.loc,
           schedule: b.schedule,
+          desc: b.desc ?? "",
           tag: b.tag,
           days: b.days ?? [],
         })),
@@ -140,6 +142,7 @@ export default function BoothEditorPage() {
         dept: "",
         loc: "",
         schedule: "",
+        desc: "",
         tag: "FOOD",
         days: filterDay ? [filterDay] : [],
       },
@@ -153,11 +156,22 @@ export default function BoothEditorPage() {
   const handleSave = () => {
     saveBooths.mutate(
       rows.map(
-        ({ _key: _k, id: _id, name, dept, loc, schedule, tag, days }) => ({
+        ({
+          _key: _k,
+          id: _id,
           name,
           dept,
           loc,
           schedule,
+          desc,
+          tag,
+          days,
+        }) => ({
+          name,
+          dept,
+          loc,
+          schedule,
+          desc,
           tag,
           days,
         }),
@@ -319,7 +333,7 @@ export default function BoothEditorPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "28px 1fr 120px 80px 1fr 100px 36px",
+            gridTemplateColumns: "28px 1fr 120px 80px 1fr 1fr 100px 36px",
             padding: "12px 16px",
             borderBottom: "1px solid var(--border)",
             fontFamily: "var(--mono-font)",
@@ -336,6 +350,7 @@ export default function BoothEditorPage() {
           <span>학과</span>
           <span>위치</span>
           <span>일정</span>
+          <span>상세 내용</span>
           <span>분류</span>
           <span />
         </div>
@@ -360,7 +375,7 @@ export default function BoothEditorPage() {
               key={b._key}
               style={{
                 display: "grid",
-                gridTemplateColumns: "28px 1fr 120px 80px 1fr 100px 36px",
+                gridTemplateColumns: "28px 1fr 120px 80px 1fr 1fr 100px 36px",
                 padding: "10px 16px",
                 alignItems: "start",
                 borderBottom:
@@ -475,6 +490,21 @@ export default function BoothEditorPage() {
                 onChange={(e) =>
                   updateField(b._key, "schedule", e.target.value)
                 }
+              />
+
+              {/* 상세 내용 */}
+              <textarea
+                style={{
+                  ...inputStyle,
+                  height: 60,
+                  padding: "8px 10px",
+                  resize: "vertical",
+                  lineHeight: 1.5,
+                  fontSize: 12,
+                }}
+                value={b.desc}
+                placeholder="부스 소개, 운영 방식 등"
+                onChange={(e) => updateField(b._key, "desc", e.target.value)}
               />
 
               {/* 분류 */}
