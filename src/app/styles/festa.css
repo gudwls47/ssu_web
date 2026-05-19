@@ -2,12 +2,10 @@
    FESTA — design tokens (3 palettes)
    ──────────────────────────────────────────────────────── */
 
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap');
-
 :root {
-  --display-font: 'Bricolage Grotesque', 'Pretendard Variable', sans-serif;
+  --display-font: 'Pretendard Variable', 'Pretendard', -apple-system, system-ui, sans-serif;
   --body-font: 'Pretendard Variable', 'Pretendard', -apple-system, system-ui, sans-serif;
-  --mono-font: 'JetBrains Mono', ui-monospace, monospace;
+  --mono-font: 'Pretendard Variable', 'Pretendard', -apple-system, system-ui, sans-serif;
   --display-weight: 700;
   --display-tracking: -0.03em;
 }

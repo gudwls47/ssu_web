@@ -64,11 +64,14 @@ function toResponse(id: string, data: FestivalDoc): FestivalResponse {
     address: data.address ?? "",
     lat: data.lat,
     lng: data.lng,
+    startDate: data.startDate,
+    endDate: data.endDate,
     start,
     end,
     status: deriveStatus(start, end),
-    createdAt: tsToIso(data.createdAt),
-    updatedAt: tsToIso(data.updatedAt),
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+    title: data.title ?? data.name,
   };
 }
 
@@ -91,6 +94,7 @@ function toDoc(
     lng: input.lng,
     startDate: Timestamp.fromDate(new Date(input.start)),
     endDate: Timestamp.fromDate(new Date(input.end)),
+    title: input.name,
   };
 }
 
