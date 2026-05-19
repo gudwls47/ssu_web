@@ -6,12 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuthState, logOut } from "@/app/api/auth";
 import type { Palette, Mode } from "@/app/layouts/Layout";
 
-const NAV_ITEMS = [
-  { label: "둘러보기", href: "/" },
-  { label: "축제", href: "/festival" },
-  { label: "커뮤니티", href: "/community" },
-  { label: "공지", href: "/notice" },
-];
+const NAV_ITEMS: { label: string; href: string }[] = [];
 
 const PALETTES: { value: Palette; label: string; dot: string }[] = [
   { value: "festival", label: "Festival", dot: "#FF1E7A" },
