@@ -39,8 +39,8 @@ export default function FestivalListPage() {
         return `${year}-${month}-${day}`;
       };
 
-      const vStart = formatDate(v.startDate.toDate());
-      const vEnd = formatDate(v.endDate.toDate());
+      const vStart = v.start;
+      const vEnd = v.end;
 
       if (startDate && vStart < startDate) {
         return false;

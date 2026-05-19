@@ -50,6 +50,7 @@ function toResponse(id: string, data: FestivalDoc): FestivalResponse {
   const end = tsToIso(data.endDate).split("T")[0];
   return {
     id,
+    title: data.title ?? data.name,
     name: data.name,
     nameEn: data.nameEn,
     school: data.school,
@@ -76,6 +77,7 @@ function toDoc(
   input: FestivalInput,
 ): Omit<FestivalDoc, "createdAt" | "updatedAt" | "ownerUid"> {
   return {
+    title: input.name,
     name: input.name,
     nameEn: input.nameEn?.trim() ?? "",
     school: input.school,

@@ -29,11 +29,16 @@ export interface FestivalDoc {
 }
 
 // ── API 응답 형식 (id 포함, 날짜는 ISO string) ────────────
-export interface FestivalResponse extends FestivalDoc {
+export interface FestivalResponse extends Omit<
+  FestivalDoc,
+  "createdAt" | "updatedAt" | "startDate" | "endDate"
+> {
   id: string;
   start: string; // ISO date "2026-05-12"
   end: string;
   status: FestivalStatus; // 날짜 기반 자동 계산
+  createdAt: string;
+  updatedAt: string;
   // ownerUid는 FestivalDoc 에서 상속
 }
 

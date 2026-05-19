@@ -85,7 +85,6 @@ export default function FestivalCard({ data }: FestivalCardProps) {
   const dummy = {
     en: "DAEDONGJE",
     school: "숭실대학교",
-    participants: 8420,
     colors: ["#FF1E7A", "#BDFF1E", "#2A0F4E"] as [string, string, string],
   };
 
@@ -141,7 +140,7 @@ export default function FestivalCard({ data }: FestivalCardProps) {
           {data.status === "LIVE" && (
             <>
               <span className="text-(--faint)">·</span>
-              <span>{dummy.participants.toLocaleString()}명 참여중</span>
+              <span>진행 중</span>
             </>
           )}
         </div>

@@ -361,7 +361,7 @@ export default function AdminFestivalsPage() {
                   color: "var(--muted)",
                 }}
               >
-                {new Date(fest.updatedAt.toDate()).toLocaleDateString("ko-KR")}
+                {new Date(fest.updatedAt).toLocaleDateString("ko-KR")}
               </div>
 
               <div style={{ display: "flex", gap: 6 }}>
