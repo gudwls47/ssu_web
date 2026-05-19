@@ -373,37 +373,111 @@ export default function BoothEditorPage() {
             <div
               key={b._key}
               style={{
-                display: "grid",
-                gridTemplateColumns: "28px 1fr 120px 80px 1fr 100px 36px",
                 padding: "10px 16px",
-                alignItems: "start",
                 borderBottom:
                   i < visibleRows.length - 1
                     ? "1px solid var(--border)"
                     : "none",
-                gap: 8,
+                display: "flex",
+                flexDirection: "column",
+                gap: 6,
               }}
             >
-              {/* # */}
-              <span
+              {/* 상단: # · 부스명 · 학과 · 위치 · 일정 · 분류 · 삭제 */}
+              <div
                 style={{
-                  fontFamily: "var(--mono-font)",
-                  color: "var(--muted)",
-                  fontSize: 11,
-                  paddingTop: 8,
+                  display: "grid",
+                  gridTemplateColumns: "28px 1fr 120px 80px 1fr 100px 36px",
+                  alignItems: "center",
+                  gap: 8,
                 }}
               >
-                {String(i + 1).padStart(2, "0")}
-              </span>
+                {/* # */}
+                <span
+                  style={{
+                    fontFamily: "var(--mono-font)",
+                    color: "var(--muted)",
+                    fontSize: 11,
+                  }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
 
-              {/* 부스명 + 상세내용 + 날짜 토글 */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {/* 부스명 */}
                 <input
                   style={inputStyle}
                   value={b.name}
                   placeholder="부스명"
                   onChange={(e) => updateField(b._key, "name", e.target.value)}
                 />
+
+                {/* 학과 */}
+                <input
+                  style={inputStyle}
+                  value={b.dept}
+                  placeholder="학과"
+                  onChange={(e) => updateField(b._key, "dept", e.target.value)}
+                />
+
+                {/* 위치 */}
+                <input
+                  style={{
+                    ...inputStyle,
+                    fontFamily: "var(--mono-font)",
+                    fontSize: 12,
+                  }}
+                  value={b.loc}
+                  placeholder="A-01"
+                  onChange={(e) => updateField(b._key, "loc", e.target.value)}
+                />
+
+                {/* 일정 */}
+                <input
+                  style={inputStyle}
+                  value={b.schedule}
+                  placeholder="10:00–18:00"
+                  onChange={(e) =>
+                    updateField(b._key, "schedule", e.target.value)
+                  }
+                />
+
+                {/* 분류 */}
+                <select
+                  style={{ ...inputStyle, cursor: "pointer" }}
+                  value={b.tag}
+                  onChange={(e) =>
+                    updateField(b._key, "tag", e.target.value as BoothTag)
+                  }
+                >
+                  {TAGS.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+
+                {/* 삭제 */}
+                <button
+                  onClick={() => removeRow(b._key)}
+                  style={{
+                    all: "unset",
+                    cursor: "pointer",
+                    color: "var(--muted)",
+                    fontSize: 16,
+                    textAlign: "center",
+                    width: 28,
+                    height: 28,
+                    borderRadius: 6,
+                    display: "grid",
+                    placeItems: "center",
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* 하단: 상세내용 + 날짜 (# 너비만큼 들여쓰기, × 너비만큼 여백) */}
+              <div style={{ paddingLeft: 36, paddingRight: 44 }}>
                 {/* 상세 내용 */}
                 <textarea
                   style={{
@@ -413,7 +487,7 @@ export default function BoothEditorPage() {
                     resize: "vertical",
                     lineHeight: 1.6,
                     fontSize: 12,
-                    color: "var(--fg)",
+                    marginBottom: 6,
                   }}
                   value={b.desc}
                   placeholder="부스 소개, 운영 방식, 메뉴 등 상세 내용"
@@ -475,72 +549,6 @@ export default function BoothEditorPage() {
                   </button>
                 </div>
               </div>
-
-              {/* 학과 */}
-              <input
-                style={{ ...inputStyle, marginTop: 0 }}
-                value={b.dept}
-                placeholder="학과"
-                onChange={(e) => updateField(b._key, "dept", e.target.value)}
-              />
-
-              {/* 위치 */}
-              <input
-                style={{
-                  ...inputStyle,
-                  fontFamily: "var(--mono-font)",
-                  fontSize: 12,
-                }}
-                value={b.loc}
-                placeholder="A-01"
-                onChange={(e) => updateField(b._key, "loc", e.target.value)}
-              />
-
-              {/* 일정 */}
-              <input
-                style={inputStyle}
-                value={b.schedule}
-                placeholder="10:00–18:00"
-                onChange={(e) =>
-                  updateField(b._key, "schedule", e.target.value)
-                }
-              />
-
-              {/* 분류 */}
-              <select
-                style={{ ...inputStyle, cursor: "pointer" }}
-                value={b.tag}
-                onChange={(e) =>
-                  updateField(b._key, "tag", e.target.value as BoothTag)
-                }
-              >
-                {TAGS.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-
-              {/* 삭제 */}
-              <button
-                onClick={() => removeRow(b._key)}
-                style={{
-                  all: "unset",
-                  cursor: "pointer",
-                  color: "var(--muted)",
-                  fontSize: 16,
-                  textAlign: "center",
-                  lineHeight: 1,
-                  width: 28,
-                  height: 28,
-                  borderRadius: 6,
-                  display: "grid",
-                  placeItems: "center",
-                  paddingTop: 4,
-                }}
-              >
-                ×
-              </button>
             </div>
           ))
         )}
