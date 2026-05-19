@@ -333,7 +333,7 @@ export default function BoothEditorPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "28px 1fr 120px 80px 1fr 1fr 100px 36px",
+            gridTemplateColumns: "28px 1fr 120px 80px 1fr 100px 36px",
             padding: "12px 16px",
             borderBottom: "1px solid var(--border)",
             fontFamily: "var(--mono-font)",
@@ -346,11 +346,10 @@ export default function BoothEditorPage() {
           }}
         >
           <span>#</span>
-          <span>부스명 / 운영 날짜</span>
+          <span>부스명 / 상세 내용 / 운영 날짜</span>
           <span>학과</span>
           <span>위치</span>
           <span>일정</span>
-          <span>상세 내용</span>
           <span>분류</span>
           <span />
         </div>
@@ -375,7 +374,7 @@ export default function BoothEditorPage() {
               key={b._key}
               style={{
                 display: "grid",
-                gridTemplateColumns: "28px 1fr 120px 80px 1fr 1fr 100px 36px",
+                gridTemplateColumns: "28px 1fr 120px 80px 1fr 100px 36px",
                 padding: "10px 16px",
                 alignItems: "start",
                 borderBottom:
@@ -397,13 +396,28 @@ export default function BoothEditorPage() {
                 {String(i + 1).padStart(2, "0")}
               </span>
 
-              {/* 부스명 + 날짜 토글 */}
+              {/* 부스명 + 상세내용 + 날짜 토글 */}
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <input
                   style={inputStyle}
                   value={b.name}
                   placeholder="부스명"
                   onChange={(e) => updateField(b._key, "name", e.target.value)}
+                />
+                {/* 상세 내용 */}
+                <textarea
+                  style={{
+                    ...inputStyle,
+                    height: 72,
+                    padding: "8px 10px",
+                    resize: "vertical",
+                    lineHeight: 1.6,
+                    fontSize: 12,
+                    color: "var(--fg)",
+                  }}
+                  value={b.desc}
+                  placeholder="부스 소개, 운영 방식, 메뉴 등 상세 내용"
+                  onChange={(e) => updateField(b._key, "desc", e.target.value)}
                 />
                 {/* 날짜 토글 칩 */}
                 <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
@@ -490,21 +504,6 @@ export default function BoothEditorPage() {
                 onChange={(e) =>
                   updateField(b._key, "schedule", e.target.value)
                 }
-              />
-
-              {/* 상세 내용 */}
-              <textarea
-                style={{
-                  ...inputStyle,
-                  height: 60,
-                  padding: "8px 10px",
-                  resize: "vertical",
-                  lineHeight: 1.5,
-                  fontSize: 12,
-                }}
-                value={b.desc}
-                placeholder="부스 소개, 운영 방식 등"
-                onChange={(e) => updateField(b._key, "desc", e.target.value)}
               />
 
               {/* 분류 */}
