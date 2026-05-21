@@ -16,11 +16,15 @@ import {
 } from "firebase/firestore";
 import { db } from "@/app/utils/firebase/db";
 import {
+  FestivalCommentDoc,
+  FestivalCommentRequest,
+  FestivalCommentResponse,
   FestivalDoc,
   FestivalInput,
   FestivalResponse,
   FestivalStatus,
   GetFestivalsParams,
+  UserResponse,
 } from "./festivals.type";
 
 const COL = "festivals";
@@ -50,7 +54,6 @@ function toResponse(id: string, data: FestivalDoc): FestivalResponse {
   const end = tsToIso(data.endDate).split("T")[0];
   return {
     id,
-    title: data.title ?? data.name,
     name: data.name,
     nameEn: data.nameEn,
     school: data.school,
@@ -64,13 +67,11 @@ function toResponse(id: string, data: FestivalDoc): FestivalResponse {
     address: data.address ?? "",
     lat: data.lat,
     lng: data.lng,
-    startDate: data.startDate,
-    endDate: data.endDate,
     start,
     end,
     status: deriveStatus(start, end),
-    createdAt: data.createdAt,
-    updatedAt: data.updatedAt,
+    createdAt: tsToIso(data.createdAt),
+    updatedAt: tsToIso(data.updatedAt),
     title: data.title ?? data.name,
   };
 }
@@ -80,7 +81,6 @@ function toDoc(
   input: FestivalInput,
 ): Omit<FestivalDoc, "createdAt" | "updatedAt" | "ownerUid"> {
   return {
-    title: input.name,
     name: input.name,
     nameEn: input.nameEn?.trim() ?? "",
     school: input.school,
@@ -250,5 +250,88 @@ export const useIncrementParticipants = () => {
       });
     },
     onSuccess: (_, id) => qc.invalidateQueries({ queryKey: ["festival", id] }),
+  });
+};
+
+export const useGetFestivalComments = (festivalId: string) => {
+  return useQuery({
+    queryKey: ["festivalComments", festivalId],
+    queryFn: async () => {
+      let q = query(collection(db, "festival_comments"));
+
+      q = query(q, where("festivalId", "==", festivalId));
+
+      const snap = await getDocs(q);
+      const comments = snap.docs.map(
+        (doc) => ({ id: doc.id, ...doc.data() }) as FestivalCommentDoc,
+      );
+
+      // createdUser가 있는 경우 유저 정보 추가 로드
+      const userIds = [
+        ...new Set(
+          comments
+            .map((c) => c.createdUser)
+            .filter((uid): uid is string => !!uid),
+        ),
+      ];
+
+      const userMap: Record<string, any> = {};
+      await Promise.all(
+        userIds.map(async (uid) => {
+          const user = await getUser(uid);
+          if (user) {
+            userMap[uid] = user;
+          }
+        }),
+      );
+
+      return comments.map((c) => ({
+        ...c,
+        createdUser: c.createdUser ? userMap[c.createdUser] : void 0,
+      })) as FestivalCommentResponse[];
+    },
+  });
+};
+
+const getUser = async (id: string) => {
+  const userSnap = await getDoc(doc(db, "users", id));
+  if (userSnap.exists()) {
+    return { id, ...userSnap.data() } as UserResponse;
+  }
+  return null;
+};
+
+export const useCreateFestivalComment = () => {
+  return useMutation({
+    mutationFn: async (input: FestivalCommentRequest) => {
+      const payload: FestivalCommentRequest = {
+        content: input.content,
+        createdAt: input.createdAt,
+        festivalId: input.festivalId,
+      };
+
+      if (input.createdUser) {
+        payload.createdUser = input.createdUser;
+      }
+
+      const ref = await addDoc(collection(db, "festival_comments"), payload);
+      const snap = await getDoc(ref);
+      const data = snap.data() as FestivalCommentDoc;
+      const response: FestivalCommentResponse = {
+        id: snap.id,
+        content: data.content,
+        createdAt: data.createdAt,
+        festivalId: data.festivalId,
+      };
+
+      if (input.createdUser) {
+        const user = await getUser(input.createdUser);
+        if (user) {
+          response.createdUser = user;
+        }
+      }
+
+      return response;
+    },
   });
 };
