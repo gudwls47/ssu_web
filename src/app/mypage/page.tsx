@@ -51,7 +51,7 @@ export default function MyPage() {
     }
   }, [loading, user, profile, router]);
 
-  if (loading || !user || !profile) {
+  if (loading) {
     return (
       <div
         style={{
@@ -65,6 +65,11 @@ export default function MyPage() {
         로딩 중…
       </div>
     );
+  }
+
+  // 로딩 완료됐는데 user/profile 없으면 리디렉트 처리 대기
+  if (!user || !profile) {
+    return null;
   }
 
   const initial = profile.displayName[0]?.toUpperCase() ?? "?";
