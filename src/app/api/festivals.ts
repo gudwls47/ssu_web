@@ -278,9 +278,13 @@ export const useGetFestivalComments = (festivalId: string) => {
       const userMap: Record<string, any> = {};
       await Promise.all(
         userIds.map(async (uid) => {
-          const user = await getUser(uid);
-          if (user) {
-            userMap[uid] = user;
+          try {
+            const user = await getUser(uid);
+            if (user) {
+              userMap[uid] = user;
+            }
+          } catch {
+            // 권한 문제 등으로 조회 실패 시 무시 — authorName으로 표시
           }
         }),
       );
@@ -319,6 +323,9 @@ export const useCreateFestivalComment = () => {
       if (input.createdUser) {
         payload.createdUser = input.createdUser;
       }
+      if (input.authorName) {
+        payload.authorName = input.authorName;
+      }
       if (input.tag) {
         payload.tag = input.tag;
       }
@@ -332,13 +339,18 @@ export const useCreateFestivalComment = () => {
         createdAt: data.createdAt,
         festivalId: data.festivalId,
         tag: data.tag,
+        authorName: data.authorName,
       };
 
       if (input.createdUser) {
         response.createdUserUid = input.createdUser;
-        const user = await getUser(input.createdUser);
-        if (user) {
-          response.createdUser = user;
+        try {
+          const user = await getUser(input.createdUser);
+          if (user) {
+            response.createdUser = user;
+          }
+        } catch {
+          // 조회 실패해도 authorName으로 표시됨
         }
       }
 

@@ -160,6 +160,7 @@ export interface FestivalCommentDoc {
   content: string;
   createdAt: Timestamp;
   createdUser?: string;
+  authorName?: string; // 작성 시점 닉네임 (익명이면 미저장)
   festivalId: string;
   tag?: CommentTag; // 연관 탭 태그
 }
@@ -175,6 +176,7 @@ export interface FestivalCommentResponse extends Omit<
 export interface FestivalCommentRequest {
   festivalId: string;
   createdUser?: string;
+  authorName?: string;
   content: string;
   createdAt: Timestamp;
   tag?: CommentTag;

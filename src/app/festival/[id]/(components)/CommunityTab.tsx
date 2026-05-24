@@ -64,12 +64,17 @@ export function CommunityTab({ festival }: CommunityTabProps) {
   const send = () => {
     if (!text.trim() || isCreatingComment || authLoading) return;
     setIsCreatingComment(true);
-    // 로그인 상태이고 익명 체크 안 했으면 uid 전달
+    // 로그인 상태이고 익명 체크 안 했으면 uid + 닉네임 전달
     const createdUser = !isAnonymous && user?.uid ? user.uid : void 0;
+    const authorName =
+      !isAnonymous && user
+        ? (user.displayName ?? user.email?.split("@")[0] ?? void 0)
+        : void 0;
     createComment(
       {
         festivalId: festival.id,
         createdUser,
+        authorName,
         content: text,
         createdAt: Timestamp.now(),
         tag: selectedTag ?? void 0,
@@ -299,7 +304,7 @@ export function CommunityTab({ festival }: CommunityTabProps) {
                   className="head"
                   style={{ display: "flex", alignItems: "center", gap: 6 }}
                 >
-                  <b>{v.createdUser ? v.createdUser.displayName : "익명"}</b>
+                  <b>{v.authorName || v.createdUser?.displayName || "익명"}</b>
                   <span>·</span>
                   <span>
                     {(v.createdAt as Timestamp)
