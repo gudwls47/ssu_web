@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Timestamp } from "firebase/firestore";
 import { useGetBooths } from "@/app/api/booths";
@@ -22,7 +22,7 @@ const SLIDE_LABEL: Record<SlideType, string> = {
 };
 const SLIDE_DURATION = 5000; // 5초
 
-// ── 태그 색상 ─────────────────────────────────────────────
+// ── 색상 상수 ─────────────────────────────────────────────
 const TAG_COLOR: Record<CommentTag, string> = {
   라인업: "#FF1E7A",
   지도: "#2563EB",
@@ -53,62 +53,44 @@ const NOTICE_CAT_COLOR: Record<string, string> = {
 };
 
 // ── 단일 축제 슬라이드쇼 ──────────────────────────────────
-interface FestivalStoryProps {
-  festivalId: string;
-  onDone: () => void;
-  festCount: number;
-  festIdx: number;
-  slideIdx: number;
-  setSlideIdx: (i: number) => void;
-}
-
-function FestivalStory({
-  festivalId,
-  onDone,
-  festCount,
-  festIdx,
-  slideIdx,
-  setSlideIdx,
-}: FestivalStoryProps) {
+function FestivalStory({ festivalId }: { festivalId: string }) {
   const { data: festival } = useGetFestival(festivalId);
   const { data: booths } = useGetBooths(festivalId);
   const { data: notices } = useGetNotices(festivalId);
   const { data: comments } = useGetFestivalComments(festivalId);
   const progressRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [slideIdx, setSlideIdx] = useState(0);
 
   // 진행 바 애니메이션 리셋
   useEffect(() => {
     if (progressRef.current) {
       progressRef.current.style.transition = "none";
       progressRef.current.style.width = "0%";
-      setTimeout(() => {
-        if (progressRef.current) {
-          progressRef.current.style.transition = `width ${SLIDE_DURATION}ms linear`;
-          progressRef.current.style.width = "100%";
-        }
-      }, 30);
+      const raf = requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (progressRef.current) {
+            progressRef.current.style.transition = `width ${SLIDE_DURATION}ms linear`;
+            progressRef.current.style.width = "100%";
+          }
+        });
+      });
+      return () => cancelAnimationFrame(raf);
     }
   }, [slideIdx]);
 
-  // 슬라이드 자동 전환
+  // 슬라이드 자동 전환 (마지막이면 처음으로 루프)
   useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setSlideIdx(slideIdx + 1 >= SLIDES.length ? -1 : slideIdx + 1);
-      if (slideIdx + 1 >= SLIDES.length) {
-        onDone();
-      }
+    const timer = setInterval(() => {
+      setSlideIdx((i) => (i + 1) % SLIDES.length);
     }, SLIDE_DURATION);
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [slideIdx, onDone, setSlideIdx]);
+    return () => clearInterval(timer);
+  }, []);
 
   if (!festival) {
     return (
       <div
         style={{
-          height: 400,
+          height: 340,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -122,81 +104,34 @@ function FestivalStory({
     );
   }
 
-  const current = SLIDES[slideIdx] ?? "cover";
+  const current = SLIDES[slideIdx];
   const topBooths = (booths ?? []).slice(0, 5);
   const topNotices = (notices ?? []).slice(0, 4);
   const topComments = (comments ?? []).slice(0, 5);
 
   return (
-    <div style={{ position: "relative" }}>
-      {/* 상단: 축제명 + 네비 */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 14,
-          gap: 12,
-        }}
-      >
+    <div>
+      {/* 슬라이드 탭 + 진행 바 */}
+      <div style={{ marginBottom: 14 }}>
         <div
           style={{
             display: "flex",
-            alignItems: "center",
-            gap: 10,
-            minWidth: 0,
+            gap: 6,
+            marginBottom: 10,
+            flexWrap: "wrap",
           }}
         >
-          {festival.thumbnail && (
-            <img
-              src={festival.thumbnail}
-              alt={festival.name}
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: 8,
-                objectFit: "cover",
-                flexShrink: 0,
-              }}
-            />
-          )}
-          <div style={{ minWidth: 0 }}>
-            <div
-              style={{
-                font: "700 15px/1 var(--display-font)",
-                color: "var(--fg)",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {festival.name}
-            </div>
-            <div
-              style={{
-                font: "400 11px/1 var(--mono-font)",
-                color: "var(--muted)",
-                marginTop: 3,
-              }}
-            >
-              {festival.school} · {festival.start} ~ {festival.end}
-            </div>
-          </div>
-        </div>
-
-        {/* 슬라이드 탭 */}
-        <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
           {SLIDES.map((s, i) => (
             <button
               key={s}
               onClick={() => setSlideIdx(i)}
               style={{
-                padding: "3px 8px",
-                borderRadius: 12,
+                padding: "4px 12px",
+                borderRadius: 14,
                 border: "none",
                 background: slideIdx === i ? "var(--accent)" : "var(--faint)",
                 color: slideIdx === i ? "#fff" : "var(--muted)",
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
                 transition: "all 0.15s",
@@ -206,26 +141,20 @@ function FestivalStory({
             </button>
           ))}
         </div>
-      </div>
-
-      {/* 진행 바 */}
-      <div
-        style={{
-          height: 2,
-          background: "var(--border)",
-          borderRadius: 1,
-          marginBottom: 18,
-          overflow: "hidden",
-        }}
-      >
+        {/* 진행 바 */}
         <div
-          ref={progressRef}
           style={{
-            height: "100%",
-            background: "var(--accent)",
-            width: "0%",
+            height: 2,
+            background: "var(--border)",
+            borderRadius: 1,
+            overflow: "hidden",
           }}
-        />
+        >
+          <div
+            ref={progressRef}
+            style={{ height: "100%", background: "var(--accent)", width: "0%" }}
+          />
+        </div>
       </div>
 
       {/* 슬라이드 본문 */}
@@ -243,33 +172,10 @@ function FestivalStory({
         )}
       </div>
 
-      {/* 하단: 축제 개수 점 + 이동 링크 */}
+      {/* 하단 링크 */}
       <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginTop: 18,
-        }}
+        style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}
       >
-        {festCount > 1 ? (
-          <div style={{ display: "flex", gap: 5 }}>
-            {Array.from({ length: festCount }).map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  width: festIdx === i ? 16 : 6,
-                  height: 6,
-                  borderRadius: 3,
-                  background: festIdx === i ? "var(--accent)" : "var(--border)",
-                  transition: "all 0.3s",
-                }}
-              />
-            ))}
-          </div>
-        ) : (
-          <div />
-        )}
         <Link
           href={`/festival/${festivalId}`}
           style={{
@@ -324,7 +230,6 @@ function SlideCover({ festival }: { festival: any }) {
           }}
         />
       )}
-      {/* 오버레이 */}
       <div
         style={{
           position: "absolute",
@@ -395,7 +300,7 @@ function SlideDesc({ festival }: { festival: any }) {
         borderRadius: 16,
         border: "1px solid var(--border)",
         background: "var(--surface)",
-        padding: "28px 28px",
+        padding: "28px",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -438,75 +343,78 @@ function SlideBooth({
   booths: any[];
   festivalId: string;
 }) {
+  if (booths.length === 0) return <EmptySlide message="등록된 부스가 없어요" />;
   return (
     <div
-      style={{ height: 280, display: "flex", flexDirection: "column", gap: 8 }}
+      style={{
+        height: 280,
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+        overflowY: "auto",
+      }}
     >
-      {booths.length === 0 ? (
-        <EmptySlide message="등록된 부스가 없어요" />
-      ) : (
-        booths.map((b) => (
-          <Link
-            key={b.id}
-            href={`/festival/${festivalId}?tab=booth`}
-            style={{ textDecoration: "none" }}
+      {booths.map((b) => (
+        <Link
+          key={b.id}
+          href={`/festival/${festivalId}?tab=booth`}
+          style={{ textDecoration: "none" }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "10px 14px",
+              borderRadius: 12,
+              border: "1px solid var(--border)",
+              background: "var(--surface)",
+            }}
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "10px 14px",
-                borderRadius: 12,
-                border: "1px solid var(--border)",
-                background: "var(--surface)",
-              }}
-            >
-              {b.tag && (
-                <span
-                  style={{
-                    flexShrink: 0,
-                    padding: "2px 8px",
-                    borderRadius: 8,
-                    fontSize: 10,
-                    fontWeight: 700,
-                    background: `${BOOTH_TAG_COLOR[b.tag] ?? "#888"}18`,
-                    color: BOOTH_TAG_COLOR[b.tag] ?? "#888",
-                    border: `1px solid ${BOOTH_TAG_COLOR[b.tag] ?? "#888"}40`,
-                  }}
-                >
-                  {BOOTH_TAG_LABEL[b.tag] ?? b.tag}
-                </span>
-              )}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    font: "600 13px/1 var(--body-font)",
-                    color: "var(--fg)",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {b.name}
-                </div>
-                <div
-                  style={{
-                    font: "400 11px/1 var(--mono-font)",
-                    color: "var(--muted)",
-                    marginTop: 3,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {b.dept} · {b.loc}
-                </div>
+            {b.tag && (
+              <span
+                style={{
+                  flexShrink: 0,
+                  padding: "2px 8px",
+                  borderRadius: 8,
+                  fontSize: 10,
+                  fontWeight: 700,
+                  background: `${BOOTH_TAG_COLOR[b.tag] ?? "#888"}18`,
+                  color: BOOTH_TAG_COLOR[b.tag] ?? "#888",
+                  border: `1px solid ${BOOTH_TAG_COLOR[b.tag] ?? "#888"}40`,
+                }}
+              >
+                {BOOTH_TAG_LABEL[b.tag] ?? b.tag}
+              </span>
+            )}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  font: "600 13px/1 var(--body-font)",
+                  color: "var(--fg)",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {b.name}
+              </div>
+              <div
+                style={{
+                  font: "400 11px/1 var(--mono-font)",
+                  color: "var(--muted)",
+                  marginTop: 3,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {b.dept} · {b.loc}
               </div>
             </div>
-          </Link>
-        ))
-      )}
+          </div>
+        </Link>
+      ))}
     </div>
   );
 }
@@ -519,75 +427,79 @@ function SlideNotice({
   notices: any[];
   festivalId: string;
 }) {
+  if (notices.length === 0)
+    return <EmptySlide message="등록된 공지가 없어요" />;
   return (
     <div
-      style={{ height: 280, display: "flex", flexDirection: "column", gap: 8 }}
+      style={{
+        height: 280,
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+        overflowY: "auto",
+      }}
     >
-      {notices.length === 0 ? (
-        <EmptySlide message="등록된 공지가 없어요" />
-      ) : (
-        notices.map((n) => (
-          <Link
-            key={n.id}
-            href={`/festival/${festivalId}?tab=notice`}
-            style={{ textDecoration: "none" }}
+      {notices.map((n) => (
+        <Link
+          key={n.id}
+          href={`/festival/${festivalId}?tab=notice`}
+          style={{ textDecoration: "none" }}
+        >
+          <div
+            style={{
+              padding: "12px 16px",
+              borderRadius: 12,
+              border: "1px solid var(--border)",
+              background: "var(--surface)",
+            }}
           >
             <div
               style={{
-                padding: "12px 16px",
-                borderRadius: 12,
-                border: "1px solid var(--border)",
-                background: "var(--surface)",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 4,
               }}
             >
-              <div
+              <span
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginBottom: 4,
+                  padding: "1px 8px",
+                  borderRadius: 8,
+                  fontSize: 10,
+                  fontWeight: 700,
+                  background: `${NOTICE_CAT_COLOR[n.category] ?? "#888"}18`,
+                  color: NOTICE_CAT_COLOR[n.category] ?? "#888",
+                  border: `1px solid ${NOTICE_CAT_COLOR[n.category] ?? "#888"}40`,
                 }}
               >
-                <span
-                  style={{
-                    padding: "1px 8px",
-                    borderRadius: 8,
-                    fontSize: 10,
-                    fontWeight: 700,
-                    background: `${NOTICE_CAT_COLOR[n.category] ?? "#888"}18`,
-                    color: NOTICE_CAT_COLOR[n.category] ?? "#888",
-                    border: `1px solid ${NOTICE_CAT_COLOR[n.category] ?? "#888"}40`,
-                  }}
-                >
-                  {n.category}
-                </span>
-                <span
-                  style={{
-                    font: "600 13px/1 var(--body-font)",
-                    color: "var(--fg)",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {n.title}
-                </span>
-              </div>
-              <div
+                {n.category}
+              </span>
+              <span
                 style={{
-                  font: "400 12px/1.5 var(--body-font)",
-                  color: "var(--muted)",
+                  font: "600 13px/1 var(--body-font)",
+                  color: "var(--fg)",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
                 }}
               >
-                {n.content}
-              </div>
+                {n.title}
+              </span>
             </div>
-          </Link>
-        ))
-      )}
+            <div
+              style={{
+                font: "400 12px/1.5 var(--body-font)",
+                color: "var(--muted)",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {n.content}
+            </div>
+          </div>
+        </Link>
+      ))}
     </div>
   );
 }
@@ -600,87 +512,91 @@ function SlideTalk({
   comments: any[];
   festivalId: string;
 }) {
+  if (comments.length === 0)
+    return <EmptySlide message="아직 남긴 톡이 없어요" />;
   return (
     <div
-      style={{ height: 280, display: "flex", flexDirection: "column", gap: 6 }}
+      style={{
+        height: 280,
+        display: "flex",
+        flexDirection: "column",
+        gap: 6,
+        overflowY: "auto",
+      }}
     >
-      {comments.length === 0 ? (
-        <EmptySlide message="아직 남긴 톡이 없어요" />
-      ) : (
-        comments.map((c) => (
-          <Link
-            key={c.id}
-            href={`/festival/${festivalId}?tab=community`}
-            style={{ textDecoration: "none" }}
+      {comments.map((c) => (
+        <Link
+          key={c.id}
+          href={`/festival/${festivalId}?tab=community`}
+          style={{ textDecoration: "none" }}
+        >
+          <div
+            style={{
+              padding: "10px 14px",
+              borderRadius: 12,
+              border: "1px solid var(--border)",
+              background: "var(--surface)",
+            }}
           >
             <div
               style={{
-                padding: "10px 14px",
-                borderRadius: 12,
-                border: "1px solid var(--border)",
-                background: "var(--surface)",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                marginBottom: 4,
               }}
             >
-              <div
+              <span
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  marginBottom: 4,
-                }}
-              >
-                <span
-                  style={{
-                    font: "600 12px/1 var(--body-font)",
-                    color: "var(--fg)",
-                  }}
-                >
-                  {c.authorName || c.createdUser?.displayName || "익명"}
-                </span>
-                {c.tag && (
-                  <span
-                    style={{
-                      padding: "1px 6px",
-                      borderRadius: 8,
-                      fontSize: 10,
-                      fontWeight: 700,
-                      background: `${TAG_COLOR[c.tag as CommentTag]}18`,
-                      color: TAG_COLOR[c.tag as CommentTag],
-                    }}
-                  >
-                    #{c.tag}
-                  </span>
-                )}
-                <span
-                  style={{
-                    marginLeft: "auto",
-                    font: "400 10px/1 var(--mono-font)",
-                    color: "var(--muted)",
-                  }}
-                >
-                  {(c.createdAt as Timestamp)
-                    .toDate()
-                    .toLocaleTimeString("ko-KR", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                </span>
-              </div>
-              <div
-                style={{
-                  font: "400 12px/1.5 var(--body-font)",
+                  font: "600 12px/1 var(--body-font)",
                   color: "var(--fg)",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
                 }}
               >
-                {c.content}
-              </div>
+                {c.authorName || c.createdUser?.displayName || "익명"}
+              </span>
+              {c.tag && (
+                <span
+                  style={{
+                    padding: "1px 6px",
+                    borderRadius: 8,
+                    fontSize: 10,
+                    fontWeight: 700,
+                    background: `${TAG_COLOR[c.tag as CommentTag]}18`,
+                    color: TAG_COLOR[c.tag as CommentTag],
+                  }}
+                >
+                  #{c.tag}
+                </span>
+              )}
+              <span
+                style={{
+                  marginLeft: "auto",
+                  font: "400 10px/1 var(--mono-font)",
+                  color: "var(--muted)",
+                }}
+              >
+                {(c.createdAt as Timestamp)
+                  .toDate()
+                  .toLocaleTimeString("ko-KR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+              </span>
             </div>
-          </Link>
-        ))
-      )}
+            <div
+              style={{
+                font: "400 12px/1.5 var(--body-font)",
+                color: "var(--fg)",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {c.content}
+            </div>
+          </div>
+        </Link>
+      ))}
     </div>
   );
 }
@@ -710,18 +626,6 @@ function EmptySlide({ message }: { message: string }) {
 export default function MyFestivalWidget({ uid }: { uid: string }) {
   const { data: myFestivals, isLoading } = useGetMyFestivals(uid);
   const [festIdx, setFestIdx] = useState(0);
-  const [slideIdx, setSlideIdx] = useState(0);
-
-  const handleDone = useCallback(() => {
-    setSlideIdx(0);
-    setFestIdx((i) =>
-      myFestivals && myFestivals.length > 0 ? (i + 1) % myFestivals.length : 0,
-    );
-  }, [myFestivals]);
-
-  const handleSetSlide = useCallback((i: number) => {
-    setSlideIdx(i < 0 ? 0 : i);
-  }, []);
 
   if (isLoading) {
     return (
@@ -748,7 +652,8 @@ export default function MyFestivalWidget({ uid }: { uid: string }) {
 
   if (!myFestivals || myFestivals.length === 0) return null;
 
-  const current = myFestivals[festIdx] ?? myFestivals[0];
+  const safeFestIdx = Math.min(festIdx, myFestivals.length - 1);
+  const current = myFestivals[safeFestIdx];
 
   return (
     <div
@@ -769,21 +674,70 @@ export default function MyFestivalWidget({ uid }: { uid: string }) {
           color: "var(--muted)",
           letterSpacing: "0.12em",
           textTransform: "uppercase",
-          marginBottom: 18,
+          marginBottom: 14,
         }}
       >
         내가 참여한 축제
       </div>
 
-      <FestivalStory
-        key={current.festivalId}
-        festivalId={current.festivalId}
-        onDone={handleDone}
-        festCount={myFestivals.length}
-        festIdx={festIdx}
-        slideIdx={slideIdx}
-        setSlideIdx={handleSetSlide}
-      />
+      {/* 축제 선택 탭 (여러 개일 때만) */}
+      {myFestivals.length > 1 && (
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            marginBottom: 18,
+            overflowX: "auto",
+            paddingBottom: 4,
+            scrollbarWidth: "none",
+          }}
+        >
+          {myFestivals.map((f, i) => (
+            <button
+              key={f.festivalId}
+              onClick={() => setFestIdx(i)}
+              style={{
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "8px 14px",
+                borderRadius: 16,
+                border: `1.5px solid ${safeFestIdx === i ? "var(--accent)" : "var(--border)"}`,
+                background: safeFestIdx === i ? "var(--faint)" : "transparent",
+                cursor: "pointer",
+                transition: "all 0.15s",
+              }}
+            >
+              {f.thumbnail && (
+                <img
+                  src={f.thumbnail}
+                  alt={f.name}
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: 6,
+                    objectFit: "cover",
+                    flexShrink: 0,
+                  }}
+                />
+              )}
+              <span
+                style={{
+                  font: `${safeFestIdx === i ? 700 : 500} 13px/1 var(--body-font)`,
+                  color: safeFestIdx === i ? "var(--accent)" : "var(--muted)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {f.name}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* 슬라이드쇼 — key로 축제 전환 시 상태 초기화 */}
+      <FestivalStory key={current.festivalId} festivalId={current.festivalId} />
     </div>
   );
 }
