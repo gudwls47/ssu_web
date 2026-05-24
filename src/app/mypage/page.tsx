@@ -67,12 +67,17 @@ export default function MyPage() {
     );
   }
 
-  // 로딩 완료됐는데 user/profile 없으면 리디렉트 처리 대기
-  if (!user || !profile) {
-    return null;
-  }
+  // 로그인 안 된 경우 — useEffect 리디렉트 대기
+  if (!user) return null;
 
-  const initial = profile.displayName[0]?.toUpperCase() ?? "?";
+  // profile은 없어도 user 정보로 표시 (Firestore 문서 누락 대비)
+  const displayName =
+    profile?.displayName ??
+    user.displayName ??
+    user.email?.split("@")[0] ??
+    "사용자";
+  const email = profile?.email ?? user.email ?? "";
+  const initial = displayName[0]?.toUpperCase() ?? "?";
 
   return (
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "36px 24px 60px" }}>
@@ -134,7 +139,7 @@ export default function MyPage() {
                 marginBottom: 5,
               }}
             >
-              {profile.displayName}
+              {displayName}
             </div>
             <div
               style={{
@@ -142,7 +147,7 @@ export default function MyPage() {
                 color: "var(--muted)",
               }}
             >
-              {profile.email}
+              {email}
             </div>
           </div>
           <div

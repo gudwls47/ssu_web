@@ -45,9 +45,14 @@ export function useAuthState() {
       setUser(u);
       if (u) {
         setProfileLoading(true);
-        const p = await fetchProfile(u.uid);
-        setProfile(p);
-        setProfileLoading(false);
+        try {
+          const p = await fetchProfile(u.uid);
+          setProfile(p);
+        } catch {
+          setProfile(null);
+        } finally {
+          setProfileLoading(false);
+        }
       } else {
         setProfile(null);
         setProfileLoading(false);
