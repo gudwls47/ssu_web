@@ -90,7 +90,7 @@ function FestivalDetailContent() {
 
       {tab === "lineup" && <LineupTab fest={fest} items={lineupItems} />}
       {tab === "map" && <MapTab fest={fest} pins={mapPins} booths={booths} />}
-      {tab === "booth" && <BoothTab booths={booths} />}
+      {tab === "booth" && <BoothTab booths={booths} festivalId={id} />}
       {tab === "notice" && <NoticeTab notices={notices} />}
       {tab === "community" && <CommunityTab festival={fest} />}
     </div>

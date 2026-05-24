@@ -10,6 +10,7 @@ import {
   query,
   orderBy,
   serverTimestamp,
+  increment,
 } from "firebase/firestore";
 import { db } from "@/app/utils/firebase/db";
 import { BoothDoc, BoothInput, BoothResponse } from "./festivals.type";
@@ -86,6 +87,27 @@ export const useDeleteBooth = (festivalId: string) => {
   return useMutation({
     mutationFn: async (boothId: string) => {
       await deleteDoc(docRef(festivalId, boothId));
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["booths", festivalId] }),
+  });
+};
+
+// ── 좋아요 / 싫어요 ──────────────────────────────────────────
+export const useReactBooth = (festivalId: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      boothId,
+      type,
+      undo,
+    }: {
+      boothId: string;
+      type: "likes" | "dislikes";
+      undo?: boolean;
+    }) => {
+      await updateDoc(docRef(festivalId, boothId), {
+        [type]: increment(undo ? -1 : 1),
+      });
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["booths", festivalId] }),
   });

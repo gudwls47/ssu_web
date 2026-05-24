@@ -80,6 +80,8 @@ export interface BoothDoc {
   tag: BoothTag;
   order: number;
   days: string[]; // 운영 날짜 목록 ["2026-05-18", ...], 비어있으면 전체 기간
+  likes?: number; // 좋아요 수
+  dislikes?: number; // 싫어요 수
 }
 
 export interface BoothResponse extends BoothDoc {
