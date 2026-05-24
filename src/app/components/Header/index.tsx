@@ -4,15 +4,9 @@ import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthState, logOut } from "@/app/api/auth";
-import type { Palette, Mode } from "@/app/layouts/Layout";
+import type { Mode } from "@/app/layouts/Layout";
 
 const NAV_ITEMS: { label: string; href: string }[] = [];
-
-const PALETTES: { value: Palette; label: string; dot: string }[] = [
-  { value: "festival", label: "Festival", dot: "#FF1E7A" },
-  { value: "classic", label: "Classic", dot: "#E85D4A" },
-  { value: "experimental", label: "Neon", dot: "#FF00B8" },
-];
 
 function SearchIcon() {
   return (
@@ -30,18 +24,11 @@ function SearchIcon() {
 }
 
 interface HeaderProps {
-  palette: Palette;
   mode: Mode;
-  onPaletteChange: (p: Palette) => void;
   onModeChange: (m: Mode) => void;
 }
 
-export function Header({
-  palette,
-  mode,
-  onPaletteChange,
-  onModeChange,
-}: HeaderProps) {
+export function Header({ mode, onModeChange }: HeaderProps) {
   const pathname = usePathname();
   const { user, profile, isAdmin } = useAuthState();
   const [open, setOpen] = useState(false);
@@ -104,37 +91,6 @@ export function Header({
           </span>
           <kbd>⌘ K</kbd>
         </Link>
-      </div>
-
-      {/* 팔레트 토글 */}
-      <div
-        style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}
-      >
-        {PALETTES.map((p) => (
-          <button
-            key={p.value}
-            title={p.label}
-            aria-label={p.label}
-            onClick={() => onPaletteChange(p.value)}
-            style={{
-              width: 20,
-              height: 20,
-              borderRadius: "50%",
-              background: p.dot,
-              border:
-                palette === p.value
-                  ? "2px solid var(--fg)"
-                  : "2px solid transparent",
-              outline: palette === p.value ? "2px solid var(--bg)" : "none",
-              outlineOffset: -4,
-              cursor: "pointer",
-              flexShrink: 0,
-              padding: 0,
-              transition: "transform 0.12s",
-              transform: palette === p.value ? "scale(1.25)" : "scale(1)",
-            }}
-          />
-        ))}
       </div>
 
       <button
