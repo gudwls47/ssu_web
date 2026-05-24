@@ -86,7 +86,11 @@ function FestivalDetailContent() {
 
       <HeroSection fest={fest} />
 
-      <TabNavigation currentTab={tab} onTabChange={handleTabChange} />
+      <TabNavigation
+        currentTab={tab}
+        onTabChange={handleTabChange}
+        fest={fest}
+      />
 
       {tab === "lineup" && <LineupTab fest={fest} items={lineupItems} />}
       {tab === "map" && <MapTab fest={fest} pins={mapPins} booths={booths} />}
