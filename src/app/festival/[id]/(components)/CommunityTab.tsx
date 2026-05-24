@@ -64,8 +64,8 @@ export function CommunityTab({ festival }: CommunityTabProps) {
   const send = () => {
     if (!text.trim() || isCreatingComment || authLoading) return;
     setIsCreatingComment(true);
-    // 로그인 상태이고 익명 체크 안 했으면 uid + 닉네임 전달
-    const createdUser = !isAnonymous && user?.uid ? user.uid : void 0;
+    // UID는 항상 저장 (삭제 권한 체크용), 익명이면 authorName만 저장 안 함
+    const createdUser = user?.uid ?? void 0;
     const authorName =
       !isAnonymous && user
         ? (user.displayName ?? user.email?.split("@")[0] ?? void 0)
