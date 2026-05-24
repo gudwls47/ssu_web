@@ -35,6 +35,10 @@ export function Header({ mode, onModeChange }: HeaderProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
+  useEffect(() => {
+    setQuery("");
+  }, [pathname]);
+
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const params = new URLSearchParams();

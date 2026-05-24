@@ -1,9 +1,10 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { SearchIcon } from "lucide-react";
 import FestivalCard from "@/app/components/FestivalCard";
+import Skeleton from "@/app/components/Skeleton";
 import { useGetFestivals } from "../api/festivals";
 
 const STATUS_FILTERS = [
@@ -15,6 +16,7 @@ const STATUS_FILTERS = [
 
 function FestivalListPageInner() {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [title, setTitle] = useState(searchParams.get("title") ?? "");
   const [status, setStatus] = useState(searchParams.get("status") ?? "all");
@@ -23,7 +25,25 @@ function FestivalListPageInner() {
   );
   const [endDate, setEndDate] = useState(searchParams.get("endDate") ?? "");
 
-  const { data: festivalList } = useGetFestivals({ page: 1, size: 999 });
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (title) params.set("title", title);
+    if (status !== "all") params.set("status", status);
+    if (startDate) params.set("startDate", startDate);
+    if (endDate) params.set("endDate", endDate);
+    const query = params.toString();
+    router.replace(`/festival${query ? "?" + query : ""}`, { scroll: false });
+  }, [title, status, startDate, endDate]);
+
+  const { data: festivalList, isLoading } = useGetFestivals({
+    page: 1,
+    size: 999,
+  });
+
+  const dateError =
+    startDate && endDate && startDate > endDate
+      ? "시작일이 종료일보다 늦을 수 없어요"
+      : "";
 
   const filteredData = useMemo(() => {
     const targetList = [...(festivalList || [])];
@@ -43,16 +63,16 @@ function FestivalListPageInner() {
       const vStart = v.start;
       const vEnd = v.end;
 
-      if (startDate && vStart < startDate) {
+      if (!dateError && startDate && vStart < startDate) {
         return false;
       }
-      if (endDate && vEnd > endDate) {
+      if (!dateError && endDate && vEnd > endDate) {
         return false;
       }
 
       return true;
     });
-  }, [festivalList, title, status, startDate, endDate]);
+  }, [festivalList, title, status, startDate, endDate, dateError]);
 
   const reset = () => {
     setTitle("");
@@ -63,7 +83,7 @@ function FestivalListPageInner() {
 
   return (
     <>
-      <div className="f-tagline">Search · 축제 검색</div>
+      <div className="f-tagline">축제 검색</div>
       <h1 className="f-h" style={{ marginBottom: 24 }}>
         어디로 갈까요?
       </h1>
@@ -72,7 +92,7 @@ function FestivalListPageInner() {
         {/* ── 사이드 필터 ── */}
         <aside className="f-filter-side">
           <div>
-            <h4>STATUS</h4>
+            <h4>상태</h4>
             <div className="chip-row">
               {STATUS_FILTERS.map(({ value, label }) => (
                 <button
@@ -87,7 +107,7 @@ function FestivalListPageInner() {
             </div>
           </div>
           <div>
-            <h4>PERIOD</h4>
+            <h4>기간</h4>
             <input
               type="date"
               className="f-date-input"
@@ -102,6 +122,11 @@ function FestivalListPageInner() {
               onChange={(e) => setEndDate(e.target.value)}
               placeholder="종료일"
             />
+            {dateError && (
+              <p style={{ color: "var(--live)", fontSize: 12, marginTop: 6 }}>
+                {dateError}
+              </p>
+            )}
           </div>
           <button
             className="f-btn ghost sm"
@@ -122,16 +147,44 @@ function FestivalListPageInner() {
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="축제명 · 아티스트 · 학술제 검색"
+              placeholder="지역 · 학교 · 축제명 검색"
               style={{ cursor: "text" }}
             />
           </div>
 
+          <div
+            style={{ marginBottom: 12, fontSize: 13, color: "var(--muted)" }}
+          >
+            총 {filteredData.length}개의 축제
+          </div>
+
           <div className="f-grid">
-            {filteredData.map((v) => (
-              <FestivalCard key={v.id} data={v} />
-            ))}
-            {filteredData.length === 0 && (
+            {isLoading
+              ? Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      borderRadius: 20,
+                      overflow: "hidden",
+                      border: "1px solid var(--border)",
+                    }}
+                  >
+                    <Skeleton radius={0} className="aspect-video w-full" />
+                    <div
+                      style={{
+                        padding: 18,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 10,
+                      }}
+                    >
+                      <Skeleton radius={6} className="h-6 w-3/4" />
+                      <Skeleton radius={6} className="h-4 w-1/2" />
+                    </div>
+                  </div>
+                ))
+              : filteredData.map((v) => <FestivalCard key={v.id} data={v} />)}
+            {!isLoading && filteredData.length === 0 && (
               <div
                 style={{
                   gridColumn: "1 / -1",
