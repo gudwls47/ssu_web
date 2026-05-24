@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { SearchIcon } from "lucide-react";
 import FestivalCard from "@/app/components/FestivalCard";
 import { useGetFestivals } from "../api/festivals";
@@ -12,11 +13,15 @@ const STATUS_FILTERS = [
   { value: "ENDED", label: "종료" },
 ] as const;
 
-export default function FestivalListPage() {
-  const [title, setTitle] = useState("");
-  const [status, setStatus] = useState("all");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+function FestivalListPageInner() {
+  const searchParams = useSearchParams();
+
+  const [title, setTitle] = useState(searchParams.get("title") ?? "");
+  const [status, setStatus] = useState(searchParams.get("status") ?? "all");
+  const [startDate, setStartDate] = useState(
+    searchParams.get("startDate") ?? "",
+  );
+  const [endDate, setEndDate] = useState(searchParams.get("endDate") ?? "");
 
   const { data: festivalList } = useGetFestivals({ page: 1, size: 999 });
 
@@ -24,20 +29,16 @@ export default function FestivalListPage() {
     const targetList = [...(festivalList || [])];
 
     return targetList.filter((v) => {
-      if (title && !v.title.includes(title)) {
+      if (
+        title &&
+        !v.title.includes(title) &&
+        !(v.address ?? "").includes(title)
+      ) {
         return false;
       }
       if (status !== "all" && v.status !== status) {
         return false;
       }
-
-      // 연월일만 비교하기 위해 YYYY-MM-DD 형식의 문자열로 변환
-      const formatDate = (date: Date) => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
-      };
 
       const vStart = v.start;
       const vEnd = v.end;
@@ -147,5 +148,13 @@ export default function FestivalListPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function FestivalListPage() {
+  return (
+    <Suspense>
+      <FestivalListPageInner />
+    </Suspense>
   );
 }
