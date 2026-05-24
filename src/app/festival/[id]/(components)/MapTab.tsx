@@ -51,6 +51,25 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
     return "i";
   };
 
+  /** 한글/전각 문자 너비를 고려한 툴팁 박스 너비 계산 */
+  const tooltipWidth = (text: string) => {
+    let w = 0;
+    for (const ch of text) {
+      const code = ch.charCodeAt(0);
+      // 한글 음절(AC00-D7A3), 한글 자모(3131-318E), CJK 등 전각 문자
+      if (
+        (code >= 0xac00 && code <= 0xd7a3) ||
+        (code >= 0x3131 && code <= 0x318e) ||
+        (code >= 0x4e00 && code <= 0x9fff)
+      ) {
+        w += 11; // 한글은 fontSize 11 기준 ~11px
+      } else {
+        w += 7; // 영문/숫자는 ~7px
+      }
+    }
+    return w + 18; // 좌우 패딩
+  };
+
   /** 핀에 연결된 부스 중 선택된 날짜에 운영하는 것 */
   const getActiveBooothsForPin = (pin: MapPinResponse) => {
     if (!pin.boothIds?.length) return [];
@@ -169,18 +188,19 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
                     <g>
                       <rect
                         x={p.x + 14}
-                        y={p.y - 14}
-                        width={displayLabel.length * 7 + 12}
+                        y={p.y - 13}
+                        width={tooltipWidth(displayLabel)}
                         height="22"
                         rx="4"
                         fill="var(--fg)"
                       />
                       <text
-                        x={p.x + 20}
-                        y={p.y + 1}
+                        x={p.x + 23}
+                        y={p.y + 2}
                         fontSize="11"
                         fill="var(--bg)"
                         fontWeight="600"
+                        fontFamily="var(--body-font)"
                       >
                         {displayLabel}
                       </text>
