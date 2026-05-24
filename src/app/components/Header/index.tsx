@@ -47,8 +47,13 @@ export function Header({
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const initial = profile?.displayName?.[0] ?? user?.email?.[0] ?? "?";
-  const displayName = profile?.displayName ?? user?.email?.split("@")[0] ?? "";
+  const displayName =
+    profile?.displayName ??
+    user?.displayName ??
+    user?.email?.split("@")[0] ??
+    "";
+  const initial =
+    displayName[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? "?";
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
