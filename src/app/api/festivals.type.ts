@@ -80,6 +80,8 @@ export interface BoothDoc {
   tag: BoothTag;
   order: number;
   days: string[]; // 운영 날짜 목록 ["2026-05-18", ...], 비어있으면 전체 기간
+  likes?: number; // 좋아요 수
+  dislikes?: number; // 싫어요 수
 }
 
 export interface BoothResponse extends BoothDoc {
@@ -151,12 +153,16 @@ export interface MapPinResponse extends MapPinDoc {
   festivalId: string;
 }
 
+export type CommentTag = "라인업" | "지도" | "부스" | "공지";
+
 export interface FestivalCommentDoc {
   id: string;
   content: string;
   createdAt: Timestamp;
   createdUser?: string;
+  authorName?: string; // 작성 시점 닉네임 (익명이면 미저장)
   festivalId: string;
+  tag?: CommentTag; // 연관 탭 태그
 }
 
 export interface FestivalCommentResponse extends Omit<
@@ -164,13 +170,16 @@ export interface FestivalCommentResponse extends Omit<
   "createdUser"
 > {
   createdUser?: UserResponse;
+  createdUserUid?: string; // 원본 UID (소유권 체크용)
 }
 
 export interface FestivalCommentRequest {
   festivalId: string;
   createdUser?: string;
+  authorName?: string;
   content: string;
   createdAt: Timestamp;
+  tag?: CommentTag;
 }
 
 export interface UserResponse {

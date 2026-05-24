@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 import { useGetBooths } from "@/app/api/booths";
@@ -11,7 +10,6 @@ import { useGetMapPins } from "@/app/api/mapPins";
 import { useGetNotices } from "@/app/api/notices";
 
 import {
-  BackIcon,
   HeroSection,
   TabNavigation,
   LineupTab,
@@ -70,27 +68,18 @@ function FestivalDetailContent() {
   }
 
   return (
-    <div style={{ paddingTop: 20 }}>
-      <Link
-        href="/festival"
-        className="f-btn ghost sm"
-        style={{
-          marginBottom: 14,
-          display: "inline-flex",
-          textDecoration: "none",
-        }}
-      >
-        <BackIcon />
-        <span>뒤로</span>
-      </Link>
-
+    <div style={{ paddingTop: 8 }}>
       <HeroSection fest={fest} />
 
-      <TabNavigation currentTab={tab} onTabChange={handleTabChange} />
+      <TabNavigation
+        currentTab={tab}
+        onTabChange={handleTabChange}
+        fest={fest}
+      />
 
       {tab === "lineup" && <LineupTab fest={fest} items={lineupItems} />}
       {tab === "map" && <MapTab fest={fest} pins={mapPins} booths={booths} />}
-      {tab === "booth" && <BoothTab booths={booths} />}
+      {tab === "booth" && <BoothTab booths={booths} festivalId={id} />}
       {tab === "notice" && <NoticeTab notices={notices} />}
       {tab === "community" && <CommunityTab festival={fest} />}
     </div>
