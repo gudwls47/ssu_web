@@ -3,7 +3,10 @@
 import { useEffect, useRef } from "react";
 import Script from "next/script";
 import FestivalCard from "@/app/components/FestivalCard";
+import MyFestivalWidget from "@/app/components/MyFestivalWidget";
+import { useAuthState } from "./api/auth";
 import { useGetFestivals } from "./api/festivals";
+import { useGetMyFestivals } from "./api/userFestivals";
 
 declare global {
   interface Window {
@@ -14,6 +17,10 @@ declare global {
 const SSU = { lat: 37.4963, lng: 126.9574 };
 
 export default function MainPage() {
+  const { user, loading: authLoading } = useAuthState();
+  const { data: myFestivals } = useGetMyFestivals(user?.uid);
+  const hasJoined = !authLoading && !!user && (myFestivals?.length ?? 0) > 0;
+
   const { data: upcomingData } = useGetFestivals(
     { page: 1, status: "UPCOMING" },
     { staleTime: 0 },
@@ -101,28 +108,32 @@ export default function MainPage() {
           window.dispatchEvent(new Event("naverMapReady"));
         }}
       />
-      <div
-        style={{
-          width: "100%",
-          height: "400px",
-          borderRadius: "24px",
-          marginTop: "24px",
-          boxShadow: "0 12px 40px rgba(0,0,0,0.12)",
-          border: "1px solid rgba(0,0,0,0.05)",
-          overflow: "hidden",
-          position: "relative",
-          contain: "paint",
-          transform: "translateZ(0)",
-        }}
-      >
+      {hasJoined && user ? (
+        <MyFestivalWidget uid={user.uid} />
+      ) : (
         <div
-          id="map"
           style={{
-            position: "absolute",
-            inset: 0,
+            width: "100%",
+            height: "400px",
+            borderRadius: "24px",
+            marginTop: "24px",
+            boxShadow: "0 12px 40px rgba(0,0,0,0.12)",
+            border: "1px solid rgba(0,0,0,0.05)",
+            overflow: "hidden",
+            position: "relative",
+            contain: "paint",
+            transform: "translateZ(0)",
           }}
-        />
-      </div>
+        >
+          <div
+            id="map"
+            style={{
+              position: "absolute",
+              inset: 0,
+            }}
+          />
+        </div>
+      )}
       {liveData && liveData.length > 0 && (
         <section style={{ marginTop: 64 }}>
           <div className="f-h-row">
