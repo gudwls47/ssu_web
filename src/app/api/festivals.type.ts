@@ -151,4 +151,35 @@ export interface MapPinResponse extends MapPinDoc {
   festivalId: string;
 }
 
+export interface FestivalCommentDoc {
+  id: string;
+  content: string;
+  createdAt: Timestamp;
+  createdUser?: string;
+  festivalId: string;
+}
+
+export interface FestivalCommentResponse extends Omit<
+  FestivalCommentDoc,
+  "createdUser"
+> {
+  createdUser?: UserResponse;
+}
+
+export interface FestivalCommentRequest {
+  festivalId: string;
+  createdUser?: string;
+  content: string;
+  createdAt: Timestamp;
+}
+
+export interface UserResponse {
+  id: string;
+  createdAt: Timestamp;
+  displayName: string;
+  email: string;
+  organization: string;
+  role: "admin" | "user";
+}
+
 export type MapPinInput = MapPinDoc;
