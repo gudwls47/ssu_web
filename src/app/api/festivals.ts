@@ -313,6 +313,9 @@ export const useCreateFestivalComment = () => {
       if (input.createdUser) {
         payload.createdUser = input.createdUser;
       }
+      if (input.tag) {
+        payload.tag = input.tag;
+      }
 
       const ref = await addDoc(collection(db, "festival_comments"), payload);
       const snap = await getDoc(ref);
@@ -322,6 +325,7 @@ export const useCreateFestivalComment = () => {
         content: data.content,
         createdAt: data.createdAt,
         festivalId: data.festivalId,
+        tag: data.tag,
       };
 
       if (input.createdUser) {

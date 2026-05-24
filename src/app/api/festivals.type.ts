@@ -153,12 +153,15 @@ export interface MapPinResponse extends MapPinDoc {
   festivalId: string;
 }
 
+export type CommentTag = "라인업" | "지도" | "부스" | "공지";
+
 export interface FestivalCommentDoc {
   id: string;
   content: string;
   createdAt: Timestamp;
   createdUser?: string;
   festivalId: string;
+  tag?: CommentTag; // 연관 탭 태그
 }
 
 export interface FestivalCommentResponse extends Omit<
@@ -173,6 +176,7 @@ export interface FestivalCommentRequest {
   createdUser?: string;
   content: string;
   createdAt: Timestamp;
+  tag?: CommentTag;
 }
 
 export interface UserResponse {
