@@ -64,7 +64,7 @@ export default function LoginPage() {
       const snap = await getDoc(doc(db, "users", cred.user.uid));
       const role = snap.exists() ? snap.data().role : "user";
 
-      router.replace(role === "admin" ? "/admin/dashboard" : "/festival");
+      router.replace(role === "admin" ? "/admin/dashboard" : "/");
     } catch (err: unknown) {
       const code = (err as { code?: string }).code ?? "";
       setError(ERROR_MESSAGES[code] ?? "로그인 중 오류가 발생했습니다.");
@@ -82,9 +82,7 @@ export default function LoginPage() {
         // 신규 구글 유저 → 역할 선택 페이지로
         router.replace("/signup/role");
       } else {
-        router.replace(
-          result.role === "admin" ? "/admin/dashboard" : "/festival",
-        );
+        router.replace(result.role === "admin" ? "/admin/dashboard" : "/");
       }
     } catch (err: unknown) {
       const code = (err as { code?: string }).code ?? "";

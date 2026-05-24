@@ -62,9 +62,7 @@ export default function SignupPage() {
       if (result.isNewUser) {
         router.replace("/signup/role");
       } else {
-        router.replace(
-          result.role === "admin" ? "/admin/dashboard" : "/festival",
-        );
+        router.replace(result.role === "admin" ? "/admin/dashboard" : "/");
       }
     } catch (err: unknown) {
       const code = (err as { code?: string }).code ?? "";
@@ -99,7 +97,7 @@ export default function SignupPage() {
         role,
         organization: organization.trim(),
       });
-      router.replace(role === "admin" ? "/admin/dashboard" : "/festival");
+      router.replace(role === "admin" ? "/admin/dashboard" : "/");
     } catch (err: unknown) {
       const code = (err as { code?: string }).code ?? "";
       // eslint-disable-next-line no-console
