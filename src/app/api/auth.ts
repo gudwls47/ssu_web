@@ -38,15 +38,24 @@ async function fetchProfile(uid: string): Promise<UserProfile | null> {
 export function useAuthState() {
   const [user, setUser] = useState<User | null | undefined>(void 0);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   useEffect(() => {
     return onAuthStateChanged(auth, async (u) => {
       setUser(u);
       if (u) {
-        const p = await fetchProfile(u.uid);
-        setProfile(p);
+        setProfileLoading(true);
+        try {
+          const p = await fetchProfile(u.uid);
+          setProfile(p);
+        } catch {
+          setProfile(null);
+        } finally {
+          setProfileLoading(false);
+        }
       } else {
         setProfile(null);
+        setProfileLoading(false);
       }
     });
   }, []);
@@ -55,7 +64,8 @@ export function useAuthState() {
     user,
     profile,
     isAdmin: profile?.role === "admin",
-    loading: typeof user === "undefined",
+    // auth 상태 확인 중이거나 프로필 fetch 중일 때 loading = true
+    loading: typeof user === "undefined" || profileLoading,
   };
 }
 

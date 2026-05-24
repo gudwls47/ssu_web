@@ -12,22 +12,12 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const [palette, setPalette] = useState<Palette>("festival");
   const [mode, setMode] = useState<Mode>("light");
 
   useEffect(() => {
-    const savedPalette = localStorage.getItem(
-      "festa-palette",
-    ) as Palette | null;
     const savedMode = localStorage.getItem("festa-mode") as Mode | null;
-    if (savedPalette) setPalette(savedPalette);
     if (savedMode) setMode(savedMode);
   }, []);
-
-  const handlePalette = (p: Palette) => {
-    setPalette(p);
-    localStorage.setItem("festa-palette", p);
-  };
 
   const handleMode = (m: Mode) => {
     setMode(m);
@@ -37,15 +27,10 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div
       className="festa min-h-screen w-full"
-      data-palette={palette}
+      data-palette="festival"
       data-mode={mode}
     >
-      <Header
-        palette={palette}
-        mode={mode}
-        onPaletteChange={handlePalette}
-        onModeChange={handleMode}
-      />
+      <Header mode={mode} onModeChange={handleMode} />
       <main className="f-wrap">{children}</main>
     </div>
   );

@@ -1,10 +1,11 @@
 import type { FestivalStatus } from "@/app/api/festivals.type";
 
-export const STATUS_META: Record<FestivalStatus, { cls: string; en: string }> = {
-  LIVE: { cls: "live", en: "LIVE" },
-  UPCOMING: { cls: "upcoming", en: "UPCOMING" },
-  ENDED: { cls: "ended", en: "ENDED" },
-};
+export const STATUS_META: Record<FestivalStatus, { cls: string; en: string }> =
+  {
+    LIVE: { cls: "live", en: "LIVE" },
+    UPCOMING: { cls: "upcoming", en: "UPCOMING" },
+    ENDED: { cls: "ended", en: "ENDED" },
+  };
 
 export type TabType = "lineup" | "map" | "booth" | "notice" | "community";
 

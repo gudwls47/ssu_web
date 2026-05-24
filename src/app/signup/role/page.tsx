@@ -25,9 +25,7 @@ export default function RoleSelectPage() {
       return;
     }
     if (profile) {
-      router.replace(
-        profile.role === "admin" ? "/admin/dashboard" : "/festival",
-      );
+      router.replace(profile.role === "admin" ? "/admin/dashboard" : "/");
     }
   }, [user, profile, loading, router]);
 
@@ -45,7 +43,7 @@ export default function RoleSelectPage() {
         role,
         organization: organization.trim(),
       });
-      router.replace(role === "admin" ? "/admin/dashboard" : "/festival");
+      router.replace(role === "admin" ? "/admin/dashboard" : "/");
     } catch (err: unknown) {
       // eslint-disable-next-line no-console
       console.error("[role save error]", err);

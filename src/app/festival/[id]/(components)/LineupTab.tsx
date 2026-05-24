@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import type { FestivalResponse, LineupResponse } from "@/app/api/festivals.type";
+import type {
+  FestivalResponse,
+  LineupResponse,
+} from "@/app/api/festivals.type";
 import { dateRange } from "./utils";
 
 interface LineupTabProps {

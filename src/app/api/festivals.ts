@@ -81,6 +81,7 @@ function toDoc(
   input: FestivalInput,
 ): Omit<FestivalDoc, "createdAt" | "updatedAt" | "ownerUid"> {
   return {
+    title: input.name,
     name: input.name,
     nameEn: input.nameEn?.trim() ?? "",
     school: input.school,
@@ -94,7 +95,6 @@ function toDoc(
     lng: input.lng,
     startDate: Timestamp.fromDate(new Date(input.start)),
     endDate: Timestamp.fromDate(new Date(input.end)),
-    title: input.name,
   };
 }
 
@@ -278,17 +278,27 @@ export const useGetFestivalComments = (festivalId: string) => {
       const userMap: Record<string, any> = {};
       await Promise.all(
         userIds.map(async (uid) => {
-          const user = await getUser(uid);
-          if (user) {
-            userMap[uid] = user;
+          try {
+            const user = await getUser(uid);
+            if (user) {
+              userMap[uid] = user;
+            }
+          } catch {
+            // 권한 문제 등으로 조회 실패 시 무시 — authorName으로 표시
           }
         }),
       );
 
-      return comments.map((c) => ({
-        ...c,
-        createdUser: c.createdUser ? userMap[c.createdUser] : void 0,
-      })) as FestivalCommentResponse[];
+      return comments
+        .map((c) => ({
+          ...c,
+          createdUserUid: c.createdUser, // 원본 UID 보존
+          createdUser: c.createdUser ? userMap[c.createdUser] : void 0,
+        }))
+        .sort(
+          (a, b) =>
+            (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0),
+        ) as FestivalCommentResponse[];
     },
   });
 };
@@ -313,6 +323,12 @@ export const useCreateFestivalComment = () => {
       if (input.createdUser) {
         payload.createdUser = input.createdUser;
       }
+      if (input.authorName) {
+        payload.authorName = input.authorName;
+      }
+      if (input.tag) {
+        payload.tag = input.tag;
+      }
 
       const ref = await addDoc(collection(db, "festival_comments"), payload);
       const snap = await getDoc(ref);
@@ -322,16 +338,40 @@ export const useCreateFestivalComment = () => {
         content: data.content,
         createdAt: data.createdAt,
         festivalId: data.festivalId,
+        tag: data.tag,
+        authorName: data.authorName,
       };
 
       if (input.createdUser) {
-        const user = await getUser(input.createdUser);
-        if (user) {
-          response.createdUser = user;
+        response.createdUserUid = input.createdUser;
+        try {
+          const user = await getUser(input.createdUser);
+          if (user) {
+            response.createdUser = user;
+          }
+        } catch {
+          // 조회 실패해도 authorName으로 표시됨
         }
       }
 
       return response;
+    },
+  });
+};
+
+// ── 댓글 삭제 ─────────────────────────────────────────────
+export const useDeleteFestivalComment = (festivalId: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (commentId: string) => {
+      await deleteDoc(doc(db, "festival_comments", commentId));
+    },
+    onSuccess: (_, commentId) => {
+      qc.setQueryData(
+        ["festivalComments", festivalId],
+        (old: FestivalCommentResponse[] | undefined) =>
+          (old ?? []).filter((c) => c.id !== commentId),
+      );
     },
   });
 };
