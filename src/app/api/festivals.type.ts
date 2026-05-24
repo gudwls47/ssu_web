@@ -169,6 +169,7 @@ export interface FestivalCommentResponse extends Omit<
   "createdUser"
 > {
   createdUser?: UserResponse;
+  createdUserUid?: string; // 원본 UID (소유권 체크용)
 }
 
 export interface FestivalCommentRequest {

@@ -285,10 +285,16 @@ export const useGetFestivalComments = (festivalId: string) => {
         }),
       );
 
-      return comments.map((c) => ({
-        ...c,
-        createdUser: c.createdUser ? userMap[c.createdUser] : void 0,
-      })) as FestivalCommentResponse[];
+      return comments
+        .map((c) => ({
+          ...c,
+          createdUserUid: c.createdUser, // 원본 UID 보존
+          createdUser: c.createdUser ? userMap[c.createdUser] : void 0,
+        }))
+        .sort(
+          (a, b) =>
+            (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0),
+        ) as FestivalCommentResponse[];
     },
   });
 };
@@ -329,6 +335,7 @@ export const useCreateFestivalComment = () => {
       };
 
       if (input.createdUser) {
+        response.createdUserUid = input.createdUser;
         const user = await getUser(input.createdUser);
         if (user) {
           response.createdUser = user;
@@ -336,6 +343,23 @@ export const useCreateFestivalComment = () => {
       }
 
       return response;
+    },
+  });
+};
+
+// ── 댓글 삭제 ─────────────────────────────────────────────
+export const useDeleteFestivalComment = (festivalId: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (commentId: string) => {
+      await deleteDoc(doc(db, "festival_comments", commentId));
+    },
+    onSuccess: (_, commentId) => {
+      qc.setQueryData(
+        ["festivalComments", festivalId],
+        (old: FestivalCommentResponse[] | undefined) =>
+          (old ?? []).filter((c) => c.id !== commentId),
+      );
     },
   });
 };
