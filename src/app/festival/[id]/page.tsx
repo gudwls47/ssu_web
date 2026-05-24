@@ -72,7 +72,7 @@ function FestivalDetailContent() {
   return (
     <div style={{ paddingTop: 20 }}>
       <Link
-        href="/festival"
+        href="/"
         className="f-btn ghost sm"
         style={{
           marginBottom: 14,
