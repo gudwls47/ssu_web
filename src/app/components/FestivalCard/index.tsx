@@ -137,12 +137,8 @@ export default function FestivalCard({ data }: FestivalCardProps) {
           <span>
             {fmtTimestamp(data.start)} – {fmtTimestamp(data.end)}
           </span>
-          {data.status === "LIVE" && (
-            <>
-              <span className="text-(--faint)">·</span>
-              <span>진행 중</span>
-            </>
-          )}
+          <span className="text-(--faint)">·</span>
+          <span>참여 {data.participants ?? 0}명</span>
         </div>
       </div>
     </Link>

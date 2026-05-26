@@ -1,18 +1,12 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuthState, logOut } from "@/app/api/auth";
-import type { Palette, Mode } from "@/app/layouts/Layout";
+import type { Mode } from "@/app/layouts/Layout";
 
 const NAV_ITEMS: { label: string; href: string }[] = [];
-
-const PALETTES: { value: Palette; label: string; dot: string }[] = [
-  { value: "festival", label: "Festival", dot: "#FF1E7A" },
-  { value: "classic", label: "Classic", dot: "#E85D4A" },
-  { value: "experimental", label: "Neon", dot: "#FF00B8" },
-];
 
 function SearchIcon() {
   return (
@@ -30,25 +24,36 @@ function SearchIcon() {
 }
 
 interface HeaderProps {
-  palette: Palette;
   mode: Mode;
-  onPaletteChange: (p: Palette) => void;
   onModeChange: (m: Mode) => void;
 }
 
-export function Header({
-  palette,
-  mode,
-  onPaletteChange,
-  onModeChange,
-}: HeaderProps) {
+export function Header({ mode, onModeChange }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, profile, isAdmin } = useAuthState();
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    setQuery("");
+  }, [pathname]);
+
+  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (query.trim()) params.set("title", query.trim());
+    router.push(`/festival${params.size ? "?" + params.toString() : ""}`);
+  };
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const initial = profile?.displayName?.[0] ?? user?.email?.[0] ?? "?";
-  const displayName = profile?.displayName ?? user?.email?.split("@")[0] ?? "";
+  const displayName =
+    profile?.displayName ??
+    user?.displayName ??
+    user?.email?.split("@")[0] ??
+    "";
+  const initial =
+    displayName[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? "?";
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -82,54 +87,30 @@ export function Header({
       </div>
 
       <div className="f-nav-search">
-        <Link
-          href="/festival"
-          className="f-search-bar"
-          style={{ textDecoration: "none" }}
+        <form
+          onSubmit={handleSearch}
+          style={{
+            width: "100%",
+            display: pathname.startsWith("/festival") ? "none" : "block",
+          }}
         >
-          <SearchIcon />
-          <span
-            style={{
-              flex: 1,
-              color: "var(--muted)",
-              font: "500 14px/1 var(--body-font)",
-            }}
-          >
-            축제명 · 학술제 · 아티스트 검색
-          </span>
-          <kbd>⌘ K</kbd>
-        </Link>
-      </div>
-
-      {/* 팔레트 토글 */}
-      <div
-        style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}
-      >
-        {PALETTES.map((p) => (
-          <button
-            key={p.value}
-            title={p.label}
-            aria-label={p.label}
-            onClick={() => onPaletteChange(p.value)}
-            style={{
-              width: 20,
-              height: 20,
-              borderRadius: "50%",
-              background: p.dot,
-              border:
-                palette === p.value
-                  ? "2px solid var(--fg)"
-                  : "2px solid transparent",
-              outline: palette === p.value ? "2px solid var(--bg)" : "none",
-              outlineOffset: -4,
-              cursor: "pointer",
-              flexShrink: 0,
-              padding: 0,
-              transition: "transform 0.12s",
-              transform: palette === p.value ? "scale(1.25)" : "scale(1)",
-            }}
-          />
-        ))}
+          <div className="f-search-bar" style={{ cursor: "text" }}>
+            <SearchIcon />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="지역 · 학교 · 축제명 검색"
+              style={{
+                flex: 1,
+                background: "transparent",
+                border: "none",
+                outline: "none",
+                color: "var(--fg)",
+                font: "500 14px/1 var(--body-font)",
+              }}
+            />
+          </div>
+        </form>
       </div>
 
       <button

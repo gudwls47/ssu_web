@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 import { useGetBooths } from "@/app/api/booths";
@@ -11,7 +10,6 @@ import { useGetMapPins } from "@/app/api/mapPins";
 import { useGetNotices } from "@/app/api/notices";
 
 import {
-  BackIcon,
   HeroSection,
   TabNavigation,
   LineupTab,
@@ -70,20 +68,7 @@ function FestivalDetailContent() {
   }
 
   return (
-    <div style={{ paddingTop: 20 }}>
-      <Link
-        href="/"
-        className="f-btn ghost sm"
-        style={{
-          marginBottom: 14,
-          display: "inline-flex",
-          textDecoration: "none",
-        }}
-      >
-        <BackIcon />
-        <span>뒤로</span>
-      </Link>
-
+    <div style={{ paddingTop: 8 }}>
       <HeroSection fest={fest} />
 
       <TabNavigation
