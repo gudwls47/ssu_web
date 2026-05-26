@@ -36,7 +36,7 @@ export default function DashboardPage() {
           padding: "24px 32px",
           color: "var(--muted)",
           fontFamily: "var(--mono-font)",
-          fontSize: 13,
+          fontSize: 15,
         }}
       >
         불러오는 중…
@@ -49,7 +49,7 @@ export default function DashboardPage() {
       <div
         style={{
           fontFamily: "var(--mono-font)",
-          fontSize: 10,
+          fontSize: 12,
           letterSpacing: "0.12em",
           textTransform: "uppercase",
           color: "var(--muted)",
@@ -61,7 +61,7 @@ export default function DashboardPage() {
       <div
         style={{
           fontFamily: "var(--display-font)",
-          fontSize: 36,
+          fontSize: 40,
           fontWeight: 700,
           letterSpacing: "-0.03em",
           color: "var(--fg)",
@@ -113,7 +113,7 @@ export default function DashboardPage() {
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color: "var(--muted)",
@@ -124,7 +124,7 @@ export default function DashboardPage() {
             <div
               style={{
                 fontFamily: "var(--display-font)",
-                fontSize: 40,
+                fontSize: 44,
                 fontWeight: 700,
                 letterSpacing: "-0.03em",
                 marginTop: 6,
@@ -133,7 +133,7 @@ export default function DashboardPage() {
             >
               {s.value}
             </div>
-            <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 4 }}>
+            <div style={{ fontSize: 14, color: "var(--muted)", marginTop: 4 }}>
               {s.sub}
             </div>
           </div>
@@ -146,7 +146,7 @@ export default function DashboardPage() {
           <div
             style={{
               fontFamily: "var(--mono-font)",
-              fontSize: 10,
+              fontSize: 12,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
               color: "var(--muted)",
@@ -210,7 +210,7 @@ export default function DashboardPage() {
                     <div
                       style={{
                         fontFamily: "var(--display-font)",
-                        fontSize: 28,
+                        fontSize: 30,
                         fontWeight: 700,
                         letterSpacing: "-0.03em",
                         lineHeight: 1,
@@ -222,7 +222,7 @@ export default function DashboardPage() {
                     <div
                       style={{
                         fontFamily: "var(--mono-font)",
-                        fontSize: 12,
+                        fontSize: 14,
                         opacity: 0.8,
                         marginTop: 8,
                       }}
@@ -232,7 +232,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div
-                    style={{ position: "relative", fontSize: 22, opacity: 0.8 }}
+                    style={{ position: "relative", fontSize: 24, opacity: 0.8 }}
                   >
                     →
                   </div>
@@ -249,7 +249,7 @@ export default function DashboardPage() {
           <div
             style={{
               fontFamily: "var(--mono-font)",
-              fontSize: 10,
+              fontSize: 12,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
               color: "var(--muted)",
@@ -303,7 +303,7 @@ export default function DashboardPage() {
                   <div style={{ flex: 1 }}>
                     <div
                       style={{
-                        fontSize: 14,
+                        fontSize: 16,
                         fontWeight: 600,
                         color: "var(--fg)",
                       }}
@@ -313,7 +313,7 @@ export default function DashboardPage() {
                     <div
                       style={{
                         fontFamily: "var(--mono-font)",
-                        fontSize: 11,
+                        fontSize: 13,
                         color: "var(--muted)",
                         marginTop: 2,
                       }}
@@ -339,13 +339,13 @@ export default function DashboardPage() {
             textAlign: "center",
             color: "var(--muted)",
             fontFamily: "var(--mono-font)",
-            fontSize: 13,
+            fontSize: 15,
             background: "var(--surface)",
             borderRadius: 14,
             border: "1px solid var(--border)",
           }}
         >
-          <div style={{ fontSize: 32, marginBottom: 12 }}>🎪</div>
+          <div style={{ fontSize: 36, marginBottom: 12 }}>🎪</div>
           아직 등록된 축제가 없습니다.
           <br />
           <Link

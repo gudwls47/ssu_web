@@ -34,7 +34,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           background: "var(--bg)",
           color: "var(--muted)",
           fontFamily: "var(--mono-font)",
-          fontSize: 13,
+          fontSize: 15,
         }}
       >
         {!loading && user && profile?.role !== "admin"

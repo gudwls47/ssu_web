@@ -128,7 +128,7 @@ export default function SignupPage() {
               style={{
                 fontFamily: "var(--display-font)",
                 fontWeight: 700,
-                fontSize: 44,
+                fontSize: 48,
                 letterSpacing: "-0.04em",
                 color: "var(--fg)",
                 lineHeight: 1,
@@ -154,7 +154,7 @@ export default function SignupPage() {
           <div
             style={{
               fontFamily: "var(--display-font)",
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: 700,
               letterSpacing: "-0.03em",
               color: "var(--fg)",
@@ -180,7 +180,7 @@ export default function SignupPage() {
               borderRadius: 12,
               border: "1.5px solid var(--border)",
               background: "var(--surface-2)",
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: 600,
               color: "var(--fg)",
               opacity: googleLoading ? 0.6 : 1,
@@ -202,7 +202,7 @@ export default function SignupPage() {
             }}
           >
             <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
-            <span style={{ fontFamily: "var(--mono-font)", fontSize: 11 }}>
+            <span style={{ fontFamily: "var(--mono-font)", fontSize: 13 }}>
               또는 이메일로 가입
             </span>
             <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
@@ -212,7 +212,7 @@ export default function SignupPage() {
           <div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 fontWeight: 600,
                 color: "var(--fg)",
                 marginBottom: 8,
@@ -257,12 +257,12 @@ export default function SignupPage() {
                     transition: "border-color 0.1s, background 0.1s",
                   }}
                 >
-                  <div style={{ fontSize: 20, marginBottom: 6 }}>
+                  <div style={{ fontSize: 22, marginBottom: 6 }}>
                     {opt.icon}
                   </div>
                   <div
                     style={{
-                      fontSize: 13,
+                      fontSize: 15,
                       fontWeight: 600,
                       color: "var(--fg)",
                     }}
@@ -272,7 +272,7 @@ export default function SignupPage() {
                   <div
                     style={{
                       fontFamily: "var(--mono-font)",
-                      fontSize: 10,
+                      fontSize: 12,
                       color: "var(--muted)",
                       marginTop: 3,
                     }}
@@ -288,7 +288,7 @@ export default function SignupPage() {
           <div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 fontWeight: 600,
                 color: "var(--fg)",
                 marginBottom: 6,
@@ -310,7 +310,7 @@ export default function SignupPage() {
             <div>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 13,
                   fontWeight: 600,
                   color: "var(--fg)",
                   marginBottom: 6,
@@ -320,7 +320,7 @@ export default function SignupPage() {
                 <span
                   style={{
                     fontFamily: "var(--mono-font)",
-                    fontSize: 9,
+                    fontSize: 11,
                     color: "var(--muted)",
                     marginLeft: 6,
                   }}
@@ -342,7 +342,7 @@ export default function SignupPage() {
           <div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 fontWeight: 600,
                 color: "var(--fg)",
                 marginBottom: 6,
@@ -365,7 +365,7 @@ export default function SignupPage() {
           <div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 fontWeight: 600,
                 color: "var(--fg)",
                 marginBottom: 6,
@@ -375,7 +375,7 @@ export default function SignupPage() {
               <span
                 style={{
                   fontFamily: "var(--mono-font)",
-                  fontSize: 9,
+                  fontSize: 11,
                   color: "var(--muted)",
                   marginLeft: 6,
                 }}
@@ -398,7 +398,7 @@ export default function SignupPage() {
           <div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 fontWeight: 600,
                 color: "var(--fg)",
                 marginBottom: 6,
@@ -423,7 +423,7 @@ export default function SignupPage() {
               <div
                 style={{
                   fontFamily: "var(--mono-font)",
-                  fontSize: 11,
+                  fontSize: 13,
                   color: "#FF6B6B",
                   marginTop: 4,
                 }}
@@ -441,7 +441,7 @@ export default function SignupPage() {
                 background: "rgba(255,107,107,0.1)",
                 color: "#FF6B6B",
                 fontFamily: "var(--mono-font)",
-                fontSize: 12,
+                fontSize: 14,
               }}
             >
               {error}
@@ -452,7 +452,7 @@ export default function SignupPage() {
             type="submit"
             className="f-btn accent"
             disabled={!isValid || loading}
-            style={{ width: "100%", height: 44, fontSize: 14, marginTop: 4 }}
+            style={{ width: "100%", height: 44, fontSize: 16, marginTop: 4 }}
           >
             {loading
               ? "가입 중…"
@@ -466,7 +466,7 @@ export default function SignupPage() {
           style={{
             textAlign: "center",
             marginTop: 16,
-            fontSize: 13,
+            fontSize: 15,
             color: "var(--muted)",
           }}
         >

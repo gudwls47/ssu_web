@@ -95,7 +95,7 @@ function FestivalStory({ festivalId }: { festivalId: string }) {
           alignItems: "center",
           justifyContent: "center",
           color: "var(--muted)",
-          fontSize: 13,
+          fontSize: 15,
           fontFamily: "var(--mono-font)",
         }}
       >
@@ -131,7 +131,7 @@ function FestivalStory({ festivalId }: { festivalId: string }) {
                 border: "none",
                 background: slideIdx === i ? "var(--accent)" : "var(--faint)",
                 color: slideIdx === i ? "#fff" : "var(--muted)",
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 600,
                 cursor: "pointer",
                 transition: "all 0.15s",
@@ -254,7 +254,7 @@ function SlideCover({ festival }: { festival: any }) {
             style={{
               padding: "3px 10px",
               borderRadius: 12,
-              fontSize: 11,
+              fontSize: 13,
               fontWeight: 700,
               background: `${statusColor}cc`,
               color: "#fff",
@@ -265,7 +265,7 @@ function SlideCover({ festival }: { festival: any }) {
           </span>
           <span
             style={{
-              fontSize: 12,
+              fontSize: 14,
               color: "rgba(255,255,255,0.8)",
               fontFamily: "var(--mono-font)",
             }}
@@ -283,7 +283,7 @@ function SlideCover({ festival }: { festival: any }) {
         >
           {festival.name}
         </div>
-        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.75)" }}>
+        <div style={{ fontSize: 15, color: "rgba(255,255,255,0.75)" }}>
           {festival.school}
         </div>
       </div>
@@ -377,7 +377,7 @@ function SlideBooth({
                   flexShrink: 0,
                   padding: "2px 8px",
                   borderRadius: 8,
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: 700,
                   background: `${BOOTH_TAG_COLOR[b.tag] ?? "#888"}18`,
                   color: BOOTH_TAG_COLOR[b.tag] ?? "#888",
@@ -465,7 +465,7 @@ function SlideNotice({
                 style={{
                   padding: "1px 8px",
                   borderRadius: 8,
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: 700,
                   background: `${NOTICE_CAT_COLOR[n.category] ?? "#888"}18`,
                   color: NOTICE_CAT_COLOR[n.category] ?? "#888",
@@ -559,7 +559,7 @@ function SlideTalk({
                   style={{
                     padding: "1px 6px",
                     borderRadius: 8,
-                    fontSize: 10,
+                    fontSize: 12,
                     fontWeight: 700,
                     background: `${TAG_COLOR[c.tag as CommentTag]}18`,
                     color: TAG_COLOR[c.tag as CommentTag],
@@ -611,7 +611,7 @@ function EmptySlide({ message }: { message: string }) {
         alignItems: "center",
         justifyContent: "center",
         color: "var(--muted)",
-        fontSize: 13,
+        fontSize: 15,
         fontFamily: "var(--mono-font)",
         border: "1px dashed var(--border)",
         borderRadius: 16,
@@ -640,7 +640,7 @@ export default function MyFestivalWidget({ uid }: { uid: string }) {
           alignItems: "center",
           justifyContent: "center",
           color: "var(--muted)",
-          fontSize: 13,
+          fontSize: 15,
           fontFamily: "var(--mono-font)",
           marginTop: 24,
         }}

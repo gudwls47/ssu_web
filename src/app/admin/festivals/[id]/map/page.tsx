@@ -137,7 +137,7 @@ function ImagePickerModal({
             <div
               style={{
                 fontFamily: "var(--display-font)",
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: 700,
                 letterSpacing: "-0.03em",
                 color: "var(--fg)",
@@ -148,7 +148,7 @@ function ImagePickerModal({
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 color: "var(--muted)",
                 marginTop: 2,
               }}
@@ -161,7 +161,7 @@ function ImagePickerModal({
             style={{
               all: "unset",
               cursor: "pointer",
-              fontSize: 22,
+              fontSize: 24,
               color: "var(--muted)",
               lineHeight: 1,
             }}
@@ -189,7 +189,7 @@ function ImagePickerModal({
                 all: "unset",
                 cursor: "pointer",
                 padding: "8px 16px",
-                fontSize: 13,
+                fontSize: 15,
                 fontWeight: mode === tab.key ? 700 : 500,
                 color: mode === tab.key ? "var(--fg)" : "var(--muted)",
                 borderBottom:
@@ -253,7 +253,7 @@ function ImagePickerModal({
                           color: "#fff",
                           display: "grid",
                           placeItems: "center",
-                          fontSize: 12,
+                          fontSize: 14,
                           fontWeight: 700,
                         }}
                       >
@@ -270,7 +270,7 @@ function ImagePickerModal({
                   >
                     <div
                       style={{
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: 600,
                         color: "var(--fg)",
                       }}
@@ -280,7 +280,7 @@ function ImagePickerModal({
                     <div
                       style={{
                         fontFamily: "var(--mono-font)",
-                        fontSize: 10,
+                        fontSize: 12,
                         color: "var(--muted)",
                         marginTop: 2,
                       }}
@@ -298,7 +298,7 @@ function ImagePickerModal({
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 11,
+                fontSize: 13,
                 color: "var(--muted)",
               }}
             >
@@ -544,7 +544,7 @@ export default function MapEditorPage() {
           padding: 24,
           color: "var(--muted)",
           fontFamily: "var(--mono-font)",
-          fontSize: 13,
+          fontSize: 15,
         }}
       >
         불러오는 중…
@@ -560,7 +560,7 @@ export default function MapEditorPage() {
     background: "var(--surface)",
     border: "1px solid var(--border)",
     color: "var(--fg)",
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: "var(--body-font)",
     outline: "none",
     minWidth: 0,
@@ -604,7 +604,7 @@ export default function MapEditorPage() {
               <div
                 style={{
                   fontFamily: "var(--mono-font)",
-                  fontSize: 10,
+                  fontSize: 12,
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
                   color: "var(--muted)",
@@ -615,7 +615,7 @@ export default function MapEditorPage() {
               <div
                 style={{
                   fontFamily: "var(--mono-font)",
-                  fontSize: 10,
+                  fontSize: 12,
                   color: "var(--muted)",
                   marginTop: 2,
                 }}
@@ -656,7 +656,7 @@ export default function MapEditorPage() {
               <span
                 style={{
                   fontFamily: "var(--mono-font)",
-                  fontSize: 10,
+                  fontSize: 12,
                   color: "var(--muted)",
                   alignSelf: "center",
                   marginRight: 2,
@@ -667,7 +667,7 @@ export default function MapEditorPage() {
               <button
                 className="f-chip"
                 data-active={previewDay === null ? "true" : "false"}
-                style={{ height: 28, padding: "0 10px", fontSize: 11 }}
+                style={{ height: 28, padding: "0 10px", fontSize: 13 }}
                 onClick={() => setPreviewDay(null)}
               >
                 전체
@@ -679,7 +679,7 @@ export default function MapEditorPage() {
                     key={d}
                     className="f-chip"
                     data-active={previewDay === d ? "true" : "false"}
-                    style={{ height: 28, padding: "0 10px", fontSize: 11 }}
+                    style={{ height: 28, padding: "0 10px", fontSize: 13 }}
                     onClick={() => setPreviewDay(d)}
                   >
                     DAY {i + 1} · {date.getMonth() + 1}/{date.getDate()}
@@ -698,7 +698,7 @@ export default function MapEditorPage() {
                 background: "rgba(32,201,151,0.1)",
                 color: "#20C997",
                 fontFamily: "var(--mono-font)",
-                fontSize: 12,
+                fontSize: 14,
               }}
             >
               저장됨 ✓
@@ -814,7 +814,7 @@ export default function MapEditorPage() {
           <div
             style={{
               fontFamily: "var(--mono-font)",
-              fontSize: 10,
+              fontSize: 12,
               color: "var(--muted)",
               marginTop: 4,
             }}
@@ -850,7 +850,7 @@ export default function MapEditorPage() {
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 9,
+                fontSize: 11,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color: "var(--muted)",
@@ -892,7 +892,7 @@ export default function MapEditorPage() {
                       color: "#fff",
                       display: "grid",
                       placeItems: "center",
-                      fontSize: 12,
+                      fontSize: 14,
                       flexShrink: 0,
                     }}
                   >
@@ -901,7 +901,7 @@ export default function MapEditorPage() {
                   <div
                     style={{
                       flex: 1,
-                      fontSize: 12,
+                      fontSize: 14,
                       fontWeight: 500,
                       color: "var(--fg)",
                     }}
@@ -911,7 +911,7 @@ export default function MapEditorPage() {
                   <span
                     style={{
                       fontFamily: "var(--mono-font)",
-                      fontSize: 11,
+                      fontSize: 13,
                       color: "var(--muted)",
                     }}
                   >
@@ -945,7 +945,7 @@ export default function MapEditorPage() {
               <span
                 style={{
                   fontFamily: "var(--mono-font)",
-                  fontSize: 9,
+                  fontSize: 11,
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
                   color: "var(--muted)",
@@ -1009,7 +1009,7 @@ export default function MapEditorPage() {
                           color: "#fff",
                           display: "grid",
                           placeItems: "center",
-                          fontSize: 10,
+                          fontSize: 12,
                           flexShrink: 0,
                         }}
                       >
@@ -1017,7 +1017,7 @@ export default function MapEditorPage() {
                       </div>
                       <span
                         style={{
-                          fontSize: 12,
+                          fontSize: 14,
                           fontWeight: 500,
                           color: "var(--fg)",
                           flex: 1,
@@ -1029,7 +1029,7 @@ export default function MapEditorPage() {
                         <span
                           style={{
                             fontFamily: "var(--mono-font)",
-                            fontSize: 9,
+                            fontSize: 11,
                             color: "var(--accent)",
                           }}
                         >
@@ -1038,7 +1038,7 @@ export default function MapEditorPage() {
                       )}
                       <span
                         style={{
-                          fontSize: 10,
+                          fontSize: 12,
                           color: "var(--muted)",
                           marginLeft: 2,
                         }}
@@ -1054,7 +1054,7 @@ export default function MapEditorPage() {
                           all: "unset",
                           cursor: "pointer",
                           color: "var(--muted)",
-                          fontSize: 14,
+                          fontSize: 16,
                           lineHeight: 1,
                           marginLeft: 4,
                         }}
@@ -1071,7 +1071,7 @@ export default function MapEditorPage() {
                             <div
                               style={{
                                 fontFamily: "var(--mono-font)",
-                                fontSize: 9,
+                                fontSize: 11,
                                 color: "var(--muted)",
                                 marginBottom: 4,
                               }}
@@ -1081,7 +1081,7 @@ export default function MapEditorPage() {
                             {booths.length === 0 ? (
                               <div
                                 style={{
-                                  fontSize: 11,
+                                  fontSize: 13,
                                   color: "var(--muted)",
                                   fontFamily: "var(--mono-font)",
                                 }}
@@ -1141,7 +1141,7 @@ export default function MapEditorPage() {
                                       <div style={{ minWidth: 0, flex: 1 }}>
                                         <div
                                           style={{
-                                            fontSize: 11,
+                                            fontSize: 13,
                                             fontWeight: 600,
                                             color: "var(--fg)",
                                             overflow: "hidden",
@@ -1153,7 +1153,7 @@ export default function MapEditorPage() {
                                         </div>
                                         <div
                                           style={{
-                                            fontSize: 9,
+                                            fontSize: 11,
                                             fontFamily: "var(--mono-font)",
                                             color: "var(--muted)",
                                           }}
@@ -1171,7 +1171,7 @@ export default function MapEditorPage() {
                                 style={{
                                   marginTop: 5,
                                   fontFamily: "var(--mono-font)",
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   color: "var(--accent)",
                                 }}
                               >
@@ -1201,7 +1201,7 @@ export default function MapEditorPage() {
                     padding: "20px 0",
                     color: "var(--muted)",
                     fontFamily: "var(--mono-font)",
-                    fontSize: 11,
+                    fontSize: 13,
                   }}
                 >
                   지도를 클릭해 핀을 배치하세요

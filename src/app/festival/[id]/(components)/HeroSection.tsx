@@ -57,7 +57,7 @@ export function HeroSection({ fest }: HeroSectionProps) {
             position: "relative",
             fontFamily: "var(--display-font)",
             fontWeight: 700,
-            fontSize: 15,
+            fontSize: 17,
             letterSpacing: "0.12em",
             textTransform: "uppercase",
             color: "rgba(255,255,255,0.45)",
@@ -72,7 +72,7 @@ export function HeroSection({ fest }: HeroSectionProps) {
           style={{
             position: "relative",
             color: "rgba(255,255,255,0.75)",
-            fontSize: 14,
+            fontSize: 16,
             marginTop: 4,
           }}
         >

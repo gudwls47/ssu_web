@@ -181,7 +181,7 @@ export function CommunityTab({ festival }: CommunityTabProps) {
                   background:
                     selectedTag === t ? `${TAG_COLOR[t]}18` : "transparent",
                   color: selectedTag === t ? TAG_COLOR[t] : "var(--muted)",
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: 600,
                   cursor: "pointer",
                   transition: "all 0.15s",
@@ -200,7 +200,7 @@ export function CommunityTab({ festival }: CommunityTabProps) {
                 alignItems: "center",
                 gap: 5,
                 cursor: "pointer",
-                fontSize: 12,
+                fontSize: 14,
                 color: isAnonymous ? "var(--fg)" : "var(--muted)",
                 fontWeight: 500,
                 userSelect: "none",
@@ -240,7 +240,7 @@ export function CommunityTab({ festival }: CommunityTabProps) {
         {isLoggedIn && !isAnonymous && (
           <div
             style={{
-              fontSize: 12,
+              fontSize: 14,
               color: "var(--muted)",
               fontFamily: "var(--mono-font)",
             }}
@@ -305,7 +305,7 @@ export function CommunityTab({ festival }: CommunityTabProps) {
             textAlign: "center",
             color: "var(--muted)",
             fontFamily: "var(--mono-font)",
-            fontSize: 13,
+            fontSize: 15,
           }}
         >
           로딩중입니다.
@@ -317,7 +317,7 @@ export function CommunityTab({ festival }: CommunityTabProps) {
             textAlign: "center",
             color: "var(--muted)",
             fontFamily: "var(--mono-font)",
-            fontSize: 13,
+            fontSize: 15,
           }}
         >
           {filterTag === "ALL"
@@ -347,7 +347,7 @@ export function CommunityTab({ festival }: CommunityTabProps) {
                       style={{
                         padding: "2px 8px",
                         borderRadius: 10,
-                        fontSize: 11,
+                        fontSize: 13,
                         fontWeight: 700,
                         background: `${TAG_COLOR[v.tag]}18`,
                         color: TAG_COLOR[v.tag],
@@ -373,7 +373,7 @@ export function CommunityTab({ festival }: CommunityTabProps) {
                         display: "flex",
                         alignItems: "center",
                         gap: 4,
-                        fontSize: 11,
+                        fontSize: 13,
                         transition: "color 0.1s, border-color 0.1s",
                       }}
                       onMouseEnter={(e) => {

@@ -41,7 +41,7 @@ export const MAP_TEMPLATES: MapTemplate[] = [
           x={w / 2}
           y="80"
           textAnchor="middle"
-          fontSize="11"
+          fontSize="9"
           fill="#6040a0"
           fontWeight="bold"
           fontFamily="sans-serif"
@@ -150,7 +150,7 @@ export const MAP_TEMPLATES: MapTemplate[] = [
           x={w / 2}
           y="83"
           textAnchor="middle"
-          fontSize="10"
+          fontSize="8"
           fill="white"
           fontWeight="bold"
           fontFamily="sans-serif"
@@ -292,17 +292,6 @@ export const MAP_TEMPLATES: MapTemplate[] = [
           opacity="0.9"
         />
         <circle cx={w / 2} cy={h / 2} r="22" fill="#e05080" />
-        <text
-          x={w / 2}
-          y={h / 2 + 4}
-          textAnchor="middle"
-          fontSize="9"
-          fill="white"
-          fontWeight="bold"
-          fontFamily="sans-serif"
-        >
-          STAGE
-        </text>
       </>
     ),
   },
@@ -332,7 +321,7 @@ export const MAP_TEMPLATES: MapTemplate[] = [
           x={w / 2}
           y="65"
           textAnchor="middle"
-          fontSize="11"
+          fontSize="9"
           fill="white"
           fontWeight="bold"
           fontFamily="sans-serif"
@@ -443,7 +432,7 @@ export const MAP_TEMPLATES: MapTemplate[] = [
           x={w / 2}
           y="55"
           textAnchor="middle"
-          fontSize="11"
+          fontSize="9"
           fill="white"
           fontWeight="bold"
           fontFamily="sans-serif"

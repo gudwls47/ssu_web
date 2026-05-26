@@ -15,7 +15,7 @@ export function NoticeTab({ notices }: NoticeTabProps) {
           textAlign: "center",
           color: "var(--muted)",
           fontFamily: "var(--mono-font)",
-          fontSize: 13,
+          fontSize: 15,
         }}
       >
         등록된 공지가 없습니다.

@@ -181,7 +181,7 @@
   background: var(--fg);
   color: var(--bg);
   border: none;
-  font: 600 14px/1 var(--body-font);
+  font: 600 16px/1 var(--body-font);
   cursor: pointer;
   transition: transform 0.12s ease, opacity 0.12s ease;
   white-space: nowrap;
@@ -193,7 +193,7 @@
   color: var(--fg);
   box-shadow: inset 0 0 0 1px var(--border);
 }
-.f-btn.sm { height: 32px; font-size: 12px; padding: 0 12px; }
+.f-btn.sm { height: 32px; font-size: 14px; padding: 0 12px; }
 
 /* ── Chips ────────────────────────────────────────────── */
 .f-chip {
@@ -205,7 +205,7 @@
   border-radius: 999px;
   background: var(--surface-2);
   color: var(--fg);
-  font: 500 12px/1 var(--body-font);
+  font: 500 14px/1 var(--body-font);
   cursor: pointer;
   border: 1px solid transparent;
   white-space: nowrap;
@@ -221,7 +221,7 @@
   height: 22px;
   padding: 0 8px;
   border-radius: 6px;
-  font: 600 11px/1 var(--body-font);
+  font: 600 13px/1 var(--body-font);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -251,7 +251,7 @@
   background: var(--surface);
   color: var(--fg);
   border: 1px solid var(--border);
-  font: 500 14px/1 var(--body-font);
+  font: 500 16px/1 var(--body-font);
   outline: none;
 }
 .f-input:focus { border-color: var(--accent); }
@@ -274,7 +274,7 @@
 .f-nav-logo {
   font-family: var(--display-font);
   font-weight: var(--display-weight, 700);
-  font-size: 24px;
+  font-size: 26px;
   letter-spacing: -0.04em;
   display: flex;
   align-items: baseline;
@@ -285,7 +285,7 @@
 }
 .f-nav-logo em { color: var(--accent); font-style: normal; }
 .f-nav-logo small {
-  font: 500 10px/1 var(--mono-font);
+  font: 500 12px/1 var(--mono-font);
   color: var(--muted);
   letter-spacing: 0.1em;
 }
@@ -295,7 +295,7 @@
   background: none;
   border: 0;
   cursor: pointer;
-  font: 500 14px/1 var(--body-font);
+  font: 500 16px/1 var(--body-font);
   color: var(--muted);
   padding: 10px 12px;
   border-radius: 10px;
@@ -323,7 +323,7 @@
   border: 1px solid var(--border);
   cursor: pointer;
   color: var(--muted);
-  font: 500 14px/1 var(--body-font);
+  font: 500 16px/1 var(--body-font);
 }
 .f-search-bar svg { width: 16px; height: 16px; flex: 0 0 16px; }
 .f-search-bar input {
@@ -336,7 +336,7 @@
 }
 .f-search-bar input::placeholder { color: var(--muted); }
 .f-search-bar kbd {
-  font: 500 10px/1 var(--mono-font);
+  font: 500 12px/1 var(--mono-font);
   color: var(--muted);
   border: 1px solid var(--border);
   border-radius: 5px;
@@ -362,11 +362,11 @@
   background: linear-gradient(135deg, var(--accent), var(--upcoming));
   display: grid;
   place-items: center;
-  font: 700 12px/1 var(--body-font);
+  font: 700 14px/1 var(--body-font);
   color: #fff;
 }
 .f-nav-user span {
-  font: 600 13px/1 var(--body-font);
+  font: 600 15px/1 var(--body-font);
   white-space: nowrap;
 }
 
@@ -393,13 +393,13 @@
   line-height: 1;
 }
 .f-h em { color: var(--accent); font-style: normal; }
-.f-sub { color: var(--muted); font: 500 13px/1.4 var(--body-font); }
+.f-sub { color: var(--muted); font: 500 15px/1.4 var(--body-font); }
 
 .f-tagline {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font: 500 11px/1 var(--mono-font);
+  font: 500 13px/1 var(--mono-font);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
@@ -441,7 +441,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 24px;
-  font: 500 13px/1.4 var(--body-font);
+  font: 500 15px/1.4 var(--body-font);
 }
 .f-hero .meta b { font-weight: 700; }
 .f-live-badge {
@@ -451,7 +451,7 @@
   background: rgba(255, 255, 255, 0.18);
   padding: 8px 14px;
   border-radius: 999px;
-  font: 600 12px/1 var(--body-font);
+  font: 600 14px/1 var(--body-font);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   width: max-content;
@@ -508,12 +508,12 @@
 .f-card .card-title {
   font-family: var(--display-font);
   font-weight: var(--display-weight, 700);
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1.05;
   letter-spacing: -0.02em;
 }
 .f-card .card-meta {
-  font: 500 12px/1.4 var(--mono-font);
+  font: 500 14px/1.4 var(--mono-font);
   color: var(--muted);
   display: flex;
   flex-wrap: wrap;
@@ -536,7 +536,7 @@
   top: 92px;
 }
 .f-filter-side h4 {
-  font: 500 10px/1 var(--mono-font);
+  font: 500 12px/1 var(--mono-font);
   color: var(--muted);
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -551,7 +551,7 @@
   background: var(--bg);
   border: 1px solid var(--border);
   color: var(--fg);
-  font: 500 12px/1 var(--mono-font);
+  font: 500 14px/1 var(--mono-font);
   margin-bottom: 6px;
 }
 
@@ -592,7 +592,7 @@
   flex-wrap: wrap;
   gap: 16px;
   margin-top: 10px;
-  font: 500 13px/1 var(--body-font);
+  font: 500 15px/1 var(--body-font);
 }
 
 /* ── Detail tabs ──────────────────────────────────────── */
@@ -610,7 +610,7 @@
   border: 0;
   cursor: pointer;
   padding: 14px 16px;
-  font: 600 14px/1 var(--body-font);
+  font: 600 16px/1 var(--body-font);
   color: var(--muted);
   position: relative;
   white-space: nowrap;
@@ -641,7 +641,7 @@
 .f-stage-col h3 {
   font-family: var(--display-font);
   font-weight: var(--display-weight, 700);
-  font-size: 18px;
+  font-size: 20px;
   letter-spacing: -0.02em;
   margin: 0 0 12px;
   padding-bottom: 8px;
@@ -662,7 +662,7 @@
   border-color: var(--live);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--live) 24%, transparent);
 }
-.f-set-row .time { font: 600 13px/1.2 var(--mono-font); }
+.f-set-row .time { font: 600 15px/1.2 var(--mono-font); }
 .f-set-row .artist { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .f-set-row .avatar {
   width: 40px;
@@ -672,11 +672,11 @@
   display: grid;
   place-items: center;
   flex: 0 0 40px;
-  font: 700 13px/1 var(--body-font);
+  font: 700 15px/1 var(--body-font);
   color: #fff;
 }
-.f-set-row .artist-name { font: 600 14px/1.2 var(--body-font); }
-.f-set-row .artist-sub { font: 500 11px/1.2 var(--mono-font); color: var(--muted); margin-top: 2px; }
+.f-set-row .artist-name { font: 600 16px/1.2 var(--body-font); }
+.f-set-row .artist-sub { font: 500 13px/1.2 var(--mono-font); color: var(--muted); margin-top: 2px; }
 
 /* ── Booth ────────────────────────────────────────────── */
 .f-booth-grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
@@ -688,9 +688,9 @@
   display: grid;
   gap: 8px;
 }
-.f-booth-card .name { font: 700 16px/1.2 var(--body-font); }
-.f-booth-card .meta { font: 500 12px/1.4 var(--mono-font); color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
-.f-booth-card .desc { font: 500 13px/1.5 var(--body-font); color: var(--fg); }
+.f-booth-card .name { font: 700 18px/1.2 var(--body-font); }
+.f-booth-card .meta { font: 500 14px/1.4 var(--mono-font); color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+.f-booth-card .desc { font: 500 15px/1.5 var(--body-font); color: var(--fg); }
 
 /* ── Notice ───────────────────────────────────────────── */
 .f-notice-list { display: grid; gap: 10px; }
@@ -705,16 +705,16 @@
   border: 1px solid var(--border);
 }
 .f-notice-row .pinned {
-  font: 700 10px/1 var(--mono-font);
+  font: 700 12px/1 var(--mono-font);
   letter-spacing: 0.08em;
   padding: 5px 8px;
   background: var(--accent);
   color: var(--accent-fg);
   border-radius: 5px;
 }
-.f-notice-row .notice-title { font: 700 14px/1.3 var(--body-font); }
-.f-notice-row .notice-preview { font: 500 13px/1.4 var(--body-font); color: var(--muted); margin-top: 3px; }
-.f-notice-row .time { font: 500 11px/1 var(--mono-font); color: var(--muted); white-space: nowrap; }
+.f-notice-row .notice-title { font: 700 16px/1.3 var(--body-font); }
+.f-notice-row .notice-preview { font: 500 15px/1.4 var(--body-font); color: var(--muted); margin-top: 3px; }
+.f-notice-row .time { font: 500 13px/1 var(--mono-font); color: var(--muted); white-space: nowrap; }
 
 /* ── Community ────────────────────────────────────────── */
 .f-comm-list { display: grid; gap: 12px; }
@@ -726,10 +726,10 @@
   display: grid;
   gap: 8px;
 }
-.f-comm-row .head { display: flex; align-items: center; gap: 8px; font: 500 12px/1 var(--body-font); color: var(--muted); }
+.f-comm-row .head { display: flex; align-items: center; gap: 8px; font: 500 14px/1 var(--body-font); color: var(--muted); }
 .f-comm-row .head b { color: var(--fg); font-weight: 700; }
-.f-comm-row .text { font: 500 14px/1.5 var(--body-font); }
-.f-comm-row .foot { display: flex; gap: 16px; font: 500 12px/1 var(--mono-font); color: var(--muted); }
+.f-comm-row .text { font: 500 16px/1.5 var(--body-font); }
+.f-comm-row .foot { display: flex; gap: 16px; font: 500 14px/1 var(--mono-font); color: var(--muted); }
 
 /* ── Map ──────────────────────────────────────────────── */
 .f-map-wrap { display: grid; gap: 20px; grid-template-columns: 1fr; }

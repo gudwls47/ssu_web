@@ -37,14 +37,14 @@ function Field({
           marginBottom: 6,
         }}
       >
-        <span style={{ fontSize: 12, fontWeight: 600, color: "var(--fg)" }}>
+        <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)" }}>
           {label}
         </span>
         {hint && (
           <span
             style={{
               fontFamily: "var(--mono-font)",
-              fontSize: 10,
+              fontSize: 12,
               color: "var(--muted)",
             }}
           >
@@ -138,7 +138,7 @@ export default function BasicInfoPage() {
           padding: 24,
           color: "var(--muted)",
           fontFamily: "var(--mono-font)",
-          fontSize: 13,
+          fontSize: 15,
         }}
       >
         불러오는 중…
@@ -229,7 +229,7 @@ export default function BasicInfoPage() {
           {geocodeError && (
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 color: "#FF6B6B",
                 fontFamily: "var(--mono-font)",
                 marginTop: 4,
@@ -241,7 +241,7 @@ export default function BasicInfoPage() {
           {lat && lng && (
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 color: "var(--muted)",
                 fontFamily: "var(--mono-font)",
                 marginTop: 4,
@@ -285,7 +285,7 @@ export default function BasicInfoPage() {
           {update.isSuccess && (
             <span
               style={{
-                fontSize: 12,
+                fontSize: 14,
                 color: "var(--live)",
                 fontFamily: "var(--mono-font)",
               }}
@@ -296,7 +296,7 @@ export default function BasicInfoPage() {
           {update.isError && (
             <span
               style={{
-                fontSize: 12,
+                fontSize: 14,
                 color: "#FF6B6B",
                 fontFamily: "var(--mono-font)",
               }}
@@ -313,7 +313,7 @@ export default function BasicInfoPage() {
           <div
             style={{
               fontFamily: "var(--mono-font)",
-              fontSize: 10,
+              fontSize: 12,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
               color: "var(--muted)",
@@ -367,11 +367,11 @@ export default function BasicInfoPage() {
                   style={{
                     textAlign: "center",
                     color: "var(--muted)",
-                    fontSize: 12,
+                    fontSize: 14,
                     fontFamily: "var(--mono-font)",
                   }}
                 >
-                  <div style={{ fontSize: 24, marginBottom: 6 }}>⏳</div>
+                  <div style={{ fontSize: 26, marginBottom: 6 }}>⏳</div>
                   업로드 중…
                 </div>
               </div>
@@ -404,12 +404,12 @@ export default function BasicInfoPage() {
                     gap: 6,
                   }}
                 >
-                  <div style={{ fontSize: 20, color: "rgba(255,255,255,0.8)" }}>
+                  <div style={{ fontSize: 22, color: "rgba(255,255,255,0.8)" }}>
                     📁
                   </div>
                   <div
                     style={{
-                      fontSize: 11,
+                      fontSize: 13,
                       color: "rgba(255,255,255,0.8)",
                       fontFamily: "var(--mono-font)",
                     }}
@@ -424,7 +424,7 @@ export default function BasicInfoPage() {
                     left: 14,
                     color: "#fff",
                     fontFamily: "var(--display-font)",
-                    fontSize: 22,
+                    fontSize: 24,
                     fontWeight: 700,
                     letterSpacing: "-0.03em",
                   }}
@@ -459,7 +459,7 @@ export default function BasicInfoPage() {
                 <span
                   style={{
                     color: "#fff",
-                    fontSize: 12,
+                    fontSize: 14,
                     fontFamily: "var(--mono-font)",
                     fontWeight: 600,
                   }}
@@ -473,7 +473,7 @@ export default function BasicInfoPage() {
           {uploadError && (
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 color: "#FF6B6B",
                 fontFamily: "var(--mono-font)",
                 marginBottom: 6,
@@ -493,7 +493,7 @@ export default function BasicInfoPage() {
           <div
             style={{
               fontFamily: "var(--mono-font)",
-              fontSize: 10,
+              fontSize: 12,
               color: "var(--muted)",
               marginTop: 6,
               lineHeight: 1.6,
@@ -518,7 +518,7 @@ export default function BasicInfoPage() {
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color: "var(--muted)",
@@ -529,7 +529,7 @@ export default function BasicInfoPage() {
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span className={`f-tag ${meta.cls}`}>{meta.en}</span>
-              <span style={{ fontSize: 12, color: "var(--muted)" }}>
+              <span style={{ fontSize: 14, color: "var(--muted)" }}>
                 날짜에 따라 자동 갱신
               </span>
             </div>
@@ -538,7 +538,7 @@ export default function BasicInfoPage() {
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color: "var(--muted)",
@@ -550,7 +550,7 @@ export default function BasicInfoPage() {
             <div
               style={{
                 fontFamily: "var(--display-font)",
-                fontSize: 24,
+                fontSize: 26,
                 fontWeight: 700,
                 letterSpacing: "-0.03em",
                 color: "var(--fg)",
@@ -559,7 +559,7 @@ export default function BasicInfoPage() {
               {fest.participants.toLocaleString()}
               <span
                 style={{
-                  fontSize: 13,
+                  fontSize: 15,
                   fontWeight: 500,
                   fontFamily: "var(--body-font)",
                   color: "var(--muted)",
