@@ -62,12 +62,12 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
         (code >= 0x3131 && code <= 0x318e) ||
         (code >= 0x4e00 && code <= 0x9fff)
       ) {
-        w += 11; // 한글은 fontSize 11 기준 ~11px
+        w += 13; // 한글은 fontSize 11 Pretendard 기준 ~13px
       } else {
-        w += 7; // 영문/숫자는 ~7px
+        w += 8; // 영문/숫자는 ~8px
       }
     }
-    return w + 18; // 좌우 패딩
+    return w + 24; // 좌우 패딩
   };
 
   /** 핀에 연결된 부스 중 선택된 날짜에 운영하는 것 */
@@ -175,9 +175,10 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
                   />
                   <text
                     x={p.x}
-                    y={p.y + 3.5}
+                    y={p.y}
                     fontSize="9"
                     textAnchor="middle"
+                    dominantBaseline="central"
                     fill="#fff"
                     fontWeight="700"
                     fontFamily="var(--mono-font)"
@@ -188,16 +189,17 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
                     <g>
                       <rect
                         x={p.x + 14}
-                        y={p.y - 13}
+                        y={p.y - 12}
                         width={tooltipWidth(displayLabel)}
-                        height="22"
-                        rx="4"
+                        height="24"
+                        rx="5"
                         fill="var(--fg)"
                       />
                       <text
-                        x={p.x + 23}
-                        y={p.y + 2}
+                        x={p.x + 26}
+                        y={p.y}
                         fontSize="11"
+                        dominantBaseline="central"
                         fill="var(--bg)"
                         fontWeight="600"
                         fontFamily="var(--body-font)"
