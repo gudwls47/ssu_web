@@ -423,9 +423,9 @@ export default function AdminStatsPage() {
                           {/* 날짜 */}
                           <div
                             style={{
-                              width: 100,
+                              width: 110,
                               fontFamily: "var(--mono-font)",
-                              fontSize: 11,
+                              fontSize: 13,
                               color: "var(--muted)",
                               flexShrink: 0,
                               lineHeight: 1.6,
@@ -438,20 +438,20 @@ export default function AdminStatsPage() {
                           <div
                             style={{
                               flex: 1,
-                              height: 28,
-                              borderRadius: 6,
+                              height: 40,
+                              borderRadius: 8,
                               background: `linear-gradient(90deg, ${fest.colors[0]}33, ${fest.colors[1]}33)`,
                               border: `1.5px solid ${fest.colors[0]}55`,
                               display: "flex",
                               alignItems: "center",
-                              padding: "0 10px",
-                              gap: 8,
+                              padding: "0 12px",
+                              gap: 10,
                             }}
                           >
                             <div
                               style={{
-                                width: 6,
-                                height: 6,
+                                width: 8,
+                                height: 8,
                                 borderRadius: "50%",
                                 background: meta.color,
                                 flexShrink: 0,
@@ -459,7 +459,7 @@ export default function AdminStatsPage() {
                             />
                             <span
                               style={{
-                                fontSize: 12,
+                                fontSize: 14,
                                 fontWeight: 600,
                                 color: "var(--fg)",
                                 overflow: "hidden",
