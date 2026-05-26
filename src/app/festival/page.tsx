@@ -40,6 +40,33 @@ function FestivalListPageInner() {
     size: 999,
   });
 
+  // 주소 검색(동/로/구 등)을 위한 좌표 변환 (600ms 디바운스)
+  const [geoCoords, setGeoCoords] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!title.trim()) {
+      setGeoCoords(null);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/geocode?query=${encodeURIComponent(title)}`,
+        );
+        const json = await res.json();
+        if (json.lat && json.lng)
+          setGeoCoords({ lat: json.lat, lng: json.lng });
+        else setGeoCoords(null);
+      } catch {
+        setGeoCoords(null);
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [title]);
+
   const dateError =
     startDate && endDate && startDate > endDate
       ? "시작일이 종료일보다 늦을 수 없어요"
@@ -49,12 +76,24 @@ function FestivalListPageInner() {
     const targetList = [...(festivalList || [])];
 
     return targetList.filter((v) => {
-      if (
-        title &&
-        !v.title.includes(title) &&
-        !(v.address ?? "").includes(title)
-      ) {
-        return false;
+      if (title) {
+        // 텍스트 매칭: 축제명·영문명·학교명·주소 모두 확인
+        const textMatch =
+          v.title.includes(title) ||
+          (v.name ?? "").includes(title) ||
+          (v.nameEn ?? "").toLowerCase().includes(title.toLowerCase()) ||
+          v.school.includes(title) ||
+          (v.address ?? "").includes(title);
+
+        // 좌표 매칭: geocode 결과 기준 반경 ~5km (위도 ±0.045°, 경도 ±0.057°)
+        const geoMatch =
+          geoCoords &&
+          v.lat != null &&
+          v.lng != null &&
+          Math.abs(v.lat - geoCoords.lat) < 0.045 &&
+          Math.abs(v.lng - geoCoords.lng) < 0.057;
+
+        if (!textMatch && !geoMatch) return false;
       }
       if (status !== "all" && v.status !== status) {
         return false;
@@ -72,7 +111,7 @@ function FestivalListPageInner() {
 
       return true;
     });
-  }, [festivalList, title, status, startDate, endDate, dateError]);
+  }, [festivalList, title, status, startDate, endDate, dateError, geoCoords]);
 
   const reset = () => {
     setTitle("");
