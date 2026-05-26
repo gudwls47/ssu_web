@@ -12,6 +12,7 @@ type LineupRow = {
   _key: string;
   id?: string;
   time: string;
+  endTime: string;
   artist: string;
   sub: string;
   tag: string;
@@ -66,6 +67,7 @@ export default function LineupEditorPage() {
           _key: l.id,
           id: l.id,
           time: l.time,
+          endTime: l.endTime ?? "",
           artist: l.artist,
           sub: l.sub,
           tag: l.tag,
@@ -93,6 +95,7 @@ export default function LineupEditorPage() {
       {
         _key: `new_${Date.now()}`,
         time: "",
+        endTime: "",
         artist: "",
         sub: "",
         tag: "K-POP",
@@ -111,9 +114,10 @@ export default function LineupEditorPage() {
     const sorted = [...rows].sort((a, b) => a.time.localeCompare(b.time));
     saveLineup.mutate({
       day: activeDay,
-      items: sorted.map(({ time, artist, sub, tag, stage }) => ({
+      items: sorted.map(({ time, endTime, artist, sub, tag, stage }) => ({
         day: activeDay,
         time,
+        endTime,
         artist,
         sub,
         tag,
@@ -252,7 +256,7 @@ export default function LineupEditorPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "28px 120px 1fr 160px 120px 36px",
+            gridTemplateColumns: "28px 180px 1fr 160px 120px 36px",
             padding: "12px 16px",
             borderBottom: "1px solid var(--border)",
             fontFamily: "var(--mono-font)",
@@ -265,7 +269,7 @@ export default function LineupEditorPage() {
           }}
         >
           <span>#</span>
-          <span>시간</span>
+          <span>시간 (시작-종료)</span>
           <span>아티스트</span>
           <span>분류</span>
           <span>스테이지</span>
@@ -302,7 +306,7 @@ export default function LineupEditorPage() {
               key={row._key}
               style={{
                 display: "grid",
-                gridTemplateColumns: "28px 120px 1fr 160px 120px 36px",
+                gridTemplateColumns: "28px 180px 1fr 160px 120px 36px",
                 padding: "10px 16px",
                 alignItems: "center",
                 borderBottom:
@@ -320,12 +324,21 @@ export default function LineupEditorPage() {
                 {String(i + 1).padStart(2, "0")}
               </span>
 
-              <input
-                style={{ ...inputStyle, fontFamily: "var(--mono-font)" }}
-                value={row.time}
-                placeholder="19:00"
-                onChange={(e) => update(row._key, "time", e.target.value)}
-              />
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <input
+                  style={{ ...inputStyle, fontFamily: "var(--mono-font)" }}
+                  value={row.time}
+                  placeholder="19:00"
+                  onChange={(e) => update(row._key, "time", e.target.value)}
+                />
+                <span style={{ color: "var(--muted)" }}>–</span>
+                <input
+                  style={{ ...inputStyle, fontFamily: "var(--mono-font)" }}
+                  value={row.endTime}
+                  placeholder="20:00"
+                  onChange={(e) => update(row._key, "endTime", e.target.value)}
+                />
+              </div>
 
               <div style={{ display: "flex", gap: 6 }}>
                 <input
