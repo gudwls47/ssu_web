@@ -19,7 +19,7 @@ export async function uploadImage(
     getDownloadURL(fileRef),
   );
 
-  const timeoutPromise = new Promise<never>((_, reject) =>
+  const timeoutPromise = new Promise<never>((_, reject) => {
     setTimeout(
       () =>
         reject(
@@ -29,8 +29,8 @@ export async function uploadImage(
           ),
         ),
       TIMEOUT_MS,
-    ),
-  );
+    );
+  });
 
   return Promise.race([uploadPromise, timeoutPromise]);
 }
