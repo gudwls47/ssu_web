@@ -459,8 +459,8 @@ export default function AdminStatsPage() {
                             />
                             <span
                               style={{
-                                fontSize: 16,
-                                fontWeight: 600,
+                                fontSize: 15,
+                                fontWeight: 500,
                                 color: "var(--fg)",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
