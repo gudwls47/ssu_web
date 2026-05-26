@@ -552,7 +552,7 @@ function SlideTalk({
                   color: "var(--fg)",
                 }}
               >
-                {c.authorName || c.createdUser?.displayName || "익명"}
+                {c.authorName || "익명"}
               </span>
               {c.tag && (
                 <span

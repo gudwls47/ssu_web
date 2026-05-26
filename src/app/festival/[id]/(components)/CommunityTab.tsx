@@ -335,7 +335,7 @@ export function CommunityTab({ festival }: CommunityTabProps) {
                   className="head"
                   style={{ display: "flex", alignItems: "center", gap: 6 }}
                 >
-                  <b>{v.authorName || v.createdUser?.displayName || "익명"}</b>
+                  <b>{v.authorName || "익명"}</b>
                   <span>·</span>
                   <span>
                     {(v.createdAt as Timestamp)
