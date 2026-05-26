@@ -14,6 +14,7 @@ type BoothRow = {
   name: string;
   dept: string;
   loc: string;
+  zone: string;
   schedule: string;
   desc: string;
   tag: BoothTag;
@@ -93,6 +94,7 @@ export default function BoothEditorPage() {
           name: b.name,
           dept: b.dept,
           loc: b.loc,
+          zone: b.zone ?? "",
           schedule: b.schedule,
           desc: b.desc ?? "",
           tag: b.tag,
@@ -141,6 +143,7 @@ export default function BoothEditorPage() {
         name: "",
         dept: "",
         loc: "",
+        zone: "",
         schedule: "",
         desc: "",
         tag: "FOOD",
@@ -162,6 +165,7 @@ export default function BoothEditorPage() {
           name,
           dept,
           loc,
+          zone,
           schedule,
           desc,
           tag,
@@ -170,6 +174,7 @@ export default function BoothEditorPage() {
           name,
           dept,
           loc,
+          zone,
           schedule,
           desc,
           tag,
@@ -333,7 +338,7 @@ export default function BoothEditorPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "28px 1fr 120px 80px 1fr 100px 36px",
+            gridTemplateColumns: "28px 1fr 120px 80px 80px 1fr 100px 36px",
             padding: "12px 16px",
             borderBottom: "1px solid var(--border)",
             fontFamily: "var(--mono-font)",
@@ -349,6 +354,7 @@ export default function BoothEditorPage() {
           <span>부스명 / 상세 내용 / 운영 날짜</span>
           <span>학과</span>
           <span>위치</span>
+          <span>구역</span>
           <span>일정</span>
           <span>분류</span>
           <span />
@@ -387,7 +393,8 @@ export default function BoothEditorPage() {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "28px 1fr 120px 80px 1fr 100px 36px",
+                  gridTemplateColumns:
+                    "28px 1fr 120px 80px 80px 1fr 100px 36px",
                   alignItems: "center",
                   gap: 8,
                 }}
@@ -429,6 +436,18 @@ export default function BoothEditorPage() {
                   value={b.loc}
                   placeholder="A-01"
                   onChange={(e) => updateField(b._key, "loc", e.target.value)}
+                />
+
+                {/* 구역 */}
+                <input
+                  style={{
+                    ...inputStyle,
+                    fontFamily: "var(--mono-font)",
+                    fontSize: 14,
+                  }}
+                  value={b.zone}
+                  placeholder="중앙광장"
+                  onChange={(e) => updateField(b._key, "zone", e.target.value)}
                 />
 
                 {/* 일정 */}

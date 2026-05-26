@@ -75,6 +75,7 @@ export interface BoothDoc {
   name: string;
   dept: string;
   loc: string;
+  zone?: string; // 구역 (예: A구역, 중앙광장 등)
   schedule: string;
   desc?: string; // 부스 상세 설명
   tag: BoothTag;

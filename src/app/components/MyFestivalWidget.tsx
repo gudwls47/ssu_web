@@ -78,9 +78,9 @@ function FestivalStory({ festivalId }: { festivalId: string }) {
   }
 
   const current = SLIDES[slideIdx];
-  const topBooths = (booths ?? []).slice(0, 5);
-  const topNotices = (notices ?? []).slice(0, 4);
-  const topComments = (comments ?? []).slice(0, 5);
+  const topBooths = booths ?? [];
+  const topNotices = notices ?? [];
+  const topComments = comments ?? [];
 
   return (
     <div>
@@ -118,7 +118,9 @@ function FestivalStory({ festivalId }: { festivalId: string }) {
 
       {/* 슬라이드 본문 */}
       <div style={{ minHeight: 280 }}>
-        {current === "cover" && <SlideCover festival={festival} />}
+        {current === "cover" && (
+          <SlideCover festival={festival} festivalId={festivalId} />
+        )}
         {current === "desc" && <SlideDesc festival={festival} />}
         {current === "booth" && (
           <SlideBooth booths={topBooths} festivalId={festivalId} />
@@ -131,27 +133,35 @@ function FestivalStory({ festivalId }: { festivalId: string }) {
         )}
       </div>
 
-      {/* 하단 링크 */}
-      <div
-        style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}
-      >
-        <Link
-          href={`/festival/${festivalId}`}
-          style={{
-            font: "600 12px/1 var(--mono-font)",
-            color: "var(--accent)",
-            textDecoration: "none",
-          }}
+      {/* 하단 링크 - 커버 슬라이드일 때는 이미지 안에 표시 */}
+      {current !== "cover" && (
+        <div
+          style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}
         >
-          축제 페이지 →
-        </Link>
-      </div>
+          <Link
+            href={`/festival/${festivalId}`}
+            style={{
+              font: "600 12px/1 var(--mono-font)",
+              color: "var(--accent)",
+              textDecoration: "none",
+            }}
+          >
+            축제 페이지 →
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
 
 // ── 슬라이드: 표지 ────────────────────────────────────────
-function SlideCover({ festival }: { festival: any }) {
+function SlideCover({
+  festival,
+  festivalId,
+}: {
+  festival: any;
+  festivalId: string;
+}) {
   const statusColor =
     festival.status === "LIVE"
       ? "#FF1E7A"
@@ -171,7 +181,7 @@ function SlideCover({ festival }: { festival: any }) {
         borderRadius: 16,
         overflow: "hidden",
         position: "relative",
-        height: 280,
+        height: 320,
         background: festival.thumbnail
           ? "var(--surface)"
           : `linear-gradient(135deg, ${festival.colors?.[0] ?? "#FF1E7A"}33, ${festival.colors?.[1] ?? "#BDFF1E"}22)`,
@@ -182,9 +192,12 @@ function SlideCover({ festival }: { festival: any }) {
           src={festival.thumbnail}
           alt={festival.name}
           style={{
+            position: "absolute",
+            inset: 0,
             width: "100%",
             height: "100%",
             objectFit: "cover",
+            objectPosition: "center 30%",
             display: "block",
           }}
         />
@@ -242,8 +255,27 @@ function SlideCover({ festival }: { festival: any }) {
         >
           {festival.name}
         </div>
-        <div style={{ fontSize: 15, color: "rgba(255,255,255,0.75)" }}>
-          {festival.school}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+          }}
+        >
+          <div style={{ fontSize: 15, color: "rgba(255,255,255,0.75)" }}>
+            {festival.school}
+          </div>
+          <Link
+            href={`/festival/${festivalId}`}
+            style={{
+              font: "600 12px/1 var(--mono-font)",
+              color: "rgba(255,255,255,0.75)",
+              textDecoration: "none",
+              flexShrink: 0,
+            }}
+          >
+            축제 페이지 →
+          </Link>
         </div>
       </div>
     </div>
@@ -621,7 +653,7 @@ export default function MyFestivalWidget({ uid }: { uid: string }) {
         borderRadius: 24,
         border: "1px solid var(--border)",
         background: "var(--surface)",
-        padding: "22px 22px 18px",
+        padding: "22px",
         marginTop: 24,
         boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
       }}

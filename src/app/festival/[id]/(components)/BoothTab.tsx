@@ -140,6 +140,28 @@ function BoothCard({
       </div>
 
       <div className="meta">
+        {b.zone && (
+          <>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                height: 18,
+                padding: "0 7px",
+                borderRadius: 4,
+                background: "var(--accent)",
+                color: "#fff",
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: "0.04em",
+                fontFamily: "var(--mono-font)",
+              }}
+            >
+              {b.zone}
+            </span>
+            <span>·</span>
+          </>
+        )}
         <span>{b.loc}</span>
         <span>·</span>
         <span>{b.dept}</span>
@@ -226,10 +248,17 @@ export function BoothTab({
   festivalId,
 }: BoothTabProps & { festivalId: string }) {
   const [tag, setTag] = useState("ALL");
+  const [zone, setZone] = useState("ALL");
   const [sortKey, setSortKey] = useState<SortKey>("default");
 
   const tags = ["ALL", ...Array.from(new Set(booths.map((b) => b.tag)))];
-  const filtered = tag === "ALL" ? booths : booths.filter((b) => b.tag === tag);
+  const zones = Array.from(
+    new Set(booths.map((b) => b.zone).filter(Boolean)),
+  ) as string[];
+
+  const filtered = booths
+    .filter((b) => tag === "ALL" || b.tag === tag)
+    .filter((b) => zone === "ALL" || b.zone === zone);
   const sorted = sortBooths(filtered, sortKey);
 
   return (
@@ -245,17 +274,42 @@ export function BoothTab({
           marginBottom: 4,
         }}
       >
-        <div className="f-day-row" style={{ margin: 0 }}>
-          {tags.map((t) => (
-            <button
-              key={t}
-              className="f-chip"
-              data-active={tag === t ? "true" : "false"}
-              onClick={() => setTag(t)}
-            >
-              {TAG_LABELS[t] ?? t}
-            </button>
-          ))}
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {/* 태그 필터 */}
+          <div className="f-day-row" style={{ margin: 0 }}>
+            {tags.map((t) => (
+              <button
+                key={t}
+                className="f-chip"
+                data-active={tag === t ? "true" : "false"}
+                onClick={() => setTag(t)}
+              >
+                {TAG_LABELS[t] ?? t}
+              </button>
+            ))}
+          </div>
+          {/* 구역 필터 (구역 데이터 있을 때만) */}
+          {zones.length > 0 && (
+            <div className="f-day-row" style={{ margin: 0 }}>
+              <button
+                className="f-chip"
+                data-active={zone === "ALL" ? "true" : "false"}
+                onClick={() => setZone("ALL")}
+              >
+                전체 구역
+              </button>
+              {zones.map((z) => (
+                <button
+                  key={z}
+                  className="f-chip"
+                  data-active={zone === z ? "true" : "false"}
+                  onClick={() => setZone(z)}
+                >
+                  {z}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 정렬 드롭다운 */}

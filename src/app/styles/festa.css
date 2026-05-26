@@ -629,15 +629,10 @@
 /* ── Lineup ───────────────────────────────────────────── */
 .f-day-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 20px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  scrollbar-width: none;
-  cursor: grab;
-  user-select: none;
 }
-.f-day-row::-webkit-scrollbar { display: none; }
 
 .f-lineup-grid { display: grid; gap: 24px; grid-template-columns: 1fr; }
 .f-stage-col h3 {
@@ -740,7 +735,7 @@
   aspect-ratio: 4 / 3;
   background: var(--surface-2);
   border-radius: 20px;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid var(--border);
 }
 .f-map-canvas svg { width: 100%; height: 100%; display: block; }

@@ -122,6 +122,7 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
           <svg
             viewBox={`0 0 ${MAP_W} ${MAP_H}`}
             preserveAspectRatio="xMidYMid meet"
+            overflow="visible"
           >
             {/* 배경: 선택된 템플릿 또는 커스텀 이미지 */}
             {fest.mapImage && !isPresetId(fest.mapImage) ? (
@@ -171,13 +172,6 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
 
               if (isHiddenByPinDay || isHiddenByBoothDay) return null;
 
-              const displayLabel =
-                activeBooths.length > 0
-                  ? activeBooths.length === 1
-                    ? activeBooths[0].name
-                    : `${activeBooths[0].name} 외 ${activeBooths.length - 1}`
-                  : p.label;
-              // 이 날짜에 부스가 없는 booth 핀은 흐리게 (위에서 hidden 처리하므로 사실상 activeBooths가 있을 때만 도달)
               const isInactive =
                 p.type === "booth" &&
                 (p.boothIds?.length ?? 0) > 0 &&
@@ -200,41 +194,62 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
                   <text
                     x={p.x}
                     y={p.y}
+                    dy="0.35em"
                     fontSize="9"
                     textAnchor="middle"
-                    dominantBaseline="central"
                     fill="#fff"
                     fontWeight="700"
                     fontFamily="var(--mono-font)"
                   >
                     {pinLabel(p.type)}
                   </text>
-                  {hovered === p.id && !isInactive && (
-                    <g>
-                      <rect
-                        x={p.x + 14}
-                        y={p.y - 12}
-                        width={tooltipWidth(displayLabel)}
-                        height="24"
-                        rx="5"
-                        fill="var(--fg)"
-                      />
-                      <text
-                        x={p.x + 26}
-                        y={p.y}
-                        fontSize="11"
-                        dominantBaseline="central"
-                        fill="var(--bg)"
-                        fontWeight="600"
-                        fontFamily="var(--body-font)"
-                      >
-                        {displayLabel}
-                      </text>
-                    </g>
-                  )}
                 </g>
               );
             })}
+
+            {/* 툴팁: 모든 핀보다 나중에 그려서 항상 맨 위에 표시 */}
+            {hovered &&
+              (() => {
+                const p = pins.find((pin) => pin.id === hovered);
+                if (!p) return null;
+                const activeBooths = getActiveBooothsForPin(p);
+                const isInactive =
+                  p.type === "booth" &&
+                  (p.boothIds?.length ?? 0) > 0 &&
+                  activeBooths.length === 0;
+                if (isInactive) return null;
+                const displayLabel =
+                  activeBooths.length > 0
+                    ? activeBooths.length === 1
+                      ? activeBooths[0].name
+                      : `${activeBooths[0].name} 외 ${activeBooths.length - 1}`
+                    : p.label;
+                const tw = tooltipWidth(displayLabel);
+                return (
+                  <g pointerEvents="none">
+                    <rect
+                      x={p.x - tw / 2}
+                      y={p.y - 11 - 6 - 24}
+                      width={tw}
+                      height="24"
+                      rx="5"
+                      fill="var(--fg)"
+                    />
+                    <text
+                      x={p.x}
+                      y={p.y - 11 - 6 - 12}
+                      fontSize="11"
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fill="var(--bg)"
+                      fontWeight="600"
+                      fontFamily="var(--body-font)"
+                    >
+                      {displayLabel}
+                    </text>
+                  </g>
+                );
+              })()}
           </svg>
         </div>
 

@@ -252,16 +252,6 @@ export default function AdminFestivalsPage() {
             >
               {s.value}
             </div>
-            <div
-              style={{
-                fontSize: 13,
-                color: "var(--muted)",
-                marginTop: 4,
-                fontFamily: "var(--mono-font)",
-              }}
-            >
-              {s.sub}
-            </div>
           </div>
         ))}
       </div>
