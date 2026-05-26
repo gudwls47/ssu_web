@@ -20,7 +20,6 @@ const SLIDE_LABEL: Record<SlideType, string> = {
   notice: "공지",
   talk: "톡",
 };
-const SLIDE_DURATION = 5000; // 5초
 
 // ── 색상 상수 ─────────────────────────────────────────────
 const TAG_COLOR: Record<CommentTag, string> = {
@@ -58,33 +57,7 @@ function FestivalStory({ festivalId }: { festivalId: string }) {
   const { data: booths } = useGetBooths(festivalId);
   const { data: notices } = useGetNotices(festivalId);
   const { data: comments } = useGetFestivalComments(festivalId);
-  const progressRef = useRef<HTMLDivElement>(null);
   const [slideIdx, setSlideIdx] = useState(0);
-
-  // 진행 바 애니메이션 리셋
-  useEffect(() => {
-    if (progressRef.current) {
-      progressRef.current.style.transition = "none";
-      progressRef.current.style.width = "0%";
-      const raf = requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (progressRef.current) {
-            progressRef.current.style.transition = `width ${SLIDE_DURATION}ms linear`;
-            progressRef.current.style.width = "100%";
-          }
-        });
-      });
-      return () => cancelAnimationFrame(raf);
-    }
-  }, [slideIdx]);
-
-  // 슬라이드 자동 전환 (마지막이면 처음으로 루프)
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSlideIdx((i) => (i + 1) % SLIDES.length);
-    }, SLIDE_DURATION);
-    return () => clearInterval(timer);
-  }, []);
 
   if (!festival) {
     return (
@@ -140,20 +113,6 @@ function FestivalStory({ festivalId }: { festivalId: string }) {
               {SLIDE_LABEL[s]}
             </button>
           ))}
-        </div>
-        {/* 진행 바 */}
-        <div
-          style={{
-            height: 2,
-            background: "var(--border)",
-            borderRadius: 1,
-            overflow: "hidden",
-          }}
-        >
-          <div
-            ref={progressRef}
-            style={{ height: "100%", background: "var(--accent)", width: "0%" }}
-          />
         </div>
       </div>
 
