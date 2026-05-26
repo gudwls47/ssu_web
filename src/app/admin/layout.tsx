@@ -47,10 +47,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div
       className="festa"
-      style={{ display: "flex", minHeight: "100vh", background: "var(--bg)" }}
+      style={{ minHeight: "100vh", background: "var(--bg)" }}
     >
       <AdminSideMenu user={user} profile={profile} />
-      <main style={{ flex: 1, overflow: "auto" }}>{children}</main>
+      <main style={{ paddingLeft: 68 }}>{children}</main>
     </div>
   );
 }
