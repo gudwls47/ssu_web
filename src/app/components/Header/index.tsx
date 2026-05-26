@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuthState, logOut } from "@/app/api/auth";
 import type { Mode } from "@/app/layouts/Layout";
 
@@ -30,8 +30,21 @@ interface HeaderProps {
 
 export function Header({ mode, onModeChange }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, profile, isAdmin } = useAuthState();
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    setQuery("");
+  }, [pathname]);
+
+  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (query.trim()) params.set("title", query.trim());
+    router.push(`/festival${params.size ? "?" + params.toString() : ""}`);
+  };
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const displayName =
@@ -74,25 +87,33 @@ export function Header({ mode, onModeChange }: HeaderProps) {
       </div>
 
       <div className="f-nav-search">
-        <Link
-          href="/festival"
-          className="f-search-bar"
-          style={{ textDecoration: "none" }}
+        <form
+          onSubmit={handleSearch}
+          style={{
+            width: "100%",
+            display: pathname.startsWith("/festival") ? "none" : "block",
+          }}
         >
-          <SearchIcon />
-          <span
-            style={{
-              flex: 1,
-              color: "var(--muted)",
-              font: "500 14px/1 var(--body-font)",
-            }}
-          >
-            축제명 · 학술제 · 아티스트 검색
-          </span>
-          <kbd>⌘ K</kbd>
-        </Link>
+          <div className="f-search-bar" style={{ cursor: "text" }}>
+            <SearchIcon />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="지역 · 학교 · 축제명 검색"
+              style={{
+                flex: 1,
+                background: "transparent",
+                border: "none",
+                outline: "none",
+                color: "var(--fg)",
+                font: "500 14px/1 var(--body-font)",
+              }}
+            />
+          </div>
+        </form>
       </div>
 
+      <div style={{ marginLeft: "auto" }} />
       <button
         title={mode === "light" ? "Dark mode" : "Light mode"}
         aria-label={mode === "light" ? "Dark mode" : "Light mode"}

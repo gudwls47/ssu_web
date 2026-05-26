@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "@/app/api/auth";
 import { useIsJoined, useToggleJoin } from "@/app/api/userFestivals";
+import { openToast } from "@/app/hooks/useToast";
 import type { FestivalResponse } from "@/app/api/festivals.type";
 import { TABS, type TabType } from "./constants";
 
@@ -21,13 +23,34 @@ export function TabNavigation({
   const { user } = useAuthState();
   const { data: isJoined } = useIsJoined(user?.uid, fest.id);
   const toggle = useToggleJoin(user?.uid, fest);
+  const [copied, setCopied] = useState(false);
 
   const handleJoin = () => {
     if (!user) {
       router.push("/login");
       return;
     }
-    toggle.mutate({ joined: !!isJoined });
+    toggle.mutate(
+      { joined: !!isJoined },
+      {
+        onSuccess: () => {
+          openToast.success(
+            isJoined ? "참여가 취소되었습니다." : "참여 등록이 완료되었습니다.",
+            "CUSTOM",
+          );
+        },
+      },
+    );
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      alert("링크 복사에 실패했습니다.");
+    }
   };
 
   return (
@@ -42,6 +65,13 @@ export function TabNavigation({
         </button>
       ))}
       <div style={{ flex: 1 }} />
+      <button
+        className="f-btn ghost sm"
+        style={{ alignSelf: "center" }}
+        onClick={handleShare}
+      >
+        {copied ? "✓ 링크 복사됨" : "🔗 축제 공유"}
+      </button>
       <button
         className={`f-btn ${isJoined ? "ghost" : "accent"} sm`}
         style={{ alignSelf: "center", minWidth: 88 }}
