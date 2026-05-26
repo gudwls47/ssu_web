@@ -292,17 +292,6 @@ export const MAP_TEMPLATES: MapTemplate[] = [
           opacity="0.9"
         />
         <circle cx={w / 2} cy={h / 2} r="22" fill="#e05080" />
-        <text
-          x={w / 2}
-          y={h / 2 + 4}
-          textAnchor="middle"
-          fontSize="7"
-          fill="white"
-          fontWeight="bold"
-          fontFamily="sans-serif"
-        >
-          STAGE
-        </text>
       </>
     ),
   },
