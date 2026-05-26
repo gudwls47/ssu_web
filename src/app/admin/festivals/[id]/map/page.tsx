@@ -6,6 +6,7 @@ import {
   useEffect,
   type MouseEvent as ReactMouseEvent,
   type CSSProperties,
+  useMemo,
 } from "react";
 import { useParams } from "next/navigation";
 import { useGetBooths } from "@/app/api/booths";
@@ -47,7 +48,7 @@ const PIN_PALETTE = [
   },
 ] as const;
 
-type LocalPin = MapPinInput & { _key: string };
+type LocalPin = MapPinInput & { _key: string; days: string[] };
 
 function dateRange(start: string, end: string): string[] {
   const days: string[] = [];
@@ -363,9 +364,23 @@ export default function MapEditorPage() {
   const saveMapPins = useSaveMapPins(festivalId);
   const updateFestival = useUpdateFestival(festivalId);
 
+  const festivalDays = useMemo(
+    () => (fest ? dateRange(fest.start, fest.end) : []),
+    [fest?.start, fest?.end],
+  );
+
   const [pins, setPins] = useState<LocalPin[]>([]);
   const [selectedType, setSelectedType] = useState<MapPinType>("booth");
   const [previewDay, setPreviewDay] = useState<string | null>(null);
+  const initializedRef = useRef(false);
+
+  useEffect(() => {
+    if (festivalDays.length > 0 && !initializedRef.current) {
+      setPreviewDay(festivalDays[0]);
+      initializedRef.current = true;
+    }
+  }, [festivalDays]);
+
   const [mapValue, setMapValue] = useState("basic");
   const [showPicker, setShowPicker] = useState(false);
   const [selectedPinKey, setSelectedPinKey] = useState<string | null>(null);
@@ -374,8 +389,6 @@ export default function MapEditorPage() {
   const pinItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const dragRef = useRef<{ key: string; moved: boolean } | null>(null);
   const blockCanvasClickRef = useRef(false);
-
-  const festivalDays = fest ? dateRange(fest.start, fest.end) : [];
 
   useEffect(() => {
     if (fest?.mapImage != null && fest.mapImage !== "") {
@@ -393,6 +406,7 @@ export default function MapEditorPage() {
           x: p.x,
           y: p.y,
           boothIds: p.boothIds ?? [],
+          days: p.days ?? [],
         })),
       );
     }
@@ -420,6 +434,7 @@ export default function MapEditorPage() {
         x,
         y,
         boothIds: [],
+        days: [],
       },
     ]);
     setSelectedPinKey(newKey);
@@ -498,11 +513,27 @@ export default function MapEditorPage() {
     );
   };
 
+  const toggleDay = (pinKey: string, day: string) => {
+    setPins((prev) =>
+      prev.map((p) => {
+        if (p._key !== pinKey) return p;
+        const days = p.days ?? [];
+        const next = days.includes(day)
+          ? days.filter((d) => d !== day)
+          : [...days, day];
+        return { ...p, days: next };
+      }),
+    );
+  };
+
   const handleSave = () => {
     saveMapPins.mutate(
-      pins.map(({ _key: _k, boothIds, ...rest }) =>
-        boothIds && boothIds.length > 0 ? { ...rest, boothIds } : rest,
-      ),
+      pins.map(({ _key: _k, boothIds, days, ...rest }) => {
+        const obj: MapPinInput = { ...rest };
+        if (boothIds && boothIds.length > 0) obj.boothIds = boothIds;
+        if (days && days.length > 0) obj.days = days;
+        return obj;
+      }),
     );
     if (mapValue !== (fest?.mapImage ?? "basic")) {
       updateFestival.mutate({ mapImage: mapValue });
@@ -519,6 +550,7 @@ export default function MapEditorPage() {
           x: p.x,
           y: p.y,
           boothIds: p.boothIds ?? [],
+          days: p.days ?? [],
         })),
       );
     } else {
@@ -762,6 +794,29 @@ export default function MapEditorPage() {
               const isLinked =
                 pin.type === "booth" && (pin.boothIds?.length ?? 0) > 0;
               const isSelected = selectedPinKey === pin._key;
+
+              // 1. 핀 자체의 운영 날짜 필터링
+              const pDays = pin.days || [];
+              const isHiddenByPinDay =
+                previewDay && pDays.length > 0 && !pDays.includes(previewDay);
+
+              // 2. 연결된 부스의 운영 날짜 필터링 (부스 핀인 경우)
+              const activeBooths =
+                pin.type === "booth" && (pin.boothIds?.length ?? 0) > 0
+                  ? booths.filter(
+                      (b) =>
+                        pin.boothIds!.includes(b.id) &&
+                        boothRunsOnDay(b, previewDay),
+                    )
+                  : [];
+              const isHiddenByBoothDay =
+                previewDay &&
+                pin.type === "booth" &&
+                (pin.boothIds?.length ?? 0) > 0 &&
+                activeBooths.length === 0;
+
+              if (isHiddenByPinDay || isHiddenByBoothDay) return null;
+
               return (
                 <div
                   key={pin._key}
@@ -1066,6 +1121,46 @@ export default function MapEditorPage() {
                     {/* 선택된 경우만 펼침 */}
                     {isSelected && (
                       <div style={{ padding: "0 10px 10px" }}>
+                        {/* 운영 날짜 선택 */}
+                        <div style={{ marginBottom: 12 }}>
+                          <div
+                            style={{
+                              fontFamily: "var(--mono-font)",
+                              fontSize: 11,
+                              color: "var(--muted)",
+                              marginBottom: 4,
+                            }}
+                          >
+                            운영 날짜 (미선택 시 전체 기간)
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: 4,
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            {festivalDays.map((d, i) => {
+                              const checked = pin.days?.includes(d);
+                              return (
+                                <button
+                                  key={d}
+                                  onClick={() => toggleDay(pin._key, d)}
+                                  className="f-chip"
+                                  data-active={checked ? "true" : "false"}
+                                  style={{
+                                    height: 24,
+                                    padding: "0 8px",
+                                    fontSize: 11,
+                                  }}
+                                >
+                                  D{i + 1}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
                         {pin.type === "booth" ? (
                           <div>
                             <div

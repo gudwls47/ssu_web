@@ -146,6 +146,7 @@ export interface MapPinDoc {
   x: number;
   y: number;
   boothIds?: string[]; // booth 타입 핀에 연결된 부스 목록 (날짜별로 다른 부스 가능)
+  days?: string[]; // 운영 날짜 목록, 비어있으면 전체 기간
 }
 
 export interface MapPinResponse extends MapPinDoc {

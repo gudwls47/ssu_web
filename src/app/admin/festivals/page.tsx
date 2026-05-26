@@ -96,7 +96,7 @@ export default function AdminFestivalsPage() {
   const { user } = useAuthState();
   const { data: festivals = [], isLoading } = useGetFestivals({
     size: 50,
-    ownerUid: user?.uid,
+    // ownerUid: user?.uid,
   });
 
   const live = festivals.filter((f) => f.status === "LIVE");

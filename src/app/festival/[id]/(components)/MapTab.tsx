@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   isPresetId,
   getTemplate,
@@ -33,6 +33,15 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
     [fest.start, fest.end],
   );
   const [filterDay, setFilterDay] = useState<string | null>(null);
+  const initializedRef = useRef(false);
+
+  useEffect(() => {
+    if (days.length > 0 && !initializedRef.current) {
+      setFilterDay(days[0]);
+      initializedRef.current = true;
+    }
+  }, [days]);
+
   const [hovered, setHovered] = useState<string | null>(null);
 
   const pinColor: Record<MapPinType, string> = {
@@ -147,13 +156,28 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
 
             {pins.map((p) => {
               const activeBooths = getActiveBooothsForPin(p);
+
+              // 1. 핀 자체의 운영 날짜 필터링
+              const pDays = p.days || [];
+              const isHiddenByPinDay =
+                filterDay && pDays.length > 0 && !pDays.includes(filterDay);
+
+              // 2. 연결된 부스의 운영 날짜 필터링 (부스 핀인 경우)
+              const isHiddenByBoothDay =
+                filterDay &&
+                p.type === "booth" &&
+                (p.boothIds?.length ?? 0) > 0 &&
+                activeBooths.length === 0;
+
+              if (isHiddenByPinDay || isHiddenByBoothDay) return null;
+
               const displayLabel =
                 activeBooths.length > 0
                   ? activeBooths.length === 1
                     ? activeBooths[0].name
                     : `${activeBooths[0].name} 외 ${activeBooths.length - 1}`
                   : p.label;
-              // 이 날짜에 부스가 없는 booth 핀은 흐리게
+              // 이 날짜에 부스가 없는 booth 핀은 흐리게 (위에서 hidden 처리하므로 사실상 activeBooths가 있을 때만 도달)
               const isInactive =
                 p.type === "booth" &&
                 (p.boothIds?.length ?? 0) > 0 &&
@@ -240,6 +264,21 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
             <div className="f-legend-list">
               {pins.map((p) => {
                 const activeBooths = getActiveBooothsForPin(p);
+
+                // 1. 핀 자체의 운영 날짜 필터링
+                const pDays = p.days || [];
+                const isHiddenByPinDay =
+                  filterDay && pDays.length > 0 && !pDays.includes(filterDay);
+
+                // 2. 연결된 부스의 운영 날짜 필터링 (부스 핀인 경우)
+                const isHiddenByBoothDay =
+                  filterDay &&
+                  p.type === "booth" &&
+                  (p.boothIds?.length ?? 0) > 0 &&
+                  activeBooths.length === 0;
+
+                if (isHiddenByPinDay || isHiddenByBoothDay) return null;
+
                 const isInactive =
                   p.type === "booth" &&
                   (p.boothIds?.length ?? 0) > 0 &&
