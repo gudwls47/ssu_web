@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { useAuthState } from "@/app/api/auth";
 import { useGetFestivals } from "@/app/api/festivals";
@@ -94,6 +95,9 @@ function PosterThumb({
 
 export default function AdminFestivalsPage() {
   const { user } = useAuthState();
+  const [statusFilter, setStatusFilter] = React.useState<
+    FestivalStatus | "ALL"
+  >("ALL");
   const { data: festivals = [], isLoading } = useGetFestivals({
     size: 50,
     // ownerUid: user?.uid,
@@ -102,6 +106,10 @@ export default function AdminFestivalsPage() {
   const live = festivals.filter((f) => f.status === "LIVE");
   const upcoming = festivals.filter((f) => f.status === "UPCOMING");
   const totalParticipants = festivals.reduce((s, f) => s + f.participants, 0);
+  const filteredFestivals =
+    statusFilter === "ALL"
+      ? festivals
+      : festivals.filter((f) => f.status === statusFilter);
 
   if (isLoading) {
     return (
@@ -181,6 +189,7 @@ export default function AdminFestivalsPage() {
             value: String(live.length),
             sub: live.map((f) => f.nameEn).join(" · ") || "없음",
             accent: "var(--live)",
+            filter: "LIVE" as const,
           },
           {
             label: "예정",
@@ -188,27 +197,36 @@ export default function AdminFestivalsPage() {
             sub:
               upcoming.map((f) => f.nameEn.split(" ")[0]).join(" · ") || "없음",
             accent: "var(--upcoming)",
+            filter: "UPCOMING" as const,
           },
           {
             label: "총 참여자",
             value: totalParticipants.toLocaleString(),
             sub: "누적 참여자 수",
             accent: null,
+            filter: null,
           },
           {
             label: "등록 축제",
             value: String(festivals.length),
             sub: "전체 축제 수",
             accent: null,
+            filter: "ALL" as const,
           },
         ].map((s) => (
           <div
             key={s.label}
+            onClick={() =>
+              s.filter &&
+              setStatusFilter(s.filter === statusFilter ? "ALL" : s.filter)
+            }
             style={{
               padding: 16,
               borderRadius: 14,
               background: "var(--surface)",
-              border: "1px solid var(--border)",
+              border: `1px solid ${s.filter && s.filter === statusFilter ? (s.accent ?? "var(--accent)") : "var(--border)"}`,
+              cursor: s.filter ? "pointer" : "default",
+              transition: "border-color 0.15s",
             }}
           >
             <div
@@ -281,7 +299,7 @@ export default function AdminFestivalsPage() {
           <span />
         </div>
 
-        {festivals.length === 0 ? (
+        {filteredFestivals.length === 0 ? (
           <div
             style={{
               padding: 48,
@@ -294,7 +312,7 @@ export default function AdminFestivalsPage() {
             등록된 축제가 없습니다.
           </div>
         ) : (
-          festivals.map((fest, i) => (
+          filteredFestivals.map((fest, i) => (
             <div
               key={fest.id}
               style={{
@@ -302,7 +320,9 @@ export default function AdminFestivalsPage() {
                 gridTemplateColumns: "76px 1fr 140px 130px 110px 140px 130px",
                 padding: "14px 18px",
                 borderBottom:
-                  i < festivals.length - 1 ? "1px solid var(--border)" : "none",
+                  i < filteredFestivals.length - 1
+                    ? "1px solid var(--border)"
+                    : "none",
                 alignItems: "center",
               }}
             >
