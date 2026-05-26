@@ -9,6 +9,8 @@ import {
   useDeleteFestivalComment,
   useGetFestivalComments,
 } from "@/app/api/festivals";
+import Modal from "@/app/components/Modal";
+import { openToast } from "@/app/hooks/useToast";
 import type {
   CommentTag,
   FestivalCommentResponse,
@@ -55,6 +57,7 @@ export function CommunityTab({ festival }: CommunityTabProps) {
   const [filterTag, setFilterTag] = useState<CommentTag | "ALL">("ALL");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isCreatingComment, setIsCreatingComment] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   const { user, loading: authLoading } = useAuthState();
   const { mutate: createComment } = useCreateFestivalComment();
@@ -88,18 +91,32 @@ export function CommunityTab({ festival }: CommunityTabProps) {
           setText("");
           setSelectedTag(null);
           setIsCreatingComment(false);
+          openToast.success("댓글", "CREATE");
         },
         onError: () => {
           setIsCreatingComment(false);
+          openToast.error("댓글", "CREATE");
         },
       },
     );
   };
 
   const handleDelete = (commentId: string) => {
-    // eslint-disable-next-line no-restricted-globals
-    if (!confirm("이 글을 삭제할까요?")) return;
-    deleteComment(commentId);
+    setDeleteTargetId(commentId);
+  };
+
+  const confirmDelete = () => {
+    if (!deleteTargetId) return;
+    deleteComment(deleteTargetId, {
+      onSuccess: () => {
+        openToast.success("댓글", "DELETE");
+        setDeleteTargetId(null);
+      },
+      onError: () => {
+        openToast.error("댓글", "DELETE");
+        setDeleteTargetId(null);
+      },
+    });
   };
 
   const filtered =
@@ -115,6 +132,20 @@ export function CommunityTab({ festival }: CommunityTabProps) {
 
   return (
     <div>
+      <Modal
+        open={deleteTargetId !== null}
+        onOpenChange={(open) => !open && setDeleteTargetId(null)}
+        title="댓글 삭제"
+        cancelButtonText="취소"
+        submitButtonText="삭제"
+        submitButtonProps={{ variant: "error" }}
+        onClickSubmit={confirmDelete}
+      >
+        <p style={{ fontSize: 14, color: "var(--fg)", margin: 0 }}>
+          이 댓글을 삭제할까요?
+        </p>
+      </Modal>
+
       {/* 입력창 */}
       <div
         style={{
@@ -304,7 +335,7 @@ export function CommunityTab({ festival }: CommunityTabProps) {
                   className="head"
                   style={{ display: "flex", alignItems: "center", gap: 6 }}
                 >
-                  <b>{v.authorName || v.createdUser?.displayName || "익명"}</b>
+                  <b>{v.authorName || "익명"}</b>
                   <span>·</span>
                   <span>
                     {(v.createdAt as Timestamp)
