@@ -177,7 +177,7 @@ export default function MainPage() {
               className="f-sub"
               style={{
                 textDecoration: "none",
-                color: "var(--upcoming)",
+                color: "var(--accent)",
                 fontWeight: 600,
                 display: "flex",
                 alignItems: "center",
@@ -202,6 +202,20 @@ export default function MainPage() {
               <div className="f-tagline">Archive · 지나간 축제</div>
               <h2 className="f-h">놓친 거 다시 보기</h2>
             </div>
+            <Link
+              href="/festival?status=ENDED"
+              className="f-sub"
+              style={{
+                textDecoration: "none",
+                color: "var(--accent)",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              {endedData.length}개 종료 →
+            </Link>
           </div>
           <div className="f-grid">
             {endedData.map((v) => (
