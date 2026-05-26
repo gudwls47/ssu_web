@@ -113,6 +113,7 @@ export function Header({ mode, onModeChange }: HeaderProps) {
         </form>
       </div>
 
+      <div style={{ marginLeft: "auto" }} />
       <button
         title={mode === "light" ? "Dark mode" : "Light mode"}
         aria-label={mode === "light" ? "Dark mode" : "Light mode"}
