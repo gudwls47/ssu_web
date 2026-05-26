@@ -423,14 +423,16 @@ export default function AdminStatsPage() {
                           {/* 날짜 */}
                           <div
                             style={{
-                              width: 130,
+                              width: 100,
                               fontFamily: "var(--mono-font)",
                               fontSize: 11,
                               color: "var(--muted)",
                               flexShrink: 0,
+                              lineHeight: 1.6,
                             }}
                           >
-                            {fest.start} – {fest.end}
+                            <div>{fest.start}</div>
+                            <div>– {fest.end}</div>
                           </div>
                           {/* 컬러 바 */}
                           <div
