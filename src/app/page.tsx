@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import Script from "next/script";
 import FestivalCard from "@/app/components/FestivalCard";
 import MyFestivalWidget from "@/app/components/MyFestivalWidget";
@@ -141,7 +142,20 @@ export default function MainPage() {
               <div className="f-tagline">Live Now · 지금 이 순간</div>
               <h2 className="f-h">지금 하고 있어요</h2>
             </div>
-            <div className="f-sub">{liveData.length}개 진행 중</div>
+            <Link
+              href="/festival?status=LIVE"
+              className="f-sub"
+              style={{
+                textDecoration: "none",
+                color: "var(--accent)",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              {liveData.length}개 진행 중 →
+            </Link>
           </div>
           <div className="f-grid">
             {liveData.map((v) => (
@@ -158,7 +172,20 @@ export default function MainPage() {
               <div className="f-tagline">Upcoming · 다가오는 축제</div>
               <h2 className="f-h">곧 시작해요</h2>
             </div>
-            <div className="f-sub">{upcomingData.length}개 예정</div>
+            <Link
+              href="/festival?status=UPCOMING"
+              className="f-sub"
+              style={{
+                textDecoration: "none",
+                color: "var(--upcoming)",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              {upcomingData.length}개 예정 →
+            </Link>
           </div>
           <div className="f-grid">
             {upcomingData.map((v) => (

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { SearchIcon } from "lucide-react";
 import FestivalCard from "@/app/components/FestivalCard";
 import { useGetFestivals } from "../api/festivals";
@@ -12,11 +13,22 @@ const STATUS_FILTERS = [
   { value: "ENDED", label: "종료" },
 ] as const;
 
+const VALID_STATUSES = ["LIVE", "UPCOMING", "ENDED"] as const;
+
 export default function FestivalListPage() {
+  const searchParams = useSearchParams();
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  // URL ?status=LIVE 등으로 초기 필터 설정
+  useEffect(() => {
+    const s = searchParams.get("status");
+    if (s && (VALID_STATUSES as readonly string[]).includes(s)) {
+      setStatus(s);
+    }
+  }, [searchParams]);
 
   const { data: festivalList } = useGetFestivals({ page: 1, size: 999 });
 
