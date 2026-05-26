@@ -140,13 +140,13 @@
 
   * {
     box-sizing: border-box;
-    font-size: 14px;
+    font-size: 16px;
     color: #121212;
   }
 
   input,
   textarea,
   select {
-    font-size: 16px;
+    font-size: 18px;
   }
 }

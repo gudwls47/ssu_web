@@ -75,7 +75,7 @@ function PosterThumb({
           <span
             style={{
               fontFamily: "var(--display-font)",
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: 700,
               color: "#fff",
               letterSpacing: "-0.02em",
@@ -110,7 +110,7 @@ export default function AdminFestivalsPage() {
           padding: "24px 32px",
           color: "var(--muted)",
           fontFamily: "var(--mono-font)",
-          fontSize: 13,
+          fontSize: 15,
         }}
       >
         불러오는 중…
@@ -133,7 +133,7 @@ export default function AdminFestivalsPage() {
           <div
             style={{
               fontFamily: "var(--mono-font)",
-              fontSize: 10,
+              fontSize: 12,
               letterSpacing: "0.12em",
               textTransform: "uppercase",
               color: "var(--muted)",
@@ -145,7 +145,7 @@ export default function AdminFestivalsPage() {
           <div
             style={{
               fontFamily: "var(--display-font)",
-              fontSize: 36,
+              fontSize: 40,
               fontWeight: 700,
               letterSpacing: "-0.03em",
               color: "var(--fg)",
@@ -154,7 +154,7 @@ export default function AdminFestivalsPage() {
           >
             내 축제{" "}
             <span
-              style={{ color: "var(--muted)", fontSize: 22, fontWeight: 500 }}
+              style={{ color: "var(--muted)", fontSize: 24, fontWeight: 500 }}
             >
               {festivals.length}
             </span>
@@ -214,7 +214,7 @@ export default function AdminFestivalsPage() {
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color: "var(--muted)",
@@ -225,7 +225,7 @@ export default function AdminFestivalsPage() {
             <div
               style={{
                 fontFamily: "var(--display-font)",
-                fontSize: 32,
+                fontSize: 36,
                 fontWeight: 700,
                 letterSpacing: "-0.03em",
                 marginTop: 4,
@@ -236,7 +236,7 @@ export default function AdminFestivalsPage() {
             </div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 color: "var(--muted)",
                 marginTop: 4,
                 fontFamily: "var(--mono-font)",
@@ -265,7 +265,7 @@ export default function AdminFestivalsPage() {
             padding: "12px 18px",
             borderBottom: "1px solid var(--border)",
             fontFamily: "var(--mono-font)",
-            fontSize: 10,
+            fontSize: 12,
             color: "var(--muted)",
             textTransform: "uppercase",
             letterSpacing: ".06em",
@@ -287,7 +287,7 @@ export default function AdminFestivalsPage() {
               padding: 48,
               textAlign: "center",
               color: "var(--muted)",
-              fontSize: 13,
+              fontSize: 15,
               fontFamily: "var(--mono-font)",
             }}
           >
@@ -314,14 +314,14 @@ export default function AdminFestivalsPage() {
 
               <div>
                 <div
-                  style={{ fontWeight: 600, fontSize: 14, color: "var(--fg)" }}
+                  style={{ fontWeight: 600, fontSize: 16, color: "var(--fg)" }}
                 >
                   {fest.name}
                 </div>
                 <div
                   style={{
                     fontFamily: "var(--mono-font)",
-                    fontSize: 11,
+                    fontSize: 13,
                     color: "var(--muted)",
                     marginTop: 2,
                   }}
@@ -333,7 +333,7 @@ export default function AdminFestivalsPage() {
               <div
                 style={{
                   fontFamily: "var(--mono-font)",
-                  fontSize: 12,
+                  fontSize: 14,
                   color: "var(--fg)",
                 }}
               >
@@ -347,7 +347,7 @@ export default function AdminFestivalsPage() {
               <div
                 style={{
                   fontFamily: "var(--mono-font)",
-                  fontSize: 13,
+                  fontSize: 15,
                   color: "var(--fg)",
                 }}
               >
@@ -357,7 +357,7 @@ export default function AdminFestivalsPage() {
               <div
                 style={{
                   fontFamily: "var(--mono-font)",
-                  fontSize: 11,
+                  fontSize: 13,
                   color: "var(--muted)",
                 }}
               >

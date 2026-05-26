@@ -59,7 +59,7 @@ export default function MyPage() {
           textAlign: "center",
           color: "var(--muted)",
           fontFamily: "var(--mono-font)",
-          fontSize: 13,
+          fontSize: 15,
         }}
       >
         로딩 중…
@@ -125,7 +125,7 @@ export default function MyPage() {
               alignItems: "center",
               justifyContent: "center",
               fontWeight: 700,
-              fontSize: 22,
+              fontSize: 24,
               flexShrink: 0,
             }}
           >
@@ -164,7 +164,7 @@ export default function MyPage() {
                 borderRadius: 20,
                 background: "var(--faint)",
                 color: "var(--accent)",
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 600,
               }}
             >
@@ -178,7 +178,7 @@ export default function MyPage() {
                 border: "1px solid var(--border)",
                 background: "transparent",
                 color: "var(--muted)",
-                fontSize: 12,
+                fontSize: 14,
                 cursor: "pointer",
               }}
             >
@@ -207,7 +207,7 @@ export default function MyPage() {
           <div
             style={{
               color: "var(--muted)",
-              fontSize: 13,
+              fontSize: 15,
               fontFamily: "var(--mono-font)",
             }}
           >
@@ -219,7 +219,7 @@ export default function MyPage() {
               padding: "32px 0",
               textAlign: "center",
               color: "var(--muted)",
-              fontSize: 13,
+              fontSize: 15,
               fontFamily: "var(--mono-font)",
               border: "1px dashed var(--border)",
               borderRadius: 14,
@@ -312,7 +312,7 @@ export default function MyPage() {
                         flexShrink: 0,
                         padding: "4px 10px",
                         borderRadius: 20,
-                        fontSize: 11,
+                        fontSize: 13,
                         fontWeight: 700,
                         background: `${sm.color}18`,
                         color: sm.color,
@@ -348,7 +348,7 @@ export default function MyPage() {
           <div
             style={{
               color: "var(--muted)",
-              fontSize: 13,
+              fontSize: 15,
               fontFamily: "var(--mono-font)",
             }}
           >
@@ -360,7 +360,7 @@ export default function MyPage() {
               padding: "32px 0",
               textAlign: "center",
               color: "var(--muted)",
-              fontSize: 13,
+              fontSize: 15,
               fontFamily: "var(--mono-font)",
               border: "1px dashed var(--border)",
               borderRadius: 14,
@@ -404,7 +404,7 @@ export default function MyPage() {
                         style={{
                           padding: "2px 8px",
                           borderRadius: 10,
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: 700,
                           background: `${TAG_COLOR[c.tag]}18`,
                           color: TAG_COLOR[c.tag],
@@ -416,7 +416,7 @@ export default function MyPage() {
                     )}
                     <span
                       style={{
-                        fontSize: 11,
+                        fontSize: 13,
                         color: "var(--muted)",
                         fontFamily: "var(--mono-font)",
                       }}

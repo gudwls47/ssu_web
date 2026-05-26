@@ -109,7 +109,7 @@ export default function LoginPage() {
               style={{
                 fontFamily: "var(--display-font)",
                 fontWeight: 700,
-                fontSize: 44,
+                fontSize: 48,
                 letterSpacing: "-0.04em",
                 color: "var(--fg)",
                 lineHeight: 1,
@@ -120,7 +120,7 @@ export default function LoginPage() {
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 letterSpacing: "0.15em",
                 color: "var(--muted)",
                 marginTop: 6,
@@ -147,7 +147,7 @@ export default function LoginPage() {
           <div
             style={{
               fontFamily: "var(--display-font)",
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: 700,
               letterSpacing: "-0.03em",
               color: "var(--fg)",
@@ -174,7 +174,7 @@ export default function LoginPage() {
               borderRadius: 12,
               border: "1.5px solid var(--border)",
               background: "var(--surface-2)",
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: 600,
               color: "var(--fg)",
               opacity: googleLoading ? 0.6 : 1,
@@ -196,7 +196,7 @@ export default function LoginPage() {
             }}
           >
             <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
-            <span style={{ fontFamily: "var(--mono-font)", fontSize: 11 }}>
+            <span style={{ fontFamily: "var(--mono-font)", fontSize: 13 }}>
               또는
             </span>
             <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
@@ -205,7 +205,7 @@ export default function LoginPage() {
           <div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 fontWeight: 600,
                 color: "var(--fg)",
                 marginBottom: 6,
@@ -227,7 +227,7 @@ export default function LoginPage() {
           <div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 fontWeight: 600,
                 color: "var(--fg)",
                 marginBottom: 6,
@@ -254,7 +254,7 @@ export default function LoginPage() {
                 background: "rgba(255,107,107,0.1)",
                 color: "#FF6B6B",
                 fontFamily: "var(--mono-font)",
-                fontSize: 12,
+                fontSize: 14,
               }}
             >
               {error}
@@ -265,7 +265,7 @@ export default function LoginPage() {
             type="submit"
             className="f-btn accent"
             disabled={loading || googleLoading || !email || !password}
-            style={{ width: "100%", marginTop: 4, height: 44, fontSize: 14 }}
+            style={{ width: "100%", marginTop: 4, height: 44, fontSize: 16 }}
           >
             {loading ? "로그인 중…" : "이메일로 로그인"}
           </button>
@@ -276,7 +276,7 @@ export default function LoginPage() {
           style={{
             textAlign: "center",
             marginTop: 16,
-            fontSize: 13,
+            fontSize: 15,
             color: "var(--muted)",
           }}
         >

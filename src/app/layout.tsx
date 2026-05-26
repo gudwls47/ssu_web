@@ -4,6 +4,7 @@ import "./styles/festa.css";
 
 import type { ReactNode } from "react";
 import { headers } from "next/headers";
+import Script from "next/script";
 import { Meta } from "next/dist/lib/metadata/generate/meta";
 import localFont from "next/font/local";
 import type { Metadata } from "next";
@@ -46,6 +47,10 @@ export default async function RootLayout({
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
       />
       <body className="font-pretendard">
+        <Script
+          src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+          strategy="afterInteractive"
+        />
         <LostAndFound />
         <Providers>{children}</Providers>
       </body>

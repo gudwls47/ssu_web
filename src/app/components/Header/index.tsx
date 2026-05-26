@@ -113,6 +113,7 @@ export function Header({ mode, onModeChange }: HeaderProps) {
         </form>
       </div>
 
+      <div style={{ marginLeft: "auto" }} />
       <button
         title={mode === "light" ? "Dark mode" : "Light mode"}
         aria-label={mode === "light" ? "Dark mode" : "Light mode"}
@@ -214,7 +215,7 @@ export function Header({ mode, onModeChange }: HeaderProps) {
                     textDecoration: "none",
                     padding: "9px 12px",
                     borderRadius: 8,
-                    fontSize: 13,
+                    fontSize: 15,
                     fontWeight: 500,
                     color: "var(--fg)",
                     display: "block",
@@ -238,7 +239,7 @@ export function Header({ mode, onModeChange }: HeaderProps) {
                     textDecoration: "none",
                     padding: "9px 12px",
                     borderRadius: 8,
-                    fontSize: 13,
+                    fontSize: 15,
                     fontWeight: 500,
                     color: "var(--fg)",
                     display: "block",
@@ -262,7 +263,7 @@ export function Header({ mode, onModeChange }: HeaderProps) {
                 style={{
                   padding: "9px 12px",
                   borderRadius: 8,
-                  fontSize: 13,
+                  fontSize: 15,
                   fontWeight: 500,
                   color: "var(--fg)",
                   background: "transparent",

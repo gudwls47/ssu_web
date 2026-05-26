@@ -39,7 +39,7 @@ function TagBadge({ tag }: { tag: BoothTag }) {
         background: `${colors[tag]}22`,
         color: colors[tag],
         fontFamily: "var(--mono-font)",
-        fontSize: 9,
+        fontSize: 11,
         fontWeight: 600,
         letterSpacing: "0.06em",
       }}
@@ -187,7 +187,7 @@ export default function BoothEditorPage() {
     background: "var(--surface)",
     border: "1px solid var(--border)",
     color: "var(--fg)",
-    fontSize: 13,
+    fontSize: 15,
     fontFamily: "var(--body-font)",
     outline: "none",
   };
@@ -199,7 +199,7 @@ export default function BoothEditorPage() {
           padding: 24,
           color: "var(--muted)",
           fontFamily: "var(--mono-font)",
-          fontSize: 13,
+          fontSize: 15,
         }}
       >
         불러오는 중…
@@ -227,12 +227,12 @@ export default function BoothEditorPage() {
             onClick={() => setFilterDay(null)}
             style={{ height: 34, padding: "0 14px" }}
           >
-            <span style={{ fontSize: 12, fontWeight: 700 }}>전체</span>
+            <span style={{ fontSize: 14, fontWeight: 700 }}>전체</span>
             <span
               style={{
                 marginLeft: 6,
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 opacity: 0.6,
               }}
             >
@@ -257,14 +257,14 @@ export default function BoothEditorPage() {
                 onClick={() => setFilterDay(d)}
                 style={{ height: 34, padding: "0 14px" }}
               >
-                <span style={{ fontSize: 12, fontWeight: 700 }}>
+                <span style={{ fontSize: 14, fontWeight: 700 }}>
                   DAY {i + 1}
                 </span>
                 <span
                   style={{
                     marginLeft: 6,
                     fontFamily: "var(--mono-font)",
-                    fontSize: 10,
+                    fontSize: 12,
                     opacity: 0.6,
                   }}
                 >
@@ -298,7 +298,7 @@ export default function BoothEditorPage() {
             background: "rgba(32,201,151,0.1)",
             color: "#20C997",
             fontFamily: "var(--mono-font)",
-            fontSize: 12,
+            fontSize: 14,
           }}
         >
           저장됨 ✓
@@ -313,7 +313,7 @@ export default function BoothEditorPage() {
             background: "rgba(255,107,107,0.1)",
             color: "#FF6B6B",
             fontFamily: "var(--mono-font)",
-            fontSize: 12,
+            fontSize: 14,
           }}
         >
           저장 실패: {(saveBooths.error as Error)?.message ?? "알 수 없는 오류"}
@@ -337,7 +337,7 @@ export default function BoothEditorPage() {
             padding: "12px 16px",
             borderBottom: "1px solid var(--border)",
             fontFamily: "var(--mono-font)",
-            fontSize: 10,
+            fontSize: 12,
             color: "var(--muted)",
             textTransform: "uppercase",
             letterSpacing: ".06em",
@@ -360,7 +360,7 @@ export default function BoothEditorPage() {
               padding: "32px 16px",
               textAlign: "center",
               color: "var(--muted)",
-              fontSize: 13,
+              fontSize: 15,
               fontFamily: "var(--mono-font)",
             }}
           >
@@ -397,7 +397,7 @@ export default function BoothEditorPage() {
                   style={{
                     fontFamily: "var(--mono-font)",
                     color: "var(--muted)",
-                    fontSize: 11,
+                    fontSize: 13,
                   }}
                 >
                   {String(i + 1).padStart(2, "0")}
@@ -424,7 +424,7 @@ export default function BoothEditorPage() {
                   style={{
                     ...inputStyle,
                     fontFamily: "var(--mono-font)",
-                    fontSize: 12,
+                    fontSize: 14,
                   }}
                   value={b.loc}
                   placeholder="A-01"
@@ -463,7 +463,7 @@ export default function BoothEditorPage() {
                     all: "unset",
                     cursor: "pointer",
                     color: "var(--muted)",
-                    fontSize: 16,
+                    fontSize: 18,
                     textAlign: "center",
                     width: 28,
                     height: 28,
@@ -486,7 +486,7 @@ export default function BoothEditorPage() {
                     padding: "8px 10px",
                     resize: "vertical",
                     lineHeight: 1.6,
-                    fontSize: 12,
+                    fontSize: 14,
                     marginBottom: 6,
                   }}
                   value={b.desc}
@@ -509,7 +509,7 @@ export default function BoothEditorPage() {
                           height: 22,
                           padding: "0 8px",
                           borderRadius: 5,
-                          fontSize: 10,
+                          fontSize: 12,
                           fontFamily: "var(--mono-font)",
                           fontWeight: 600,
                           letterSpacing: "0.03em",
@@ -536,7 +536,7 @@ export default function BoothEditorPage() {
                       height: 22,
                       padding: "0 8px",
                       borderRadius: 5,
-                      fontSize: 10,
+                      fontSize: 12,
                       fontFamily: "var(--mono-font)",
                       fontWeight: 600,
                       background:
@@ -564,7 +564,7 @@ export default function BoothEditorPage() {
             background: "transparent",
             cursor: "pointer",
             color: "var(--accent)",
-            fontSize: 13,
+            fontSize: 15,
             fontWeight: 600,
             fontFamily: "var(--body-font)",
             display: "flex",
@@ -588,7 +588,7 @@ export default function BoothEditorPage() {
             <TagBadge tag={t} />
             <span
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 color: "var(--muted)",
                 fontFamily: "var(--mono-font)",
               }}
