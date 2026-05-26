@@ -45,7 +45,7 @@ export default function AdminNoticesPage() {
       <div
         style={{
           fontFamily: "var(--mono-font)",
-          fontSize: 10,
+          fontSize: 12,
           letterSpacing: "0.12em",
           textTransform: "uppercase",
           color: "var(--muted)",
@@ -65,7 +65,7 @@ export default function AdminNoticesPage() {
         <div
           style={{
             fontFamily: "var(--display-font)",
-            fontSize: 36,
+            fontSize: 40,
             fontWeight: 700,
             letterSpacing: "-0.03em",
             color: "var(--fg)",
@@ -74,7 +74,7 @@ export default function AdminNoticesPage() {
         >
           공지{" "}
           <span
-            style={{ color: "var(--muted)", fontSize: 22, fontWeight: 500 }}
+            style={{ color: "var(--muted)", fontSize: 24, fontWeight: 500 }}
           >
             {filtered.length}
           </span>
@@ -97,12 +97,12 @@ export default function AdminNoticesPage() {
             onClick={() => setFilterFestId("ALL")}
             style={{ height: 34, padding: "0 14px" }}
           >
-            <span style={{ fontSize: 12, fontWeight: 700 }}>전체</span>
+            <span style={{ fontSize: 14, fontWeight: 700 }}>전체</span>
             <span
               style={{
                 marginLeft: 6,
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 opacity: 0.6,
               }}
             >
@@ -131,12 +131,12 @@ export default function AdminNoticesPage() {
                     marginRight: 6,
                   }}
                 />
-                <span style={{ fontSize: 12, fontWeight: 700 }}>{f.name}</span>
+                <span style={{ fontSize: 14, fontWeight: 700 }}>{f.name}</span>
                 <span
                   style={{
                     marginLeft: 6,
                     fontFamily: "var(--mono-font)",
-                    fontSize: 10,
+                    fontSize: 12,
                     opacity: 0.6,
                   }}
                 >
@@ -156,7 +156,7 @@ export default function AdminNoticesPage() {
             textAlign: "center",
             color: "var(--muted)",
             fontFamily: "var(--mono-font)",
-            fontSize: 13,
+            fontSize: 15,
           }}
         >
           불러오는 중…
@@ -170,7 +170,7 @@ export default function AdminNoticesPage() {
             textAlign: "center",
             color: "var(--muted)",
             fontFamily: "var(--mono-font)",
-            fontSize: 13,
+            fontSize: 15,
           }}
         >
           {notices.length === 0 ? (
@@ -178,7 +178,7 @@ export default function AdminNoticesPage() {
               등록된 공지가 없습니다.
               <br />
               <span
-                style={{ marginTop: 8, display: "inline-block", fontSize: 11 }}
+                style={{ marginTop: 8, display: "inline-block", fontSize: 13 }}
               >
                 각 축제 편집 → 공지 탭에서 작성할 수 있어요.
               </span>
@@ -264,7 +264,7 @@ export default function AdminNoticesPage() {
                           style={{
                             padding: "1px 6px",
                             borderRadius: 4,
-                            fontSize: 10,
+                            fontSize: 12,
                             fontFamily: "var(--mono-font)",
                             fontWeight: 700,
                             background: "rgba(255,107,107,0.12)",
@@ -276,7 +276,7 @@ export default function AdminNoticesPage() {
                       )}
                       <span
                         style={{
-                          fontSize: 11,
+                          fontSize: 13,
                           fontFamily: "var(--mono-font)",
                           color: "var(--muted)",
                           fontWeight: 500,
@@ -287,7 +287,7 @@ export default function AdminNoticesPage() {
                     </div>
                     <div
                       style={{
-                        fontSize: 14,
+                        fontSize: 16,
                         fontWeight: 600,
                         color: "var(--fg)",
                         overflow: "hidden",
@@ -300,7 +300,7 @@ export default function AdminNoticesPage() {
                     {notice.content && (
                       <div
                         style={{
-                          fontSize: 12,
+                          fontSize: 14,
                           color: "var(--muted)",
                           marginTop: 2,
                           overflow: "hidden",
@@ -326,7 +326,7 @@ export default function AdminNoticesPage() {
                     <span
                       style={{
                         fontFamily: "var(--mono-font)",
-                        fontSize: 11,
+                        fontSize: 13,
                         color: "var(--muted)",
                       }}
                     >
@@ -334,7 +334,7 @@ export default function AdminNoticesPage() {
                     </span>
                     <span
                       style={{
-                        fontSize: 10,
+                        fontSize: 12,
                         fontFamily: "var(--mono-font)",
                         color: "var(--accent)",
                         opacity: 0.7,

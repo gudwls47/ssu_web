@@ -77,7 +77,7 @@ function NoticeModal({
         <div
           style={{
             fontFamily: "var(--display-font)",
-            fontSize: 20,
+            fontSize: 22,
             fontWeight: 700,
             letterSpacing: "-0.02em",
             color: "var(--fg)",
@@ -90,7 +90,7 @@ function NoticeModal({
         <div>
           <div
             style={{
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 600,
               color: "var(--fg)",
               marginBottom: 8,
@@ -114,7 +114,7 @@ function NoticeModal({
                     category === cat.value ? "var(--faint)" : "transparent",
                   color: category === cat.value ? "var(--fg)" : "var(--muted)",
                   fontFamily: "var(--mono-font)",
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: category === cat.value ? 700 : 400,
                   cursor: "pointer",
                   transition: "all 0.12s",
@@ -127,7 +127,7 @@ function NoticeModal({
           {category === "긴급" && (
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 color: "var(--accent)",
                 fontFamily: "var(--mono-font)",
                 marginTop: 6,
@@ -141,7 +141,7 @@ function NoticeModal({
         <label style={{ display: "block" }}>
           <div
             style={{
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 600,
               color: "var(--fg)",
               marginBottom: 6,
@@ -162,7 +162,7 @@ function NoticeModal({
         <label style={{ display: "block" }}>
           <div
             style={{
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 600,
               color: "var(--fg)",
               marginBottom: 6,
@@ -237,7 +237,7 @@ export default function NoticePage() {
           padding: 24,
           color: "var(--muted)",
           fontFamily: "var(--mono-font)",
-          fontSize: 13,
+          fontSize: 15,
         }}
       >
         불러오는 중…
@@ -258,7 +258,7 @@ export default function NoticePage() {
         <div
           style={{
             fontFamily: "var(--mono-font)",
-            fontSize: 11,
+            fontSize: 13,
             color: "var(--muted)",
           }}
         >
@@ -301,7 +301,7 @@ export default function NoticePage() {
                   color:
                     n.category === "긴급" ? "var(--accent-fg)" : "var(--muted)",
                   fontFamily: "var(--mono-font)",
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: n.category === "긴급" ? 700 : 400,
                   letterSpacing: "0.04em",
                   whiteSpace: "nowrap",
@@ -316,7 +316,7 @@ export default function NoticePage() {
               <div
                 style={{
                   fontWeight: 700,
-                  fontSize: 14,
+                  fontSize: 16,
                   color: "var(--fg)",
                   lineHeight: 1.3,
                 }}
@@ -325,7 +325,7 @@ export default function NoticePage() {
               </div>
               <div
                 style={{
-                  fontSize: 13,
+                  fontSize: 15,
                   color: "var(--muted)",
                   marginTop: 3,
                   lineHeight: 1.4,
@@ -348,7 +348,7 @@ export default function NoticePage() {
               <span
                 style={{
                   fontFamily: "var(--mono-font)",
-                  fontSize: 11,
+                  fontSize: 13,
                   color: "var(--muted)",
                   whiteSpace: "nowrap",
                 }}
@@ -369,7 +369,7 @@ export default function NoticePage() {
                   all: "unset",
                   cursor: "pointer",
                   color: "var(--muted)",
-                  fontSize: 16,
+                  fontSize: 18,
                   display: "grid",
                   placeItems: "center",
                   width: 28,
@@ -388,7 +388,7 @@ export default function NoticePage() {
               padding: 48,
               textAlign: "center",
               color: "var(--muted)",
-              fontSize: 13,
+              fontSize: 15,
               fontFamily: "var(--mono-font)",
               border: "1.5px dashed var(--border)",
               borderRadius: 14,

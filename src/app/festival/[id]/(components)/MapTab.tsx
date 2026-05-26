@@ -229,7 +229,7 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
               style={{
                 color: "var(--muted)",
                 fontFamily: "var(--mono-font)",
-                fontSize: 12,
+                fontSize: 14,
               }}
             >
               등록된 핀이 없습니다.

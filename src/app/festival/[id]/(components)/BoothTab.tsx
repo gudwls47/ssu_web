@@ -155,7 +155,7 @@ function BoothCard({
             marginTop: 10,
             paddingTop: 10,
             borderTop: "1px solid var(--border)",
-            fontSize: 13,
+            fontSize: 15,
             color: "var(--fg)",
             lineHeight: 1.7,
             whiteSpace: "pre-wrap",
@@ -186,13 +186,13 @@ function BoothCard({
             border: `1.5px solid ${voted === "likes" ? "var(--accent)" : "var(--border)"}`,
             background: voted === "likes" ? "var(--faint)" : "transparent",
             color: voted === "likes" ? "var(--accent)" : "var(--muted)",
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: 600,
             cursor: "pointer",
             transition: "all 0.15s",
           }}
         >
-          <span style={{ fontSize: 14 }}>👍</span>
+          <span style={{ fontSize: 16 }}>👍</span>
           <span>{b.likes ?? 0}</span>
         </button>
 
@@ -207,13 +207,13 @@ function BoothCard({
             border: `1.5px solid ${voted === "dislikes" ? "#888" : "var(--border)"}`,
             background: voted === "dislikes" ? "var(--faint)" : "transparent",
             color: voted === "dislikes" ? "var(--fg)" : "var(--muted)",
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: 600,
             cursor: "pointer",
             transition: "all 0.15s",
           }}
         >
-          <span style={{ fontSize: 14 }}>👎</span>
+          <span style={{ fontSize: 16 }}>👎</span>
           <span>{b.dislikes ?? 0}</span>
         </button>
       </div>
@@ -270,7 +270,7 @@ export function BoothTab({
               border: "1.5px solid var(--border)",
               background: "var(--surface)",
               color: "var(--fg)",
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 600,
               cursor: "pointer",
               outline: "none",
@@ -314,7 +314,7 @@ export function BoothTab({
             textAlign: "center",
             color: "var(--muted)",
             fontFamily: "var(--mono-font)",
-            fontSize: 13,
+            fontSize: 15,
           }}
         >
           등록된 부스가 없습니다.

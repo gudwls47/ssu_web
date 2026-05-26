@@ -39,7 +39,7 @@ export default function FestivalEditLayout({
           padding: "20px 32px",
           color: "var(--muted)",
           fontFamily: "var(--mono-font)",
-          fontSize: 13,
+          fontSize: 15,
         }}
       >
         불러오는 중…
@@ -57,7 +57,7 @@ export default function FestivalEditLayout({
         href="/admin/festivals"
         style={{
           fontFamily: "var(--mono-font)",
-          fontSize: 10,
+          fontSize: 12,
           letterSpacing: "0.1em",
           textTransform: "uppercase",
           color: "var(--muted)",
@@ -104,7 +104,7 @@ export default function FestivalEditLayout({
             <span
               style={{
                 fontFamily: "var(--display-font)",
-                fontSize: 11,
+                fontSize: 13,
                 fontWeight: 700,
                 color: "#fff",
                 position: "relative",
@@ -118,7 +118,7 @@ export default function FestivalEditLayout({
             <div
               style={{
                 fontFamily: "var(--display-font)",
-                fontSize: 24,
+                fontSize: 26,
                 fontWeight: 700,
                 letterSpacing: "-0.03em",
                 color: "var(--fg)",
@@ -134,7 +134,7 @@ export default function FestivalEditLayout({
                 gap: 8,
                 marginTop: 6,
                 fontFamily: "var(--mono-font)",
-                fontSize: 11,
+                fontSize: 13,
                 color: "var(--muted)",
               }}
             >
@@ -179,7 +179,7 @@ export default function FestivalEditLayout({
                   : "2.5px solid transparent",
                 marginBottom: -1,
                 color: isActive ? "var(--fg)" : "var(--muted)",
-                fontSize: 13,
+                fontSize: 15,
                 fontWeight: isActive ? 700 : 500,
                 cursor: "pointer",
                 display: "flex",
@@ -193,7 +193,7 @@ export default function FestivalEditLayout({
               <span
                 style={{
                   fontFamily: "var(--mono-font)",
-                  fontSize: 9,
+                  fontSize: 11,
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
                   opacity: 0.5,

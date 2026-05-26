@@ -26,14 +26,14 @@ function Field({
           marginBottom: 6,
         }}
       >
-        <span style={{ fontSize: 12, fontWeight: 600, color: "var(--fg)" }}>
+        <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)" }}>
           {label}
         </span>
         {hint && (
           <span
             style={{
               fontFamily: "var(--mono-font)",
-              fontSize: 10,
+              fontSize: 12,
               color: "var(--muted)",
             }}
           >
@@ -112,7 +112,7 @@ export default function NewFestivalPage() {
           alignItems: "center",
           gap: 6,
           fontFamily: "var(--mono-font)",
-          fontSize: 10,
+          fontSize: 12,
           letterSpacing: "0.1em",
           textTransform: "uppercase",
           color: "var(--muted)",
@@ -134,7 +134,7 @@ export default function NewFestivalPage() {
         <div
           style={{
             fontFamily: "var(--display-font)",
-            fontSize: 28,
+            fontSize: 30,
             fontWeight: 700,
             letterSpacing: "-0.03em",
             color: "var(--fg)",
@@ -161,13 +161,13 @@ export default function NewFestivalPage() {
             border: "1px solid rgba(255,107,107,0.3)",
             color: "#FF6B6B",
             fontFamily: "var(--mono-font)",
-            fontSize: 13,
+            fontSize: 15,
           }}
         >
           ⚠️ 등록 실패:{" "}
           {(createFestival.error as { message?: string })?.message ??
             "알 수 없는 오류"}
-          <div style={{ fontSize: 11, marginTop: 4, opacity: 0.8 }}>
+          <div style={{ fontSize: 13, marginTop: 4, opacity: 0.8 }}>
             브라우저 개발자 도구 콘솔(F12)에서 자세한 오류를 확인하세요.
           </div>
         </div>
@@ -259,7 +259,7 @@ export default function NewFestivalPage() {
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color: "var(--muted)",
@@ -309,11 +309,11 @@ export default function NewFestivalPage() {
                   style={{
                     textAlign: "center",
                     color: "var(--muted)",
-                    fontSize: 12,
+                    fontSize: 14,
                     fontFamily: "var(--mono-font)",
                   }}
                 >
-                  <div style={{ fontSize: 24, marginBottom: 6 }}>
+                  <div style={{ fontSize: 26, marginBottom: 6 }}>
                     {uploading ? "⏳" : "📁"}
                   </div>
                   {uploading ? "업로드 중…" : "클릭하여 이미지 선택"}
@@ -345,7 +345,7 @@ export default function NewFestivalPage() {
                   <span
                     style={{
                       color: "#fff",
-                      fontSize: 12,
+                      fontSize: 14,
                       fontFamily: "var(--mono-font)",
                       fontWeight: 600,
                     }}
@@ -359,7 +359,7 @@ export default function NewFestivalPage() {
             {uploadError && (
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 13,
                   color: "#FF6B6B",
                   fontFamily: "var(--mono-font)",
                   marginBottom: 6,
@@ -379,7 +379,7 @@ export default function NewFestivalPage() {
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 color: "var(--muted)",
                 marginTop: 6,
                 lineHeight: 1.6,
@@ -399,7 +399,7 @@ export default function NewFestivalPage() {
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color: "var(--muted)",
@@ -420,7 +420,7 @@ export default function NewFestivalPage() {
               ) : (
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: 14,
                     color: "var(--muted)",
                     fontFamily: "var(--mono-font)",
                   }}
@@ -441,7 +441,7 @@ export default function NewFestivalPage() {
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color: "var(--muted)",
@@ -459,7 +459,7 @@ export default function NewFestivalPage() {
                     alignItems: "center",
                     gap: 8,
                     padding: "6px 0",
-                    fontSize: 12,
+                    fontSize: 14,
                     color: "var(--muted)",
                     borderBottom: i < 3 ? "1px solid var(--border)" : void 0,
                   }}
@@ -473,7 +473,7 @@ export default function NewFestivalPage() {
                       display: "grid",
                       placeItems: "center",
                       fontFamily: "var(--mono-font)",
-                      fontSize: 9,
+                      fontSize: 11,
                       flexShrink: 0,
                     }}
                   >

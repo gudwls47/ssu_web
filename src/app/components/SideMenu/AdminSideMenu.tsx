@@ -70,7 +70,7 @@ export default function AdminSideMenu({ user, profile }: Props) {
           style={{
             fontFamily: "var(--display-font)",
             fontWeight: 700,
-            fontSize: 26,
+            fontSize: 28,
             letterSpacing: "-0.04em",
             color: "var(--fg)",
             marginBottom: 4,
@@ -83,7 +83,7 @@ export default function AdminSideMenu({ user, profile }: Props) {
       <div
         style={{
           fontFamily: "var(--mono-font)",
-          fontSize: 9,
+          fontSize: 11,
           letterSpacing: "0.12em",
           textTransform: "uppercase",
           color: "var(--muted)",
@@ -112,7 +112,7 @@ export default function AdminSideMenu({ user, profile }: Props) {
                 borderRadius: 10,
                 background: active ? "var(--fg)" : "transparent",
                 color: active ? "var(--bg)" : "var(--fg)",
-                fontSize: 13,
+                fontSize: 15,
                 fontWeight: active ? 600 : 500,
                 transition: "background 0.12s, color 0.12s",
               }}
@@ -121,7 +121,7 @@ export default function AdminSideMenu({ user, profile }: Props) {
               <span
                 style={{
                   fontFamily: "var(--mono-font)",
-                  fontSize: 9,
+                  fontSize: 11,
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
                   opacity: 0.5,
@@ -160,7 +160,7 @@ export default function AdminSideMenu({ user, profile }: Props) {
               color: "#fff",
               display: "grid",
               placeItems: "center",
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 700,
               flexShrink: 0,
             }}
@@ -170,7 +170,7 @@ export default function AdminSideMenu({ user, profile }: Props) {
           <div style={{ flex: 1, minWidth: 0 }}>
             <div
               style={{
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 600,
                 color: "var(--fg)",
                 overflow: "hidden",
@@ -183,7 +183,7 @@ export default function AdminSideMenu({ user, profile }: Props) {
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 color: "var(--muted)",
                 overflow: "hidden",
                 textOverflow: "ellipsis",

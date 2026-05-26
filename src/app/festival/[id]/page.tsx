@@ -59,7 +59,7 @@ function FestivalDetailContent() {
           textAlign: "center",
           color: "var(--muted)",
           fontFamily: "var(--mono-font)",
-          fontSize: 13,
+          fontSize: 15,
         }}
       >
         불러오는 중…

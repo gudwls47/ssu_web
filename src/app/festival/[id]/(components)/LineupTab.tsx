@@ -50,7 +50,7 @@ export function LineupTab({ fest, items }: LineupTabProps) {
             textAlign: "center",
             color: "var(--muted)",
             fontFamily: "var(--mono-font)",
-            fontSize: 13,
+            fontSize: 15,
           }}
         >
           이 날짜에 등록된 라인업이 없습니다.

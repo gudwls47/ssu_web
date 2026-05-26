@@ -63,7 +63,7 @@ export default function RoleSelectPage() {
           background: "var(--bg)",
           color: "var(--muted)",
           fontFamily: "var(--mono-font)",
-          fontSize: 13,
+          fontSize: 15,
         }}
       >
         로딩 중…
@@ -89,7 +89,7 @@ export default function RoleSelectPage() {
             style={{
               fontFamily: "var(--display-font)",
               fontWeight: 700,
-              fontSize: 44,
+              fontSize: 48,
               letterSpacing: "-0.04em",
               color: "var(--fg)",
               lineHeight: 1,
@@ -115,7 +115,7 @@ export default function RoleSelectPage() {
             <div
               style={{
                 fontFamily: "var(--display-font)",
-                fontSize: 20,
+                fontSize: 22,
                 fontWeight: 700,
                 letterSpacing: "-0.03em",
                 color: "var(--fg)",
@@ -125,7 +125,7 @@ export default function RoleSelectPage() {
               환영합니다! 👋
             </div>
             <div
-              style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6 }}
+              style={{ fontSize: 15, color: "var(--muted)", lineHeight: 1.6 }}
             >
               <strong style={{ color: "var(--fg)" }}>
                 {user.displayName ?? user.email}
@@ -140,7 +140,7 @@ export default function RoleSelectPage() {
           <div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 fontWeight: 600,
                 color: "var(--fg)",
                 marginBottom: 8,
@@ -185,12 +185,12 @@ export default function RoleSelectPage() {
                     transition: "border-color 0.1s, background 0.1s",
                   }}
                 >
-                  <div style={{ fontSize: 20, marginBottom: 6 }}>
+                  <div style={{ fontSize: 22, marginBottom: 6 }}>
                     {opt.icon}
                   </div>
                   <div
                     style={{
-                      fontSize: 13,
+                      fontSize: 15,
                       fontWeight: 600,
                       color: "var(--fg)",
                     }}
@@ -200,7 +200,7 @@ export default function RoleSelectPage() {
                   <div
                     style={{
                       fontFamily: "var(--mono-font)",
-                      fontSize: 10,
+                      fontSize: 12,
                       color: "var(--muted)",
                       marginTop: 3,
                     }}
@@ -217,7 +217,7 @@ export default function RoleSelectPage() {
             <div>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 13,
                   fontWeight: 600,
                   color: "var(--fg)",
                   marginBottom: 6,
@@ -227,7 +227,7 @@ export default function RoleSelectPage() {
                 <span
                   style={{
                     fontFamily: "var(--mono-font)",
-                    fontSize: 9,
+                    fontSize: 11,
                     color: "var(--muted)",
                     marginLeft: 6,
                   }}
@@ -254,7 +254,7 @@ export default function RoleSelectPage() {
                 background: "rgba(255,107,107,0.1)",
                 color: "#FF6B6B",
                 fontFamily: "var(--mono-font)",
-                fontSize: 12,
+                fontSize: 14,
               }}
             >
               {error}
@@ -266,7 +266,7 @@ export default function RoleSelectPage() {
             className="f-btn accent"
             onClick={handleSave}
             disabled={!isValid || saving}
-            style={{ width: "100%", height: 44, fontSize: 14 }}
+            style={{ width: "100%", height: 44, fontSize: 16 }}
           >
             {saving
               ? "저장 중…"

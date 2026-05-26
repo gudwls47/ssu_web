@@ -40,7 +40,7 @@ export default function AdminStatsPage() {
       <div
         style={{
           fontFamily: "var(--mono-font)",
-          fontSize: 10,
+          fontSize: 12,
           letterSpacing: "0.12em",
           textTransform: "uppercase",
           color: "var(--muted)",
@@ -52,7 +52,7 @@ export default function AdminStatsPage() {
       <div
         style={{
           fontFamily: "var(--display-font)",
-          fontSize: 36,
+          fontSize: 40,
           fontWeight: 700,
           letterSpacing: "-0.03em",
           color: "var(--fg)",
@@ -70,7 +70,7 @@ export default function AdminStatsPage() {
             textAlign: "center",
             color: "var(--muted)",
             fontFamily: "var(--mono-font)",
-            fontSize: 13,
+            fontSize: 15,
           }}
         >
           불러오는 중…
@@ -121,7 +121,7 @@ export default function AdminStatsPage() {
                 <div
                   style={{
                     fontFamily: "var(--mono-font)",
-                    fontSize: 10,
+                    fontSize: 12,
                     letterSpacing: "0.1em",
                     textTransform: "uppercase",
                     color: "var(--muted)",
@@ -132,7 +132,7 @@ export default function AdminStatsPage() {
                 <div
                   style={{
                     fontFamily: "var(--display-font)",
-                    fontSize: 36,
+                    fontSize: 40,
                     fontWeight: 700,
                     letterSpacing: "-0.03em",
                     marginTop: 6,
@@ -143,7 +143,7 @@ export default function AdminStatsPage() {
                 </div>
                 <div
                   style={{
-                    fontSize: 12,
+                    fontSize: 14,
                     color: "var(--muted)",
                     marginTop: 4,
                     overflow: "hidden",
@@ -170,7 +170,7 @@ export default function AdminStatsPage() {
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color: "var(--muted)",
@@ -184,7 +184,7 @@ export default function AdminStatsPage() {
                 style={{
                   color: "var(--muted)",
                   fontFamily: "var(--mono-font)",
-                  fontSize: 12,
+                  fontSize: 14,
                 }}
               >
                 등록된 축제가 없습니다.
@@ -234,7 +234,7 @@ export default function AdminStatsPage() {
                     <span
                       style={{
                         fontFamily: "var(--mono-font)",
-                        fontSize: 13,
+                        fontSize: 15,
                         fontWeight: 600,
                         color: "var(--fg)",
                         width: 28,
@@ -262,7 +262,7 @@ export default function AdminStatsPage() {
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color: "var(--muted)",
@@ -276,7 +276,7 @@ export default function AdminStatsPage() {
                 style={{
                   color: "var(--muted)",
                   fontFamily: "var(--mono-font)",
-                  fontSize: 12,
+                  fontSize: 14,
                 }}
               >
                 등록된 축제가 없습니다.
@@ -312,7 +312,7 @@ export default function AdminStatsPage() {
                         className="fest-name"
                         style={{
                           width: 180,
-                          fontSize: 13,
+                          fontSize: 15,
                           fontWeight: 500,
                           color: "var(--fg)",
                           overflow: "hidden",
@@ -346,7 +346,7 @@ export default function AdminStatsPage() {
                       <span
                         style={{
                           fontFamily: "var(--mono-font)",
-                          fontSize: 12,
+                          fontSize: 14,
                           color: "var(--muted)",
                           width: 70,
                           textAlign: "right",
@@ -380,7 +380,7 @@ export default function AdminStatsPage() {
             <div
               style={{
                 fontFamily: "var(--mono-font)",
-                fontSize: 10,
+                fontSize: 12,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color: "var(--muted)",
@@ -394,7 +394,7 @@ export default function AdminStatsPage() {
                 style={{
                   color: "var(--muted)",
                   fontFamily: "var(--mono-font)",
-                  fontSize: 12,
+                  fontSize: 14,
                 }}
               >
                 등록된 축제가 없습니다.
@@ -425,7 +425,7 @@ export default function AdminStatsPage() {
                             style={{
                               width: 110,
                               fontFamily: "var(--mono-font)",
-                              fontSize: 13,
+                              fontSize: 15,
                               color: "var(--muted)",
                               flexShrink: 0,
                               lineHeight: 1.6,
@@ -459,7 +459,7 @@ export default function AdminStatsPage() {
                             />
                             <span
                               style={{
-                                fontSize: 14,
+                                fontSize: 16,
                                 fontWeight: 600,
                                 color: "var(--fg)",
                                 overflow: "hidden",

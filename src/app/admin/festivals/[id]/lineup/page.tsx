@@ -132,7 +132,7 @@ export default function LineupEditorPage() {
     background: "var(--surface)",
     border: "1px solid var(--border)",
     color: "var(--fg)",
-    fontSize: 13,
+    fontSize: 15,
     fontFamily: "var(--body-font)",
     outline: "none",
   };
@@ -150,7 +150,7 @@ export default function LineupEditorPage() {
           padding: 24,
           color: "var(--muted)",
           fontFamily: "var(--mono-font)",
-          fontSize: 13,
+          fontSize: 15,
         }}
       >
         불러오는 중…
@@ -181,7 +181,7 @@ export default function LineupEditorPage() {
                 onClick={() => setActiveDay(d)}
                 style={{ height: 38, padding: "0 16px" }}
               >
-                <span style={{ fontSize: 13, fontWeight: 700 }}>
+                <span style={{ fontSize: 15, fontWeight: 700 }}>
                   DAY {i + 1}
                 </span>
                 <span
@@ -189,7 +189,7 @@ export default function LineupEditorPage() {
                     opacity: 0.6,
                     marginLeft: 6,
                     fontFamily: "var(--mono-font)",
-                    fontSize: 11,
+                    fontSize: 13,
                   }}
                 >
                   {date} {dow}
@@ -217,7 +217,7 @@ export default function LineupEditorPage() {
             background: "rgba(32,201,151,0.1)",
             color: "#20C997",
             fontFamily: "var(--mono-font)",
-            fontSize: 12,
+            fontSize: 14,
           }}
         >
           저장됨 ✓
@@ -232,7 +232,7 @@ export default function LineupEditorPage() {
             background: "rgba(255,107,107,0.1)",
             color: "#FF6B6B",
             fontFamily: "var(--mono-font)",
-            fontSize: 12,
+            fontSize: 14,
           }}
         >
           저장 실패: {(saveLineup.error as Error)?.message ?? "알 수 없는 오류"}
@@ -256,7 +256,7 @@ export default function LineupEditorPage() {
             padding: "12px 16px",
             borderBottom: "1px solid var(--border)",
             fontFamily: "var(--mono-font)",
-            fontSize: 10,
+            fontSize: 12,
             color: "var(--muted)",
             textTransform: "uppercase",
             letterSpacing: ".06em",
@@ -278,7 +278,7 @@ export default function LineupEditorPage() {
               padding: "32px 16px",
               textAlign: "center",
               color: "var(--muted)",
-              fontSize: 13,
+              fontSize: 15,
               fontFamily: "var(--mono-font)",
             }}
           >
@@ -290,7 +290,7 @@ export default function LineupEditorPage() {
               padding: "32px 16px",
               textAlign: "center",
               color: "var(--muted)",
-              fontSize: 13,
+              fontSize: 15,
               fontFamily: "var(--mono-font)",
             }}
           >
@@ -314,7 +314,7 @@ export default function LineupEditorPage() {
                 style={{
                   fontFamily: "var(--mono-font)",
                   color: "var(--muted)",
-                  fontSize: 11,
+                  fontSize: 13,
                 }}
               >
                 {String(i + 1).padStart(2, "0")}
@@ -372,7 +372,7 @@ export default function LineupEditorPage() {
                   all: "unset",
                   cursor: "pointer",
                   color: "var(--muted)",
-                  fontSize: 16,
+                  fontSize: 18,
                   textAlign: "center",
                   display: "grid",
                   placeItems: "center",
@@ -397,7 +397,7 @@ export default function LineupEditorPage() {
             background: "transparent",
             cursor: "pointer",
             color: "var(--accent)",
-            fontSize: 13,
+            fontSize: 15,
             fontWeight: 600,
             fontFamily: "var(--body-font)",
           }}
@@ -410,7 +410,7 @@ export default function LineupEditorPage() {
         style={{
           marginTop: 12,
           fontFamily: "var(--mono-font)",
-          fontSize: 11,
+          fontSize: 13,
           color: "var(--muted)",
         }}
       >

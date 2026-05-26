@@ -145,7 +145,7 @@ export default function CommunityPage() {
               {p.festName && (
                 <>
                   <span>·</span>
-                  <span style={{ color: "var(--accent)", fontSize: 11 }}>
+                  <span style={{ color: "var(--accent)", fontSize: 13 }}>
                     {p.festName}
                   </span>
                 </>
