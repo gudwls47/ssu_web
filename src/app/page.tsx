@@ -200,7 +200,7 @@ export default function MainPage() {
           <div className="f-h-row">
             <div>
               <div className="f-tagline">Archive · 지나간 축제</div>
-              <h2 className="f-h">놓친 거 다시 보기</h2>
+              <h2 className="f-h">이제 끝이 났어요</h2>
             </div>
             <Link
               href="/festival?status=ENDED"
