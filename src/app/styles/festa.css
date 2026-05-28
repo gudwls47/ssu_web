@@ -33,7 +33,7 @@
   --ended: rgba(42, 15, 78, 0.35);
   --shadow: 0 1px 3px rgba(42, 15, 78, 0.08), 0 12px 30px rgba(255, 30, 122, 0.12);
 
-  font-family: var(--body-font);
+  font-family: var(--body-font, sans-serif);
   background: var(--bg);
   color: var(--fg);
   -webkit-font-smoothing: antialiased;
