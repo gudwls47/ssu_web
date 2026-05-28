@@ -9,6 +9,7 @@ import { useGetLineup } from "@/app/api/lineup";
 import { useGetMapPins } from "@/app/api/mapPins";
 import { useGetNotices } from "@/app/api/notices";
 
+import { FloatingChat } from "@/app/components/Chat/FloatingChat";
 import {
   HeroSection,
   TabNavigation,
@@ -82,6 +83,8 @@ function FestivalDetailContent() {
       {tab === "booth" && <BoothTab booths={booths} festivalId={id} />}
       {tab === "notice" && <NoticeTab notices={notices} />}
       {tab === "community" && <CommunityTab festival={fest} />}
+
+      <FloatingChat festivalId={id} festivalName={fest.name} />
     </div>
   );
 }
