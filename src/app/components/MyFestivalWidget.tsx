@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Timestamp } from "firebase/firestore";
 import { useGetBooths } from "@/app/api/booths";

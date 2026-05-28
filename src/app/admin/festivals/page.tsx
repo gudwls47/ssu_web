@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import { useAuthState } from "@/app/api/auth";
 import { useGetFestivals } from "@/app/api/festivals";
 import type { FestivalStatus } from "@/app/api/festivals.type";
 
@@ -94,7 +93,6 @@ function PosterThumb({
 }
 
 export default function AdminFestivalsPage() {
-  const { user } = useAuthState();
   const [statusFilter, setStatusFilter] = React.useState<
     FestivalStatus | "ALL"
   >("ALL");
