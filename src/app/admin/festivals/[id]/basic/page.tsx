@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useParams } from "next/navigation";
 import { useGetFestival, useUpdateFestival } from "@/app/api/festivals";
+import Modal from "@/app/components/Modal";
 import { imageToDataUrl } from "@/app/utils/imageToDataUrl";
 import type { FestivalStatus } from "@/app/api/festivals.type";
 
@@ -74,6 +75,7 @@ export default function BasicInfoPage() {
   const [lng, setLng] = useState<number | undefined>();
   const [geocoding, setGeocoding] = useState(false);
   const [geocodeError, setGeocodeError] = useState("");
+  const [dateWarnOpen, setDateWarnOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -152,6 +154,10 @@ export default function BasicInfoPage() {
   const meta = STATUS_META[fest.status];
 
   const handleSave = () => {
+    if (start && end && start > end) {
+      setDateWarnOpen(true);
+      return;
+    }
     update.mutate({
       name,
       nameEn,
@@ -308,6 +314,15 @@ export default function BasicInfoPage() {
           )}
         </div>
       </div>
+
+      <Modal
+        open={dateWarnOpen}
+        onOpenChange={setDateWarnOpen}
+        title="날짜 오류"
+        cancelButtonText="확인"
+      >
+        시작일이 종료일보다 늦을 수 없습니다.
+      </Modal>
 
       {/* Right — thumbnail + meta */}
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>

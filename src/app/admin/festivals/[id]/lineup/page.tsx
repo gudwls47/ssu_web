@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, type CSSProperties } from "react";
 import { useParams } from "next/navigation";
 import { useGetFestival } from "@/app/api/festivals";
 import { useGetLineup, useSaveLineupByDay } from "@/app/api/lineup";
+import Modal from "@/app/components/Modal";
 
 const TAGS = ["K-POP", "BAND", "HIPHOP", "R&B", "DJ", "INDIE", "POP"] as const;
 const STAGES = ["메인", "서브"] as const;
@@ -59,6 +60,7 @@ export default function LineupEditorPage() {
   const saveLineup = useSaveLineupByDay(festId);
 
   const [rows, setRows] = useState<LineupRow[]>([]);
+  const [timeWarnOpen, setTimeWarnOpen] = useState(false);
 
   useEffect(() => {
     if (lineupData) {
@@ -110,6 +112,13 @@ export default function LineupEditorPage() {
 
   const handleSave = () => {
     if (!activeDay) return;
+    const hasTimeConflict = rows.some(
+      (r) => r.time && r.endTime && r.time > r.endTime,
+    );
+    if (hasTimeConflict) {
+      setTimeWarnOpen(true);
+      return;
+    }
     // 저장 전 시간순 정렬
     const sorted = [...rows].sort((a, b) => a.time.localeCompare(b.time));
     saveLineup.mutate({
@@ -430,6 +439,15 @@ export default function LineupEditorPage() {
         {activeDay && `DAY ${festivalDays.indexOf(activeDay) + 1} · `}
         <strong style={{ color: "var(--fg)" }}>{rows.length}팀</strong> 등록됨
       </div>
+
+      <Modal
+        open={timeWarnOpen}
+        onOpenChange={setTimeWarnOpen}
+        title="시간 오류"
+        cancelButtonText="확인"
+      >
+        시작 시간이 종료 시간보다 늦은 항목이 있습니다.
+      </Modal>
     </div>
   );
 }
