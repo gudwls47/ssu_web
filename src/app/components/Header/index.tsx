@@ -70,8 +70,66 @@ export function Header({ mode, onModeChange }: HeaderProps) {
 
   return (
     <nav className="f-nav">
-      <Link href="/" className="f-nav-logo">
-        FE<em>S</em>TA <small>숭실대학교</small>
+      <Link
+        href="/"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          textDecoration: "none",
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            background: "#2A0F4E",
+            borderRadius: 999,
+            height: 50,
+            padding: "0 18px 0 14px",
+          }}
+        >
+          {/* Pink dot */}
+          <span
+            style={{
+              width: 14,
+              height: 14,
+              borderRadius: "50%",
+              background: "#FF1E7A",
+              flexShrink: 0,
+              display: "block",
+            }}
+          />
+          {/* FESTA — Bricolage Grotesque 800, v1 S in lime */}
+          <span
+            style={{
+              fontFamily:
+                "var(--font-bricolage), 'Bricolage Grotesque', sans-serif",
+              fontWeight: 800,
+              fontSize: 36,
+              letterSpacing: "-0.04em",
+              lineHeight: 1,
+              color: "#FFEFF5",
+              userSelect: "none",
+            }}
+          >
+            FE
+            <span style={{ color: "#BDFF1E", fontSize: 28 }}>S</span>
+            TA
+          </span>
+          {/* Lime dot */}
+          <span
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background: "#BDFF1E",
+              flexShrink: 0,
+              display: "block",
+            }}
+          />
+        </div>
       </Link>
 
       <div className="f-nav-links">

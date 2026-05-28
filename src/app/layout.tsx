@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { headers } from "next/headers";
 import Script from "next/script";
 import { Meta } from "next/dist/lib/metadata/generate/meta";
+import { Bricolage_Grotesque } from "next/font/google";
 import localFont from "next/font/local";
 import type { Metadata } from "next";
 import LostAndFound from "./components/LostAndFound";
@@ -16,9 +17,15 @@ const pretendard = localFont({
   variable: "--font-pretendard",
 });
 
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  weight: ["800"],
+  variable: "--font-bricolage",
+});
+
 export const metadata: Metadata = {
-  title: "Next App Router Template",
-  description: "Next App Router Template",
+  title: "FESTA",
+  description: "캠퍼스 축제 정보 통합 플랫폼",
 };
 
 export default async function RootLayout({
@@ -32,7 +39,10 @@ export default async function RootLayout({
 
   if (isAdmin) {
     return (
-      <html lang="ko" className={`${pretendard.variable}`}>
+      <html
+        lang="ko"
+        className={`${pretendard.variable} ${bricolage.variable}`}
+      >
         <body className="font-pretendard">
           <Providers>{children}</Providers>
         </body>
@@ -41,7 +51,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="ko" className={`${pretendard.variable}`}>
+    <html lang="ko" className={`${pretendard.variable} ${bricolage.variable}`}>
       <Meta
         name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
