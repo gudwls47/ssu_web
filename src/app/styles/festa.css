@@ -37,7 +37,7 @@
   --shadow:
     0 1px 3px rgba(42, 15, 78, 0.08), 0 12px 30px rgba(255, 30, 122, 0.12);
 
-  font-family: var(--body-font, sans-serif);
+  font-family: var(--body-font), sans-serif;
   background: var(--bg);
   color: var(--fg);
   -webkit-font-smoothing: antialiased;
@@ -170,7 +170,7 @@
 .festa h1,
 .festa h2,
 .festa h3 {
-  font-family: var(--display-font, sans-serif);
+  font-family: var(--display-font), sans-serif;
   font-weight: var(--display-weight, 700);
   letter-spacing: var(--display-tracking, -0.03em);
   line-height: 0.95;
@@ -312,7 +312,7 @@
 }
 
 .f-nav-logo {
-  font-family: var(--display-font, sans-serif);
+  font-family: var(--display-font), sans-serif;
   font-weight: var(--display-weight, 700);
   font-size: 26px;
   letter-spacing: -0.04em;
@@ -451,7 +451,7 @@
   margin-bottom: 16px;
 }
 .f-h {
-  font-family: var(--display-font, sans-serif);
+  font-family: var(--display-font), sans-serif;
   font-weight: var(--display-weight, 700);
   font-size: clamp(28px, 4vw, 48px);
   letter-spacing: -0.03em;
@@ -497,7 +497,7 @@
   cursor: pointer;
 }
 .f-hero h1 {
-  font-family: var(--display-font, sans-serif);
+  font-family: var(--display-font), sans-serif;
   font-weight: var(--display-weight, 700);
   font-size: clamp(40px, 9vw, 120px);
   line-height: 0.88;
@@ -589,7 +589,7 @@
   flex: 1;
 }
 .f-card .card-title {
-  font-family: var(--display-font, sans-serif);
+  font-family: var(--display-font), sans-serif;
   font-weight: var(--display-weight, 700);
   font-size: 22px;
   line-height: 1.05;
@@ -670,7 +670,7 @@
 .f-detail-hero .detail-name {
   position: relative;
   z-index: 1;
-  font-family: var(--display-font, sans-serif);
+  font-family: var(--display-font), sans-serif;
   font-weight: var(--display-weight, 700);
   font-size: clamp(32px, 6vw, 72px);
   letter-spacing: -0.03em;
@@ -735,7 +735,7 @@
   grid-template-columns: 1fr;
 }
 .f-stage-col h3 {
-  font-family: var(--display-font, sans-serif);
+  font-family: var(--display-font), sans-serif;
   font-weight: var(--display-weight, 700);
   font-size: 20px;
   letter-spacing: -0.02em;
