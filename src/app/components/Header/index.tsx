@@ -107,7 +107,7 @@ export function Header({ mode, onModeChange }: HeaderProps) {
               fontFamily:
                 "var(--font-bricolage), 'Bricolage Grotesque', sans-serif",
               fontWeight: 800,
-              fontSize: 36,
+              fontSize: 30,
               letterSpacing: "-0.04em",
               lineHeight: 1,
               color: "#FFEFF5",
@@ -115,20 +115,10 @@ export function Header({ mode, onModeChange }: HeaderProps) {
             }}
           >
             FE
-            <span style={{ color: "#BDFF1E", fontSize: 28 }}>S</span>
+            <span style={{ color: "#BDFF1E", fontSize: 22 }}>S</span>
             TA
+            <span style={{ color: "#BDFF1E", fontSize: 30 }}> .</span>
           </span>
-          {/* Lime dot */}
-          <span
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              background: "#BDFF1E",
-              flexShrink: 0,
-              display: "block",
-            }}
-          />
         </div>
       </Link>
 
