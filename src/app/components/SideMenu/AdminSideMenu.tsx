@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { ADMIN_SIDEBAR_W } from "@/app/admin/constants";
 import { logOut, type UserProfile } from "@/app/api/auth";
+import { FestaLogo } from "@/app/components/FestaLogo";
+import type { Mode } from "@/app/layouts/Layout";
 import type { User } from "firebase/auth";
 
 interface NavItem {
@@ -27,14 +30,27 @@ const NAV_ITEMS: NavItem[] = [
   },
   { id: "notices", label: "공지", en: "NOTICES", href: "/admin/notices" },
   { id: "stats", label: "통계", en: "STATS", href: "/admin/stats" },
+  {
+    id: "accounts",
+    label: "계정 관리",
+    en: "ACCOUNTS",
+    href: "/admin/accounts",
+  },
 ];
 
 interface Props {
   user: User;
   profile: UserProfile;
+  mode: Mode;
+  onModeChange: (m: Mode) => void;
 }
 
-export default function AdminSideMenu({ user, profile }: Props) {
+export default function AdminSideMenu({
+  user,
+  profile,
+  mode,
+  onModeChange,
+}: Props) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -46,55 +62,112 @@ export default function AdminSideMenu({ user, profile }: Props) {
 
   const handleLogout = async () => {
     await logOut();
-    router.replace("/admin/login");
+    router.replace("/login");
   };
 
   return (
     <div
       style={{
-        width: 220,
+        width: ADMIN_SIDEBAR_W,
         background: "var(--surface)",
         borderRight: "1px solid var(--border)",
         padding: 16,
         display: "flex",
         flexDirection: "column",
         height: "100vh",
-        position: "sticky",
+        position: "fixed",
+        left: 0,
         top: 0,
         flexShrink: 0,
+        zIndex: 40,
       }}
     >
-      {/* Brand */}
-      <Link href="/admin/festivals" style={{ textDecoration: "none" }}>
-        <div
-          style={{
-            fontFamily: "var(--display-font)",
-            fontWeight: 700,
-            fontSize: 28,
-            letterSpacing: "-0.04em",
-            color: "var(--fg)",
-            marginBottom: 4,
-          }}
-        >
-          FEST<span style={{ color: "var(--accent)" }}>A</span>
-          <span style={{ color: "var(--accent)" }}>.</span>
-        </div>
-      </Link>
+      {/* Brand + mode toggle */}
       <div
         style={{
-          fontFamily: "var(--mono-font)",
-          fontSize: 11,
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          color: "var(--muted)",
-          marginBottom: 24,
+          display: "flex",
+          alignItems: "center",
+          marginBottom: 4,
         }}
       >
-        ADMIN · 주최자 콘솔
+        <Link
+          href="/admin/festivals"
+          style={{ textDecoration: "none", flex: 1 }}
+        >
+          <FestaLogo size="sm" mode={mode} />
+        </Link>
+        <button
+          title={mode === "light" ? "다크 모드" : "라이트 모드"}
+          aria-label={mode === "light" ? "Dark mode" : "Light mode"}
+          onClick={() => onModeChange(mode === "light" ? "dark" : "light")}
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: "50%",
+            border: "1.5px solid var(--border)",
+            background: "transparent",
+            color: "var(--muted)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            transition: "background 0.15s",
+          }}
+        >
+          {mode === "light" ? (
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          ) : (
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      <div
+        style={{
+          fontFamily: "var(--mono-font), monospace",
+          fontSize: 10,
+          letterSpacing: "0.14em",
+          textTransform: "uppercase",
+          color: "var(--muted)",
+          marginBottom: 20,
+          marginTop: 6,
+          paddingLeft: 2,
+        }}
+      >
+        ADMIN CONSOLE
       </div>
 
       {/* Nav */}
-      <div
+      <nav
         style={{ display: "flex", flexDirection: "column", gap: 2, flex: 1 }}
       >
         {NAV_ITEMS.map((item) => {
@@ -120,7 +193,7 @@ export default function AdminSideMenu({ user, profile }: Props) {
               <span style={{ flex: 1 }}>{item.label}</span>
               <span
                 style={{
-                  fontFamily: "var(--mono-font)",
+                  fontFamily: "var(--mono-font), monospace",
                   fontSize: 11,
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
@@ -132,7 +205,50 @@ export default function AdminSideMenu({ user, profile }: Props) {
             </Link>
           );
         })}
-      </div>
+      </nav>
+
+      {/* 메인 사이트 링크 */}
+      <Link
+        href="/festival"
+        style={{
+          textDecoration: "none",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          padding: "9px 12px",
+          borderRadius: 10,
+          color: "var(--muted)",
+          fontSize: 13,
+          fontFamily: "var(--mono-font), monospace",
+          letterSpacing: "0.04em",
+          marginBottom: 8,
+          transition: "color 0.12s, background 0.12s",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "var(--faint)";
+          e.currentTarget.style.color = "var(--fg)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "transparent";
+          e.currentTarget.style.color = "var(--muted)";
+        }}
+      >
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+          <polyline points="15 3 21 3 21 9" />
+          <line x1="10" y1="14" x2="21" y2="3" />
+        </svg>
+        <span style={{ flex: 1 }}>메인 사이트</span>
+      </Link>
 
       {/* User / Logout */}
       <div
@@ -140,7 +256,6 @@ export default function AdminSideMenu({ user, profile }: Props) {
           padding: 12,
           borderRadius: 12,
           background: "var(--faint)",
-          marginTop: 16,
         }}
       >
         <div
@@ -182,7 +297,7 @@ export default function AdminSideMenu({ user, profile }: Props) {
             </div>
             <div
               style={{
-                fontFamily: "var(--mono-font)",
+                fontFamily: "var(--mono-font), monospace",
                 fontSize: 12,
                 color: "var(--muted)",
                 overflow: "hidden",
@@ -207,3 +322,4 @@ export default function AdminSideMenu({ user, profile }: Props) {
 }
 
 export { NAV_ITEMS };
+export type { NavItem };

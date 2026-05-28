@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signUp, signInWithGoogle, type UserRole } from "@/app/api/auth";
+import { FestaMasterMark } from "@/app/components/FestaLogo";
 
 function GoogleIcon() {
   return (
@@ -114,29 +115,26 @@ export default function SignupPage() {
     <div
       style={{
         minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
         background: "var(--bg)",
-        padding: "40px 24px",
+        padding: "24px",
+        boxSizing: "border-box",
       }}
     >
       <div style={{ width: "100%", maxWidth: 440 }}>
         {/* Logo */}
-        <Link href="/" style={{ textDecoration: "none" }}>
-          <div style={{ textAlign: "center", marginBottom: 32 }}>
-            <div
-              style={{
-                fontFamily: "var(--display-font)",
-                fontWeight: 700,
-                fontSize: 48,
-                letterSpacing: "-0.04em",
-                color: "var(--fg)",
-                lineHeight: 1,
-              }}
-            >
-              FE<span style={{ color: "var(--accent)" }}>S</span>TA
-            </div>
-          </div>
+        <Link
+          href="/"
+          style={{
+            textDecoration: "none",
+            display: "block",
+            marginBottom: 16,
+          }}
+        >
+          <FestaMasterMark />
         </Link>
 
         <form

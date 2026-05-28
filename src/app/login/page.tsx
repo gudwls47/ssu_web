@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { signIn, signInWithGoogle } from "@/app/api/auth";
+import { FestaMasterMark } from "@/app/components/FestaLogo";
 import { db } from "@/app/utils/firebase/db";
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -96,39 +97,26 @@ export default function LoginPage() {
     <div
       style={{
         minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
         background: "var(--bg)",
+        padding: "24px",
+        boxSizing: "border-box",
       }}
     >
-      <div style={{ width: "100%", maxWidth: 400, padding: "0 24px" }}>
+      <div style={{ width: "100%", maxWidth: 400 }}>
         {/* Logo */}
-        <Link href="/" style={{ textDecoration: "none" }}>
-          <div style={{ textAlign: "center", marginBottom: 36 }}>
-            <div
-              style={{
-                fontFamily: "var(--display-font)",
-                fontWeight: 700,
-                fontSize: 48,
-                letterSpacing: "-0.04em",
-                color: "var(--fg)",
-                lineHeight: 1,
-              }}
-            >
-              FE<span style={{ color: "var(--accent)" }}>S</span>TA
-            </div>
-            <div
-              style={{
-                fontFamily: "var(--mono-font)",
-                fontSize: 12,
-                letterSpacing: "0.15em",
-                color: "var(--muted)",
-                marginTop: 6,
-              }}
-            >
-              숭실대학교 축제 플랫폼
-            </div>
-          </div>
+        <Link
+          href="/"
+          style={{
+            textDecoration: "none",
+            display: "block",
+            marginBottom: 20,
+          }}
+        >
+          <FestaMasterMark />
         </Link>
 
         {/* Form */}

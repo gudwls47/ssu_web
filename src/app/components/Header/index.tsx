@@ -84,10 +84,11 @@ export function Header({ mode, onModeChange }: HeaderProps) {
             display: "flex",
             alignItems: "center",
             gap: 10,
-            background: "#2A0F4E",
+            background: mode === "dark" ? "#FFEFF5" : "#2A0F4E",
             borderRadius: 999,
             height: 50,
             padding: "0 18px 0 14px",
+            transition: "background 0.2s",
           }}
         >
           {/* Pink dot */}
@@ -101,7 +102,7 @@ export function Header({ mode, onModeChange }: HeaderProps) {
               display: "block",
             }}
           />
-          {/* FESTA — Bricolage Grotesque 800, v1 S in lime */}
+          {/* FESTA — Bricolage Grotesque 800 */}
           <span
             style={{
               fontFamily:
@@ -110,14 +111,15 @@ export function Header({ mode, onModeChange }: HeaderProps) {
               fontSize: 30,
               letterSpacing: "-0.04em",
               lineHeight: 1,
-              color: "#FFEFF5",
+              color: mode === "dark" ? "#2A0F4E" : "#FFEFF5",
               userSelect: "none",
+              transition: "color 0.2s",
             }}
           >
             FE
-            <span style={{ color: "#BDFF1E", fontSize: 22 }}>S</span>
+            <span style={{ color: "#FF1E7A", fontSize: 22 }}>S</span>
             TA
-            <span style={{ color: "#BDFF1E", fontSize: 30 }}> .</span>
+            <span style={{ color: "#FF1E7A", fontSize: 30 }}> .</span>
           </span>
         </div>
       </Link>
@@ -137,13 +139,26 @@ export function Header({ mode, onModeChange }: HeaderProps) {
       <div className="f-nav-search">
         <form
           onSubmit={handleSearch}
-          style={{
-            width: "100%",
-            display: pathname.startsWith("/festival") ? "none" : "block",
-          }}
+          className={
+            pathname.startsWith("/festival") ? "f-search-form--festival" : ""
+          }
+          style={{ width: "100%" }}
         >
           <div className="f-search-bar" style={{ cursor: "text" }}>
-            <SearchIcon />
+            <button
+              type="submit"
+              style={{
+                background: "none",
+                border: "none",
+                padding: 0,
+                cursor: "pointer",
+                display: "flex",
+                color: "inherit",
+                flexShrink: 0,
+              }}
+            >
+              <SearchIcon />
+            </button>
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
