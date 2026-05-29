@@ -608,6 +608,7 @@ export default function BasicInfoPage() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
+                opacity: fest.status !== "LIVE" ? 0.45 : 1,
               }}
             >
               <span style={{ fontSize: 14, color: "var(--fg)" }}>
@@ -616,6 +617,7 @@ export default function BasicInfoPage() {
               {/* 토글 스위치 */}
               <button
                 aria-label={chatEnabled ? "채팅 비활성화" : "채팅 활성화"}
+                disabled={fest.status !== "LIVE"}
                 onClick={() =>
                   void setChatEnabled(params.id, !(chatEnabled ?? false))
                 }
@@ -625,7 +627,7 @@ export default function BasicInfoPage() {
                   borderRadius: 12,
                   background: chatEnabled ? "var(--accent)" : "var(--border)",
                   border: "none",
-                  cursor: "pointer",
+                  cursor: fest.status !== "LIVE" ? "not-allowed" : "pointer",
                   position: "relative",
                   transition: "background 0.2s",
                   flexShrink: 0,
@@ -650,12 +652,15 @@ export default function BasicInfoPage() {
               style={{
                 fontFamily: "var(--mono-font)",
                 fontSize: 12,
-                color: "var(--muted)",
+                color:
+                  fest.status !== "LIVE" ? "var(--accent)" : "var(--muted)",
                 marginTop: 6,
                 lineHeight: 1.5,
               }}
             >
-              활성화하면 축제 페이지에 실시간 채팅 버튼이 표시됩니다.
+              {fest.status !== "LIVE"
+                ? "진행 중인 축제에서만 채팅을 활성화할 수 있습니다."
+                : "활성화하면 축제 페이지에 실시간 채팅 버튼이 표시됩니다."}
             </div>
           </div>
         </div>
