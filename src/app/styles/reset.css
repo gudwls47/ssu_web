@@ -120,6 +120,7 @@
     quotes: none;
   }
 
+  /* noinspection CssOverwrittenProperties */
   blockquote:before,
   blockquote:after,
   q:before,
