@@ -8,6 +8,7 @@ import {
   type ChangeEvent,
 } from "react";
 import { useParams } from "next/navigation";
+import { useChatEnabled, setChatEnabled } from "@/app/api/chat";
 import { useGetFestival, useUpdateFestival } from "@/app/api/festivals";
 import Modal from "@/app/components/Modal";
 import { imageToDataUrl } from "@/app/utils/imageToDataUrl";
@@ -62,6 +63,7 @@ export default function BasicInfoPage() {
   const params = useParams<{ id: string }>();
   const { data: fest, isLoading } = useGetFestival(params.id);
   const update = useUpdateFestival(params.id);
+  const chatEnabled = useChatEnabled(params.id);
 
   const [name, setName] = useState("");
   const [nameEn, setNameEn] = useState("");
@@ -585,6 +587,75 @@ export default function BasicInfoPage() {
               >
                 명
               </span>
+            </div>
+          </div>
+          {/* 채팅 온/오프 */}
+          <div style={{ borderTop: "1px solid var(--border)", paddingTop: 12 }}>
+            <div
+              style={{
+                fontFamily: "var(--mono-font)",
+                fontSize: 12,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: "var(--muted)",
+                marginBottom: 8,
+              }}
+            >
+              실시간 채팅
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <span style={{ fontSize: 14, color: "var(--fg)" }}>
+                {chatEnabled ? "활성화됨" : "비활성화됨"}
+              </span>
+              {/* 토글 스위치 */}
+              <button
+                aria-label={chatEnabled ? "채팅 비활성화" : "채팅 활성화"}
+                onClick={() =>
+                  void setChatEnabled(params.id, !(chatEnabled ?? false))
+                }
+                style={{
+                  width: 44,
+                  height: 24,
+                  borderRadius: 12,
+                  background: chatEnabled ? "var(--accent)" : "var(--border)",
+                  border: "none",
+                  cursor: "pointer",
+                  position: "relative",
+                  transition: "background 0.2s",
+                  flexShrink: 0,
+                }}
+              >
+                <span
+                  style={{
+                    position: "absolute",
+                    top: 2,
+                    left: chatEnabled ? 22 : 2,
+                    width: 20,
+                    height: 20,
+                    borderRadius: "50%",
+                    background: "#fff",
+                    transition: "left 0.2s",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.18)",
+                  }}
+                />
+              </button>
+            </div>
+            <div
+              style={{
+                fontFamily: "var(--mono-font)",
+                fontSize: 12,
+                color: "var(--muted)",
+                marginTop: 6,
+                lineHeight: 1.5,
+              }}
+            >
+              활성화하면 축제 페이지에 실시간 채팅 버튼이 표시됩니다.
             </div>
           </div>
         </div>
