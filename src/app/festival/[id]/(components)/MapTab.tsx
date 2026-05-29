@@ -21,7 +21,17 @@ interface MapTabProps {
   booths: BoothResponse[];
 }
 
-/** 부스가 특정 날짜에 운영하는지 확인 (days[] 비어있으면 전체 기간) */
+const PIN_META: Record<
+  MapPinType,
+  { emoji: string; color: string; label: string }
+> = {
+  stage: { emoji: "🎤", color: "var(--fg)", label: "무대" },
+  booth: { emoji: "🛒", color: "var(--accent)", label: "부스" },
+  toilet: { emoji: "🚻", color: "#5A6FCF", label: "화장실" },
+  smoking: { emoji: "🚬", color: "#888", label: "흡연구역" },
+  info: { emoji: "ℹ️", color: "var(--accent-2, #BDFF1E)", label: "안내소" },
+};
+
 function boothRunsOnDay(booth: BoothResponse, day: string | null): boolean {
   if (!day) return true;
   return booth.days.length === 0 || booth.days.includes(day);
@@ -44,48 +54,14 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
 
   const [hovered, setHovered] = useState<string | null>(null);
 
-  const pinColor: Record<MapPinType, string> = {
-    stage: "var(--accent)",
-    booth: "var(--upcoming)",
-    toilet: "#5A6FCF",
-    smoking: "#888",
-    info: "var(--fg)",
-  };
-
-  const pinLabel = (type: MapPinType) => {
-    if (type === "stage") return "♪";
-    if (type === "booth") return "B";
-    if (type === "toilet") return "W";
-    if (type === "smoking") return "S";
-    return "i";
-  };
-
-  /** 한글/전각 문자 너비를 고려한 툴팁 박스 너비 계산 */
-  const tooltipWidth = (text: string) => {
-    let w = 0;
-    for (const ch of text) {
-      const code = ch.charCodeAt(0);
-      // 한글 음절(AC00-D7A3), 한글 자모(3131-318E), CJK 등 전각 문자
-      if (
-        (code >= 0xac00 && code <= 0xd7a3) ||
-        (code >= 0x3131 && code <= 0x318e) ||
-        (code >= 0x4e00 && code <= 0x9fff)
-      ) {
-        w += 13; // 한글은 fontSize 11 Pretendard 기준 ~13px
-      } else {
-        w += 8; // 영문/숫자는 ~8px
-      }
-    }
-    return w + 24; // 좌우 패딩
-  };
-
-  /** 핀에 연결된 부스 중 선택된 날짜에 운영하는 것 */
   const getActiveBooothsForPin = (pin: MapPinResponse) => {
     if (!pin.boothIds?.length) return [];
     return booths.filter(
       (b) => pin.boothIds!.includes(b.id) && boothRunsOnDay(b, filterDay),
     );
   };
+
+  const isCustomUrl = fest.mapImage && !isPresetId(fest.mapImage);
 
   return (
     <div>
@@ -118,141 +94,134 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
       </div>
 
       <div className="f-map-wrap">
-        <div className="f-map-canvas">
-          <svg
-            viewBox={`0 0 ${MAP_W} ${MAP_H}`}
-            preserveAspectRatio="xMidYMid meet"
-            overflow="visible"
-          >
-            {/* 배경: 선택된 템플릿 또는 커스텀 이미지 */}
-            {fest.mapImage && !isPresetId(fest.mapImage) ? (
-              <image
-                href={fest.mapImage}
-                x="0"
-                y="0"
-                width={MAP_W}
-                height={MAP_H}
-                preserveAspectRatio="xMidYMid slice"
-              />
-            ) : (
-              getTemplate(fest.mapImage || "basic").render(MAP_W, MAP_H)
-            )}
+        {/* ── 지도 캔버스 ── */}
+        <div className="f-map-canvas" style={{ position: "relative" }}>
+          {/* 배경 */}
+          {isCustomUrl ? (
+            <img
+              src={fest.mapImage}
+              alt="지도"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                display: "block",
+                borderRadius: "inherit",
+              }}
+            />
+          ) : (
+            <svg
+              viewBox={`0 0 ${MAP_W} ${MAP_H}`}
+              preserveAspectRatio="xMidYMid meet"
+              style={{ width: "100%", height: "100%", display: "block" }}
+            >
+              {getTemplate(fest.mapImage || "basic").render(MAP_W, MAP_H)}
+            </svg>
+          )}
 
-            {pins
-              .filter((p) => p.type === "stage")
-              .map((p) => (
-                <rect
-                  key={`stage-bg-${p.id}`}
-                  x={p.x - 28}
-                  y={p.y - 14}
-                  width="56"
-                  height="28"
-                  rx="4"
-                  fill="var(--accent)"
-                  fillOpacity="0.18"
-                  stroke="var(--accent)"
-                  strokeWidth="1.5"
-                />
-              ))}
+          {/* ── 핀 HTML 오버레이 ── */}
+          {pins.map((p) => {
+            const activeBooths = getActiveBooothsForPin(p);
+            const pDays = p.days || [];
+            const isHiddenByPinDay =
+              filterDay && pDays.length > 0 && !pDays.includes(filterDay);
+            const isHiddenByBoothDay =
+              filterDay &&
+              p.type === "booth" &&
+              (p.boothIds?.length ?? 0) > 0 &&
+              activeBooths.length === 0;
 
-            {pins.map((p) => {
-              const activeBooths = getActiveBooothsForPin(p);
+            if (isHiddenByPinDay || isHiddenByBoothDay) return null;
 
-              // 1. 핀 자체의 운영 날짜 필터링
-              const pDays = p.days || [];
-              const isHiddenByPinDay =
-                filterDay && pDays.length > 0 && !pDays.includes(filterDay);
+            const isInactive =
+              p.type === "booth" &&
+              (p.boothIds?.length ?? 0) > 0 &&
+              activeBooths.length === 0;
 
-              // 2. 연결된 부스의 운영 날짜 필터링 (부스 핀인 경우)
-              const isHiddenByBoothDay =
-                filterDay &&
-                p.type === "booth" &&
-                (p.boothIds?.length ?? 0) > 0 &&
-                activeBooths.length === 0;
+            const meta = PIN_META[p.type];
+            const isHov = hovered === p.id;
 
-              if (isHiddenByPinDay || isHiddenByBoothDay) return null;
+            const displayLabel =
+              activeBooths.length > 0
+                ? activeBooths.length === 1
+                  ? activeBooths[0].name
+                  : `${activeBooths[0].name} 외 ${activeBooths.length - 1}`
+                : p.label;
 
-              const isInactive =
-                p.type === "booth" &&
-                (p.boothIds?.length ?? 0) > 0 &&
-                activeBooths.length === 0;
-              return (
-                <g
-                  key={p.id}
-                  onMouseEnter={() => setHovered(p.id)}
-                  onMouseLeave={() => setHovered(null)}
-                  style={{ cursor: "pointer", opacity: isInactive ? 0.3 : 1 }}
-                >
-                  <circle
-                    cx={p.x}
-                    cy={p.y}
-                    r="11"
-                    fill={pinColor[p.type]}
-                    stroke="#fff"
-                    strokeWidth="2"
-                  />
-                  <text
-                    x={p.x}
-                    y={p.y}
-                    dy="0.35em"
-                    fontSize="9"
-                    textAnchor="middle"
-                    fill="#fff"
-                    fontWeight="700"
-                    fontFamily="var(--mono-font)"
+            return (
+              <div
+                key={p.id}
+                onMouseEnter={() => setHovered(p.id)}
+                onMouseLeave={() => setHovered(null)}
+                style={{
+                  position: "absolute",
+                  left: `${(p.x / MAP_W) * 100}%`,
+                  top: `${(p.y / MAP_H) * 100}%`,
+                  transform: "translate(-50%, -100%)",
+                  cursor: "pointer",
+                  opacity: isInactive ? 0.3 : 1,
+                  zIndex: isHov ? 10 : 2,
+                }}
+              >
+                {/* 툴팁 */}
+                {isHov && !isInactive && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "calc(100% + 4px)",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      background: "var(--fg)",
+                      color: "var(--bg)",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      padding: "4px 10px",
+                      borderRadius: 6,
+                      whiteSpace: "nowrap",
+                      pointerEvents: "none",
+                      zIndex: 20,
+                    }}
                   >
-                    {pinLabel(p.type)}
-                  </text>
-                </g>
-              );
-            })}
+                    {displayLabel}
+                  </div>
+                )}
 
-            {/* 툴팁: 모든 핀보다 나중에 그려서 항상 맨 위에 표시 */}
-            {hovered &&
-              (() => {
-                const p = pins.find((pin) => pin.id === hovered);
-                if (!p) return null;
-                const activeBooths = getActiveBooothsForPin(p);
-                const isInactive =
-                  p.type === "booth" &&
-                  (p.boothIds?.length ?? 0) > 0 &&
-                  activeBooths.length === 0;
-                if (isInactive) return null;
-                const displayLabel =
-                  activeBooths.length > 0
-                    ? activeBooths.length === 1
-                      ? activeBooths[0].name
-                      : `${activeBooths[0].name} 외 ${activeBooths.length - 1}`
-                    : p.label;
-                const tw = tooltipWidth(displayLabel);
-                return (
-                  <g pointerEvents="none">
-                    <rect
-                      x={p.x - tw / 2}
-                      y={p.y - 11 - 6 - 24}
-                      width={tw}
-                      height="24"
-                      rx="5"
-                      fill="var(--fg)"
-                    />
-                    <text
-                      x={p.x}
-                      y={p.y - 11 - 6 - 12}
-                      fontSize="11"
-                      textAnchor="middle"
-                      dominantBaseline="central"
-                      fill="var(--bg)"
-                      fontWeight="600"
-                      fontFamily="var(--body-font)"
-                    >
-                      {displayLabel}
-                    </text>
-                  </g>
-                );
-              })()}
-          </svg>
+                {/* 테어드롭 핀 */}
+                <div
+                  style={{
+                    width: isHov ? 34 : 28,
+                    height: isHov ? 34 : 28,
+                    borderRadius: "50% 50% 50% 0",
+                    transform: "rotate(-45deg)",
+                    background: meta.color,
+                    color: "#fff",
+                    display: "grid",
+                    placeItems: "center",
+                    boxShadow: isHov
+                      ? "0 4px 14px rgba(0,0,0,0.4)"
+                      : "0 3px 8px rgba(0,0,0,0.25)",
+                    border: isHov
+                      ? "3px solid #fff"
+                      : "2px solid rgba(255,255,255,0.7)",
+                    transition: "width 0.15s, height 0.15s, box-shadow 0.15s",
+                  }}
+                >
+                  <span
+                    style={{
+                      transform: "rotate(45deg)",
+                      fontSize: isHov ? 14 : 12,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {meta.emoji}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
+        {/* ── 레전드 사이드바 ── */}
         <div>
           <h4
             style={{
@@ -265,6 +234,7 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
           >
             장소 정보
           </h4>
+
           {pins.length === 0 ? (
             <div
               style={{
@@ -279,13 +249,9 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
             <div className="f-legend-list">
               {pins.map((p) => {
                 const activeBooths = getActiveBooothsForPin(p);
-
-                // 1. 핀 자체의 운영 날짜 필터링
                 const pDays = p.days || [];
                 const isHiddenByPinDay =
                   filterDay && pDays.length > 0 && !pDays.includes(filterDay);
-
-                // 2. 연결된 부스의 운영 날짜 필터링 (부스 핀인 경우)
                 const isHiddenByBoothDay =
                   filterDay &&
                   p.type === "booth" &&
@@ -298,20 +264,54 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
                   p.type === "booth" &&
                   (p.boothIds?.length ?? 0) > 0 &&
                   activeBooths.length === 0;
+
+                const meta = PIN_META[p.type];
+
                 return (
                   <div
                     key={p.id}
                     className="f-legend-row"
                     onMouseEnter={() => setHovered(p.id)}
                     onMouseLeave={() => setHovered(null)}
-                    style={{ opacity: isInactive ? 0.35 : 1 }}
+                    style={{
+                      opacity: isInactive ? 0.35 : 1,
+                      background:
+                        hovered === p.id ? "var(--faint)" : "transparent",
+                      transition: "background 0.12s",
+                    }}
                   >
+                    {/* 테어드롭 미니 핀 */}
                     <div
-                      className="pin"
-                      style={{ background: pinColor[p.type] }}
+                      style={{
+                        width: 28,
+                        height: 28,
+                        flexShrink: 0,
+                        display: "grid",
+                        placeItems: "center",
+                      }}
                     >
-                      {pinLabel(p.type)}
+                      <div
+                        style={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: "50% 50% 50% 0",
+                          transform: "rotate(-45deg)",
+                          background: meta.color,
+                          color: "#fff",
+                          display: "grid",
+                          placeItems: "center",
+                          boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                          border: "1.5px solid rgba(255,255,255,0.6)",
+                        }}
+                      >
+                        <span
+                          style={{ transform: "rotate(45deg)", fontSize: 10 }}
+                        >
+                          {meta.emoji}
+                        </span>
+                      </div>
                     </div>
+
                     <div style={{ minWidth: 0, flex: 1 }}>
                       {activeBooths.length > 0 ? (
                         activeBooths.map((b) => (
@@ -347,9 +347,7 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
                               marginTop: 3,
                             }}
                           >
-                            {isInactive
-                              ? "이 날짜 미운영"
-                              : p.type.toUpperCase()}
+                            {isInactive ? "이 날짜 미운영" : meta.label}
                           </div>
                         </>
                       )}
