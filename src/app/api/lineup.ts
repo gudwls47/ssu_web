@@ -40,7 +40,11 @@ export const useGetLineup = (festivalId: string, day?: string) => {
         toResponse(festivalId, d.id, d.data() as LineupDoc),
       );
       const filtered = day ? all.filter((item) => item.day === day) : all;
-      return filtered.sort((a, b) => a.order - b.order);
+      return filtered.sort((a, b) => {
+        const aTime = a.startTime?.seconds ?? 0;
+        const bTime = b.startTime?.seconds ?? 0;
+        return aTime - bTime;
+      });
     },
     enabled: Boolean(festivalId),
   });

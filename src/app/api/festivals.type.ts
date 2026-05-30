@@ -95,8 +95,8 @@ export type BoothInput = Omit<BoothDoc, "order">;
 // ── 라인업 ────────────────────────────────────────────────
 export interface LineupDoc {
   day: string; // "2026-05-12"
-  time: string; // "19:00"
-  endTime?: string; // "20:00"
+  startTime: Timestamp; // "19:00"
+  endTime: Timestamp; // "20:00"
   artist: string;
   sub: string;
   tag: string; // K-POP | BAND | HIPHOP | R&B | DJ | INDIE | POP

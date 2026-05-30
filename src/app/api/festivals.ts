@@ -44,7 +44,15 @@ function deriveStatus(start: string, end: string): FestivalStatus {
 function tsToIso(ts: unknown): string {
   if (!ts) return new Date().toISOString();
   if (typeof (ts as Timestamp).toDate === "function") {
-    return (ts as Timestamp).toDate().toISOString();
+    const date = (ts as Timestamp).toDate();
+    // 로컬 시간 기준으로 YYYY-MM-DD 형식의 ISO string 생성 (T... 부분 포함)
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    const hh = String(date.getHours()).padStart(2, "0");
+    const mm = String(date.getMinutes()).padStart(2, "0");
+    const ss = String(date.getSeconds()).padStart(2, "0");
+    return `${y}-${m}-${d}T${hh}:${mm}:${ss}`;
   }
   return new Date().toISOString();
 }
