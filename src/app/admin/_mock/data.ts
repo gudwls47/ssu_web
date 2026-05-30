@@ -25,7 +25,8 @@ export interface Booth {
 }
 
 export interface LineupSet {
-  time: string;
+  startTime: string;
+  endTime: string;
   artist: string;
   sub: string;
   tag: string;
@@ -164,22 +165,32 @@ export const LINEUPS: Record<string, Record<string, LineupSet[]>> = {
   "ssu-daedongje-2026": {
     "2026-05-12": [
       {
-        time: "17:00",
+        startTime: "17:00",
+        endTime: "18:00",
         artist: "오프닝 공연",
         sub: "숭실대 밴드부",
         tag: "BAND",
         stage: "메인",
       },
       {
-        time: "18:00",
+        startTime: "18:00",
+        endTime: "19:00",
         artist: "기리보이",
         sub: "Giriboy",
         tag: "HIPHOP",
         stage: "메인",
       },
-      { time: "19:00", artist: "BIBI", sub: "비비", tag: "R&B", stage: "메인" },
       {
-        time: "20:00",
+        startTime: "19:00",
+        endTime: "20:00",
+        artist: "BIBI",
+        sub: "비비",
+        tag: "R&B",
+        stage: "메인",
+      },
+      {
+        startTime: "20:00",
+        endTime: "21:00",
         artist: "pH-1",
         sub: "피에이치원",
         tag: "HIPHOP",
@@ -187,33 +198,51 @@ export const LINEUPS: Record<string, Record<string, LineupSet[]>> = {
       },
     ],
     "2026-05-13": [
-      { time: "17:00", artist: "아이유", sub: "IU", tag: "POP", stage: "메인" },
       {
-        time: "18:30",
+        startTime: "17:00",
+        endTime: "18:30",
+        artist: "아이유",
+        sub: "IU",
+        tag: "POP",
+        stage: "메인",
+      },
+      {
+        startTime: "18:30",
+        endTime: "20:00",
         artist: "적재",
         sub: "Jukjae",
         tag: "INDIE",
         stage: "메인",
       },
-      { time: "20:00", artist: "DEAN", sub: "딘", tag: "R&B", stage: "메인" },
+      {
+        startTime: "20:00",
+        endTime: "21:30",
+        artist: "DEAN",
+        sub: "딘",
+        tag: "R&B",
+        stage: "메인",
+      },
     ],
     "2026-05-14": [
       {
-        time: "17:00",
+        startTime: "17:00",
+        endTime: "19:00",
         artist: "EXO",
         sub: "엑소",
         tag: "K-POP",
         stage: "메인",
       },
       {
-        time: "19:00",
+        startTime: "19:00",
+        endTime: "21:00",
         artist: "DJ Soda",
         sub: "DJ소다",
         tag: "DJ",
         stage: "메인",
       },
       {
-        time: "21:00",
+        startTime: "21:00",
+        endTime: "22:00",
         artist: "피날레",
         sub: "전원",
         tag: "BAND",

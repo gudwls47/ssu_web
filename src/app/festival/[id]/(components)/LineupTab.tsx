@@ -36,40 +36,38 @@ export function LineupTab({ fest, items }: LineupTabProps) {
   );
   const [day, setDay] = useState(days[0] ?? "");
 
-  // 현재 날짜와 시간 문자열 (YYYY-MM-DD, HH:mm)
-  const { curDateStr, curTimeStr } = useMemo(() => {
-    if (!now) return { curDateStr: "", curTimeStr: "" };
-
-    // Intl.DateTimeFormat을 사용하여 현지 시간(KST) 기준 문자열 추출
-    const fmtDate = new Intl.DateTimeFormat("en-CA", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      timeZone: "Asia/Seoul",
-    }).format(now); // YYYY-MM-DD
-
-    const fmtTime = new Intl.DateTimeFormat("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-      timeZone: "Asia/Seoul",
-    }).format(now); // HH:mm
-
-    return { curDateStr: fmtDate, curTimeStr: fmtTime };
-  }, [now]);
-
   // 해당 날짜 아이템을 시간순으로 정렬
   const todayItems = items
     .filter((item) => item.day === day)
-    .sort((a, b) => a.time.localeCompare(b.time));
+    .sort((a, b) => {
+      const aTime = a.startTime?.seconds ?? 0;
+      const bTime = b.startTime?.seconds ?? 0;
+      return aTime - bTime;
+    });
 
   // 스테이지 목록은 전체 아이템 기준 (순서 유지)
   const stages = [...new Set(items.map((i) => i.stage))];
 
   const isLive = (item: LineupResponse) => {
-    if (!curDateStr || item.day !== curDateStr) return false;
-    if (!item.endTime) return false;
-    return curTimeStr >= item.time && curTimeStr <= item.endTime;
+    if (!now || !item.startTime || !item.endTime) return false;
+    try {
+      const itemStart = item.startTime.toDate();
+      const itemEnd = item.endTime.toDate();
+      return now >= itemStart && now <= itemEnd;
+    } catch {
+      return false;
+    }
+  };
+
+  const formatTime = (ts: any) => {
+    if (!ts || typeof ts.toDate !== "function") return "";
+    const date = ts.toDate();
+    return new Intl.DateTimeFormat("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+      timeZone: "Asia/Seoul",
+    }).format(date);
   };
 
   return (
@@ -145,19 +143,17 @@ export function LineupTab({ fest, items }: LineupTabProps) {
                               ● LIVE
                             </div>
                           )}
-                          {s.time}
-                          {s.endTime && (
-                            <div
-                              style={{
-                                fontSize: 12,
-                                opacity: 0.5,
-                                fontWeight: 500,
-                                marginTop: 2,
-                              }}
-                            >
-                              – {s.endTime}
-                            </div>
-                          )}
+                          {formatTime(s.startTime)}
+                          <div
+                            style={{
+                              fontSize: 12,
+                              opacity: 0.5,
+                              fontWeight: 500,
+                              marginTop: 2,
+                            }}
+                          >
+                            – {formatTime(s.endTime)}
+                          </div>
                         </div>
                         <div className="artist">
                           <div className="avatar">

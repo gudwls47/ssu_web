@@ -3,7 +3,10 @@ export function dateRange(start: string, end: string): string[] {
   const cur = new Date(start);
   const last = new Date(end);
   while (cur <= last) {
-    days.push(cur.toISOString().split("T")[0]);
+    const y = cur.getFullYear();
+    const m = String(cur.getMonth() + 1).padStart(2, "0");
+    const d = String(cur.getDate()).padStart(2, "0");
+    days.push(`${y}-${m}-${d}`);
     cur.setDate(cur.getDate() + 1);
   }
   return days;

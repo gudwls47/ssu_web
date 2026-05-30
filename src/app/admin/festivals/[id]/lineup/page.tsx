@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, type CSSProperties } from "react";
 import { useParams } from "next/navigation";
+import { Timestamp } from "firebase/firestore";
 import { useGetFestival } from "@/app/api/festivals";
 import { useGetLineup, useSaveLineupByDay } from "@/app/api/lineup";
 import Modal from "@/app/components/Modal";
@@ -12,13 +13,30 @@ const STAGES = ["메인", "서브"] as const;
 type LineupRow = {
   _key: string;
   id?: string;
-  time: string;
-  endTime: string;
+  startTime: string; // "19:00"
+  endTime: string; // "20:00"
   artist: string;
   sub: string;
   tag: string;
   stage: string;
 };
+
+function formatTimestamp(ts: any): string {
+  if (!ts || typeof ts.toDate !== "function") return "";
+  const date = ts.toDate();
+  const h = String(date.getHours()).padStart(2, "0");
+  const m = String(date.getMinutes()).padStart(2, "0");
+  return `${h}:${m}`;
+}
+
+function parseTimeToTimestamp(day: string, time: string): Timestamp {
+  const [h, m] = time.split(":").map(Number);
+  // day: "2026-05-12", time: "19:00"
+  // 로컬 시간 기준으로 생성
+  const [y, mm, d] = day.split("-").map(Number);
+  const date = new Date(y, mm - 1, d, h, m, 0, 0);
+  return Timestamp.fromDate(date);
+}
 
 /** 시작일~종료일 사이 날짜 배열 생성 ("2026-05-18" 형식) */
 function dateRange(start: string, end: string): string[] {
@@ -26,7 +44,10 @@ function dateRange(start: string, end: string): string[] {
   const cur = new Date(start);
   const last = new Date(end);
   while (cur <= last) {
-    days.push(cur.toISOString().split("T")[0]);
+    const y = cur.getFullYear();
+    const m = String(cur.getMonth() + 1).padStart(2, "0");
+    const d = String(cur.getDate()).padStart(2, "0");
+    days.push(`${y}-${m}-${d}`);
     cur.setDate(cur.getDate() + 1);
   }
   return days;
@@ -65,11 +86,11 @@ export default function LineupEditorPage() {
   useEffect(() => {
     if (lineupData) {
       setRows(
-        lineupData.map((l) => ({
+        lineupData.map((l: any) => ({
           _key: l.id,
           id: l.id,
-          time: l.time,
-          endTime: l.endTime ?? "",
+          startTime: formatTimestamp(l.startTime),
+          endTime: formatTimestamp(l.endTime),
           artist: l.artist,
           sub: l.sub,
           tag: l.tag,
@@ -96,7 +117,7 @@ export default function LineupEditorPage() {
       ...prev,
       {
         _key: `new_${Date.now()}`,
-        time: "",
+        startTime: "",
         endTime: "",
         artist: "",
         sub: "",
@@ -110,23 +131,41 @@ export default function LineupEditorPage() {
     setRows((prev) => prev.filter((r) => r._key !== key));
   };
 
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   const handleSave = () => {
     if (!activeDay) return;
+
+    // 필수값 체크
+    const hasEmptyFields = rows.some(
+      (r) => !r.startTime || !r.endTime || !r.artist,
+    );
+    if (hasEmptyFields) {
+      setValidationError(
+        "시간(시작/종료)과 아티스트명은 필수 입력 항목입니다.",
+      );
+      return;
+    }
+
     const hasTimeConflict = rows.some(
-      (r) => r.time && r.endTime && r.time > r.endTime,
+      (r) => r.startTime && r.endTime && r.startTime > r.endTime,
     );
     if (hasTimeConflict) {
       setTimeWarnOpen(true);
       return;
     }
+
     // 저장 전 시간순 정렬
-    const sorted = [...rows].sort((a, b) => a.time.localeCompare(b.time));
+    const sorted = [...rows].sort((a, b) =>
+      a.startTime.localeCompare(b.startTime),
+    );
+
     saveLineup.mutate({
       day: activeDay,
-      items: sorted.map(({ time, endTime, artist, sub, tag, stage }) => ({
+      items: sorted.map(({ startTime, endTime, artist, sub, tag, stage }) => ({
         day: activeDay,
-        time,
-        endTime,
+        startTime: parseTimeToTimestamp(activeDay, startTime),
+        endTime: parseTimeToTimestamp(activeDay, endTime),
         artist,
         sub,
         tag,
@@ -336,9 +375,11 @@ export default function LineupEditorPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 <input
                   style={{ ...inputStyle, fontFamily: "var(--mono-font)" }}
-                  value={row.time}
+                  value={row.startTime}
                   placeholder="19:00"
-                  onChange={(e) => update(row._key, "time", e.target.value)}
+                  onChange={(e) =>
+                    update(row._key, "startTime", e.target.value)
+                  }
                 />
                 <span style={{ color: "var(--muted)" }}>–</span>
                 <input
@@ -447,6 +488,15 @@ export default function LineupEditorPage() {
         cancelButtonText="확인"
       >
         시작 시간이 종료 시간보다 늦은 항목이 있습니다.
+      </Modal>
+
+      <Modal
+        open={!!validationError}
+        onOpenChange={(open) => !open && setValidationError(null)}
+        title="입력 오류"
+        cancelButtonText="확인"
+      >
+        {validationError}
       </Modal>
     </div>
   );
