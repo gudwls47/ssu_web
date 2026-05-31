@@ -112,7 +112,7 @@ export function MapTab({ fest, pins, booths }: MapTabProps) {
           ) : (
             <svg
               viewBox={`0 0 ${MAP_W} ${MAP_H}`}
-              preserveAspectRatio="xMidYMid meet"
+              preserveAspectRatio="none"
               style={{ width: "100%", height: "100%", display: "block" }}
             >
               {getTemplate(fest.mapImage || "basic").render(MAP_W, MAP_H)}

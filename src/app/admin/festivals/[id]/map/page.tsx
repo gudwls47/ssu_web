@@ -795,12 +795,12 @@ export default function MapEditorPage() {
                 pin.type === "booth" && (pin.boothIds?.length ?? 0) > 0;
               const isSelected = selectedPinKey === pin._key;
 
-              // 1. 핀 자체의 운영 날짜 필터링
+              // 1. 핀 자체의 운영 날짜 — 오늘 해당 없으면 흐리게만 표시
               const pDays = pin.days || [];
-              const isHiddenByPinDay =
+              const inactivePinDay =
                 previewDay && pDays.length > 0 && !pDays.includes(previewDay);
 
-              // 2. 연결된 부스의 운영 날짜 필터링 (부스 핀인 경우)
+              // 2. 연결된 부스의 운영 날짜 — 오늘 활성 부스 없으면 흐리게만 표시
               const activeBooths =
                 pin.type === "booth" && (pin.boothIds?.length ?? 0) > 0
                   ? booths.filter(
@@ -809,13 +809,14 @@ export default function MapEditorPage() {
                         boothRunsOnDay(b, previewDay),
                     )
                   : [];
-              const isHiddenByBoothDay =
+              const inactiveBoothDay =
                 previewDay &&
                 pin.type === "booth" &&
                 (pin.boothIds?.length ?? 0) > 0 &&
                 activeBooths.length === 0;
 
-              if (isHiddenByPinDay || isHiddenByBoothDay) return null;
+              // 관리자 화면: 핀은 항상 표시 (비활성 날짜는 투명도로 구분)
+              const isDimmed = inactivePinDay || inactiveBoothDay;
 
               return (
                 <div
@@ -829,6 +830,8 @@ export default function MapEditorPage() {
                     transform: "translate(-50%, -100%)",
                     cursor: "grab",
                     zIndex: isSelected ? 10 : 2,
+                    opacity: isDimmed ? 0.35 : 1,
+                    filter: isDimmed ? "grayscale(0.4)" : "none",
                   }}
                 >
                   <div
@@ -1172,6 +1175,23 @@ export default function MapEditorPage() {
                               }}
                             >
                               연결할 부스 선택
+                              {pin.days.length > 0 && (
+                                <span
+                                  style={{
+                                    color: "var(--accent)",
+                                    marginLeft: 4,
+                                  }}
+                                >
+                                  (
+                                  {pin.days
+                                    .map((d) => {
+                                      const i = festivalDays.indexOf(d);
+                                      return i >= 0 ? `D${i + 1}` : d.slice(5);
+                                    })
+                                    .join("/")}{" "}
+                                  해당 부스)
+                                </span>
+                              )}
                             </div>
                             {booths.length === 0 ? (
                               <div
@@ -1184,82 +1204,108 @@ export default function MapEditorPage() {
                                 등록된 부스가 없습니다
                               </div>
                             ) : (
-                              <div
-                                style={{
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  gap: 3,
-                                  maxHeight: 150,
-                                  overflowY: "auto",
-                                }}
-                              >
-                                {booths.map((b) => {
-                                  const checked = linkedIds.includes(b.id);
-                                  const dayLabel =
-                                    b.days.length === 0
-                                      ? "전체"
-                                      : b.days
-                                          .map((d) => {
-                                            const idx = festivalDays.indexOf(d);
-                                            return idx >= 0
-                                              ? `D${idx + 1}`
-                                              : d.slice(5);
-                                          })
-                                          .join("/");
-                                  return (
-                                    <label
-                                      key={b.id}
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: 6,
-                                        padding: "4px 6px",
-                                        borderRadius: 6,
-                                        cursor: "pointer",
-                                        background: checked
-                                          ? "rgba(255,30,122,0.08)"
-                                          : "transparent",
-                                        border: `1px solid ${checked ? "var(--accent)" : "transparent"}`,
-                                      }}
-                                    >
-                                      <input
-                                        type="checkbox"
-                                        checked={checked}
-                                        onChange={() =>
-                                          toggleBoothId(pin._key, b.id)
-                                        }
+                              (() => {
+                                // 운영 날짜가 선택된 경우 해당 날짜에 운영하는 부스만 필터링
+                                const filteredBooths =
+                                  pin.days.length === 0
+                                    ? booths
+                                    : booths.filter((b) =>
+                                        pin.days.some((d) =>
+                                          boothRunsOnDay(b, d),
+                                        ),
+                                      );
+                                return (
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      gap: 3,
+                                      maxHeight: 150,
+                                      overflowY: "auto",
+                                    }}
+                                  >
+                                    {filteredBooths.length === 0 && (
+                                      <div
                                         style={{
-                                          accentColor: "var(--accent)",
-                                          flexShrink: 0,
+                                          fontSize: 12,
+                                          color: "var(--muted)",
+                                          fontFamily: "var(--mono-font)",
+                                          padding: "4px 0",
                                         }}
-                                      />
-                                      <div style={{ minWidth: 0, flex: 1 }}>
-                                        <div
-                                          style={{
-                                            fontSize: 13,
-                                            fontWeight: 600,
-                                            color: "var(--fg)",
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis",
-                                            whiteSpace: "nowrap",
-                                          }}
-                                        >
-                                          {b.name}
-                                        </div>
-                                        <div
-                                          style={{
-                                            fontSize: 11,
-                                            fontFamily: "var(--mono-font)",
-                                            color: "var(--muted)",
-                                          }}
-                                        >
-                                          {b.loc} · {dayLabel}
-                                        </div>
+                                      >
+                                        선택한 날짜에 운영하는 부스가 없습니다
                                       </div>
-                                    </label>
-                                  );
-                                })}
-                              </div>
+                                    )}
+                                    {filteredBooths.map((b) => {
+                                      const checked = linkedIds.includes(b.id);
+                                      const dayLabel =
+                                        b.days.length === 0
+                                          ? "전체"
+                                          : b.days
+                                              .map((d) => {
+                                                const idx =
+                                                  festivalDays.indexOf(d);
+                                                return idx >= 0
+                                                  ? `D${idx + 1}`
+                                                  : d.slice(5);
+                                              })
+                                              .join("/");
+                                      return (
+                                        <label
+                                          key={b.id}
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 6,
+                                            padding: "4px 6px",
+                                            borderRadius: 6,
+                                            cursor: "pointer",
+                                            background: checked
+                                              ? "rgba(255,30,122,0.08)"
+                                              : "transparent",
+                                            border: `1px solid ${checked ? "var(--accent)" : "transparent"}`,
+                                          }}
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            checked={checked}
+                                            onChange={() =>
+                                              toggleBoothId(pin._key, b.id)
+                                            }
+                                            style={{
+                                              accentColor: "var(--accent)",
+                                              flexShrink: 0,
+                                            }}
+                                          />
+                                          <div style={{ minWidth: 0, flex: 1 }}>
+                                            <div
+                                              style={{
+                                                fontSize: 13,
+                                                fontWeight: 600,
+                                                color: "var(--fg)",
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                whiteSpace: "nowrap",
+                                              }}
+                                            >
+                                              {b.name}
+                                            </div>
+                                            <div
+                                              style={{
+                                                fontSize: 11,
+                                                fontFamily: "var(--mono-font)",
+                                                color: "var(--muted)",
+                                              }}
+                                            >
+                                              {b.loc} · {dayLabel}
+                                            </div>
+                                          </div>
+                                        </label>
+                                      );
+                                    })}
+                                  </div>
+                                );
+                              })()
                             )}
                             {linkedIds.length > 0 && (
                               <div
