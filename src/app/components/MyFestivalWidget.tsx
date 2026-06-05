@@ -314,10 +314,11 @@ function SlideDesc({ festival }: { festival: any }) {
         style={{
           font: "400 18px/1.75 var(--body-font)",
           color: "var(--fg)",
-          overflow: "hidden",
-          display: "-webkit-box",
-          WebkitLineClamp: 8,
-          WebkitBoxOrient: "vertical",
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
+          overflowY: "auto",
+          maxHeight: 200,
+          scrollbarWidth: "none",
         }}
       >
         {festival.description || "소개가 없어요."}
