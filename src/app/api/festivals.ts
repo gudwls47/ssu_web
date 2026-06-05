@@ -99,8 +99,8 @@ function toDoc(
     colors: input.colors ?? ["#FF1E7A", "#BDFF1E", "#2A0F4E"],
     participants: 0,
     address: input.address ?? "",
-    lat: input.lat,
-    lng: input.lng,
+    ...(input.lat != null && { lat: input.lat }),
+    ...(input.lng != null && { lng: input.lng }),
     startDate: Timestamp.fromDate(new Date(input.start)),
     endDate: Timestamp.fromDate(new Date(input.end)),
   };
