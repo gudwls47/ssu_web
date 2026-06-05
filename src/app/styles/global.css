@@ -119,3 +119,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Sonner 토스트 컨테이너 — 토스트 없을 때 빈 박스 숨김 */
+[data-sonner-toaster] {
+  pointer-events: none;
+}
+[data-sonner-toaster]:has([data-sonner-toast]) {
+  pointer-events: auto;
+}
+[data-sonner-toaster]:not(:has([data-sonner-toast])) {
+  display: none !important;
+}

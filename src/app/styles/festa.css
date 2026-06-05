@@ -19,6 +19,32 @@
   color: inherit;
 }
 
+/* body/html 배경을 festa 테마와 동기화 — 흰 여백 방지 */
+html:has(.festa),
+body:has(.festa) {
+  background: #ffeff5;
+}
+html:has(.festa[data-mode="dark"]),
+body:has(.festa[data-mode="dark"]) {
+  background: #1b0832;
+}
+html:has(.festa[data-palette="classic"]),
+body:has(.festa[data-palette="classic"]) {
+  background: #fbf6ec;
+}
+html:has(.festa[data-palette="classic"][data-mode="dark"]),
+body:has(.festa[data-palette="classic"][data-mode="dark"]) {
+  background: #14172b;
+}
+html:has(.festa[data-palette="experimental"]),
+body:has(.festa[data-palette="experimental"]) {
+  background: #efff00;
+}
+html:has(.festa[data-palette="experimental"][data-mode="dark"]),
+body:has(.festa[data-palette="experimental"][data-mode="dark"]) {
+  background: #0a0a0f;
+}
+
 /* ── Festival palette (default) ── */
 .festa {
   --bg: #ffeff5;
