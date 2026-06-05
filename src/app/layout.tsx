@@ -26,6 +26,10 @@ const bricolage = Bricolage_Grotesque({
 export const metadata: Metadata = {
   title: "FESTA",
   description: "캠퍼스 축제 정보 통합 플랫폼",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+  },
 };
 
 export default async function RootLayout({
