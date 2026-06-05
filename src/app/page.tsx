@@ -15,7 +15,7 @@ declare global {
   }
 }
 
-const SSU = { lat: 37.4956, lng: 126.9581 }; // 숭실대학교 정보과학관
+const SSU = { lat: 37.4945, lng: 126.959 }; // 숭실대학교 정보과학관
 
 export default function MainPage() {
   const { user, loading: authLoading } = useAuthState();
