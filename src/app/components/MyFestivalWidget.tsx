@@ -300,7 +300,7 @@ function SlideDesc({ festival }: { festival: any }) {
       {festival.tagline && (
         <div
           style={{
-            font: "600 12px/1 var(--mono-font)",
+            font: "600 20px/1 var(--mono-font)",
             color: "var(--accent)",
             letterSpacing: "0.08em",
             textTransform: "uppercase",
@@ -312,7 +312,7 @@ function SlideDesc({ festival }: { festival: any }) {
       )}
       <div
         style={{
-          font: "400 14px/1.75 var(--body-font)",
+          font: "400 18px/1.75 var(--body-font)",
           color: "var(--fg)",
           overflow: "hidden",
           display: "-webkit-box",

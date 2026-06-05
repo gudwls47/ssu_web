@@ -10,11 +10,11 @@ export interface FestivalCardProps {
 }
 
 const tagCva = cva(
-  "flex cursor-default items-center gap-[4px] h-[22px] px-[8px] rounded-[6px] font-(--body-font) font-semibold text-[11px] leading-none tracking-[0.04em] uppercase",
+  "flex cursor-default items-center gap-[6px] h-[28px] px-[12px] rounded-[8px] font-(--body-font) font-semibold text-[13px] leading-none tracking-[0.04em] uppercase",
   {
     variants: {
       status: {
-        LIVE: "bg-(--live) text-white before:content-[''] before:w-[6px] before:h-[6px] before:rounded-full before:bg-current before:animate-[f-pulse_1.2s_infinite]",
+        LIVE: "bg-(--live) text-white before:content-[''] before:w-[8px] before:h-[8px] before:rounded-full before:bg-current before:animate-[f-pulse_1.2s_infinite]",
         UPCOMING: "bg-(--upcoming) text-white",
         ENDED: "bg-(--faint) text-(--ended)",
       },
@@ -122,12 +122,28 @@ export default function FestivalCard({ data }: FestivalCardProps) {
           />
         )}
         <div className="absolute top-[12px] left-[12px] flex gap-[6px]">
-          <span className={cn(tagCva({ status: data.status }))}>
-            {STATUS_TEXT[data.status]}
-          </span>
+          {data.status !== "UPCOMING" && (
+            <span className={cn(tagCva({ status: data.status }))}>
+              {STATUS_TEXT[data.status]}
+            </span>
+          )}
         </div>
       </div>
       <div className="grid flex-1 gap-[8px] p-[18px]">
+        {data.status === "LIVE" && (
+          <div
+            style={{
+              fontSize: 11,
+              fontFamily: "var(--mono-font)",
+              fontWeight: 700,
+              letterSpacing: "0.14em",
+              color: "#FF1E7A",
+              textTransform: "uppercase",
+            }}
+          >
+            ● LIVE NOW
+          </div>
+        )}
         <div className="text-[20px] leading-[1.05] font-(--display-font) font-(--display-weight,700) tracking-[-0.02em] text-(--fg)">
           {data.name}
         </div>
