@@ -125,8 +125,6 @@ export default function BasicInfoPage() {
       if (json.lat && json.lng) {
         setLat(json.lat);
         setLng(json.lng);
-        // 전체 주소로 업데이트해 동/로 검색이 가능하도록 함
-        if (json.displayName) setAddress(json.displayName);
       } else {
         setGeocodeError("주소를 찾을 수 없습니다. 더 구체적으로 입력해보세요.");
       }
