@@ -84,8 +84,23 @@ export const useGetMyFestivals = (uid: string | null | undefined) => {
     queryFn: async () => {
       if (!uid) return [] as JoinRecord[];
       const snap = await getDocs(collection(db, "users", uid, "joins"));
-      const docs = snap.docs.map((d) => d.data() as JoinRecord);
-      return docs.sort(
+
+      // 각 축제 존재 여부 확인 — 삭제된 축제는 join 레코드도 자동 정리
+      const results: JoinRecord[] = [];
+      await Promise.all(
+        snap.docs.map(async (joinDoc) => {
+          const data = joinDoc.data() as JoinRecord;
+          const festSnap = await getDoc(doc(db, "festivals", data.festivalId));
+          if (festSnap.exists()) {
+            results.push(data);
+          } else {
+            // 원본 축제가 삭제됐으면 join 레코드도 제거
+            await deleteDoc(joinDoc.ref);
+          }
+        }),
+      );
+
+      return results.sort(
         (a, b) =>
           (b.joinedAt?.toMillis?.() ?? 0) - (a.joinedAt?.toMillis?.() ?? 0),
       );

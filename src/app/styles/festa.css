@@ -888,6 +888,15 @@
   color: var(--muted);
 }
 
+/* ── No scrollbar ────────────────────────────────────── */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* ── Map ──────────────────────────────────────────────── */
 .f-map-wrap {
   display: grid;

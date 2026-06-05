@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
@@ -54,6 +54,13 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
@@ -96,13 +103,15 @@ export default function LoginPage() {
   return (
     <div
       style={{
-        minHeight: "100vh",
+        margin: "-32px -20px -96px",
+        height: "calc(100vh - 68px)",
+        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         background: "var(--bg)",
-        padding: "24px",
+        padding: "24px 16px 16px",
         boxSizing: "border-box",
       }}
     >
@@ -113,7 +122,7 @@ export default function LoginPage() {
           style={{
             textDecoration: "none",
             display: "block",
-            marginBottom: 20,
+            marginBottom: 10,
           }}
         >
           <FestaMasterMark />
@@ -126,20 +135,20 @@ export default function LoginPage() {
             background: "var(--surface)",
             border: "1px solid var(--border)",
             borderRadius: 20,
-            padding: 28,
+            padding: 20,
             display: "flex",
             flexDirection: "column",
-            gap: 16,
+            gap: 12,
           }}
         >
           <div
             style={{
               fontFamily: "var(--display-font)",
-              fontSize: 22,
+              fontSize: 20,
               fontWeight: 700,
               letterSpacing: "-0.03em",
               color: "var(--fg)",
-              marginBottom: 4,
+              marginBottom: 0,
             }}
           >
             로그인
@@ -263,7 +272,7 @@ export default function LoginPage() {
         <div
           style={{
             textAlign: "center",
-            marginTop: 16,
+            marginTop: 10,
             fontSize: 15,
             color: "var(--muted)",
           }}

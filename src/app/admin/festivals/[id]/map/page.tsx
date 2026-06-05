@@ -1180,6 +1180,7 @@ export default function MapEditorPage() {
                                   style={{
                                     color: "var(--accent)",
                                     marginLeft: 4,
+                                    fontSize: 11,
                                   }}
                                 >
                                   (

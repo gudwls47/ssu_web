@@ -2,8 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
-import { useGetFestivals } from "@/app/api/festivals";
-import type { FestivalStatus } from "@/app/api/festivals.type";
+import { useGetFestivals, useDeleteFestival } from "@/app/api/festivals";
+import type {
+  FestivalResponse,
+  FestivalStatus,
+} from "@/app/api/festivals.type";
 
 const STATUS_META: Record<FestivalStatus, { cls: string; en: string }> = {
   LIVE: { cls: "live", en: "LIVE NOW" },
@@ -92,14 +95,87 @@ function PosterThumb({
   );
 }
 
+function DeleteModal({
+  fest,
+  onConfirm,
+  onCancel,
+  isDeleting,
+}: {
+  fest: FestivalResponse;
+  onConfirm: () => void;
+  onCancel: () => void;
+  isDeleting: boolean;
+}) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.45)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 999,
+      }}
+      onClick={onCancel}
+    >
+      <div
+        style={{
+          background: "var(--surface)",
+          border: "1px solid var(--border)",
+          borderRadius: 20,
+          padding: 28,
+          width: 400,
+          maxWidth: "calc(100vw - 40px)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ fontSize: 22, marginBottom: 8 }}>🗑️</div>
+        <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 8 }}>
+          축제를 삭제할까요?
+        </div>
+        <div
+          style={{
+            fontFamily: "var(--mono-font)",
+            fontSize: 14,
+            color: "var(--muted)",
+            marginBottom: 24,
+            lineHeight: 1.5,
+          }}
+        >
+          <b style={{ color: "var(--fg)" }}>{fest.name}</b>을(를) 삭제하면
+          <br />
+          모든 데이터가 영구적으로 제거됩니다.
+        </div>
+        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+          <button className="f-btn ghost sm" onClick={onCancel}>
+            취소
+          </button>
+          <button
+            className="f-btn sm"
+            onClick={onConfirm}
+            disabled={isDeleting}
+            style={{ background: "#e53e3e", color: "#fff" }}
+          >
+            {isDeleting ? "삭제 중…" : "삭제"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminFestivalsPage() {
   const [statusFilter, setStatusFilter] = React.useState<
     FestivalStatus | "ALL"
   >("ALL");
+  const [deletingFest, setDeletingFest] =
+    React.useState<FestivalResponse | null>(null);
   const { data: festivals = [], isLoading } = useGetFestivals({
     size: 50,
     // ownerUid: user?.uid,
   });
+  const { mutate: deleteFestival, isPending: isDeleting } = useDeleteFestival();
 
   const live = festivals.filter((f) => f.status === "LIVE");
   const upcoming = festivals.filter((f) => f.status === "UPCOMING");
@@ -124,8 +200,23 @@ export default function AdminFestivalsPage() {
     );
   }
 
+  const handleDelete = () => {
+    if (!deletingFest) return;
+    deleteFestival(deletingFest.id, {
+      onSuccess: () => setDeletingFest(null),
+    });
+  };
+
   return (
     <div style={{ padding: "24px 32px" }}>
+      {deletingFest && (
+        <DeleteModal
+          fest={deletingFest}
+          onConfirm={handleDelete}
+          onCancel={() => setDeletingFest(null)}
+          isDeleting={isDeleting}
+        />
+      )}
       {/* Header */}
       <div
         style={{
@@ -267,7 +358,7 @@ export default function AdminFestivalsPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "76px 1fr 140px 130px 110px 140px 130px",
+            gridTemplateColumns: "76px 1fr 140px 130px 110px 140px 160px",
             padding: "12px 18px",
             borderBottom: "1px solid var(--border)",
             fontFamily: "var(--mono-font)",
@@ -305,7 +396,7 @@ export default function AdminFestivalsPage() {
               key={fest.id}
               style={{
                 display: "grid",
-                gridTemplateColumns: "76px 1fr 140px 130px 110px 140px 130px",
+                gridTemplateColumns: "76px 1fr 140px 130px 110px 140px 160px",
                 padding: "14px 18px",
                 borderBottom:
                   i < filteredFestivals.length - 1
@@ -391,6 +482,19 @@ export default function AdminFestivalsPage() {
                     편집
                   </button>
                 </Link>
+                <button
+                  className="f-btn sm"
+                  style={{
+                    width: 36,
+                    background: "var(--faint)",
+                    color: "var(--fg)",
+                    flexShrink: 0,
+                  }}
+                  onClick={() => setDeletingFest(fest)}
+                  title="삭제"
+                >
+                  🗑
+                </button>
               </div>
             </div>
           ))

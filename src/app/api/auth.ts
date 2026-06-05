@@ -7,9 +7,19 @@ import {
   GoogleAuthProvider,
   updateProfile,
   signOut,
+  deleteUser as firebaseDeleteUser,
+  reauthenticateWithCredential,
+  reauthenticateWithPopup,
+  EmailAuthProvider,
   type User,
 } from "firebase/auth";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { auth } from "@/app/utils/firebase/auth";
 import { db } from "@/app/utils/firebase/db";
 
@@ -152,4 +162,28 @@ export async function saveGoogleUserProfile({
 // ── 로그아웃 ──────────────────────────────────────────────
 export async function logOut() {
   return signOut(auth);
+}
+
+// ── 회원탈퇴 ──────────────────────────────────────────────
+// Firebase Auth는 민감한 작업 전 재인증 필요 (recent-login 필요)
+// password가 있으면 이메일 재인증, 없으면 Google 재인증 시도
+export async function deleteAccount(password?: string): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) throw new Error("로그인 상태가 아닙니다.");
+
+  // 재인증
+  const isGoogle = user.providerData.some((p) => p.providerId === "google.com");
+  if (isGoogle) {
+    await reauthenticateWithPopup(user, new GoogleAuthProvider());
+  } else {
+    if (!password || password === "")
+      throw new Error("비밀번호를 입력해주세요.");
+    const cred = EmailAuthProvider.credential(user.email!, password);
+    await reauthenticateWithCredential(user, cred);
+  }
+
+  // Firestore 프로필 삭제
+  await deleteDoc(doc(db, "users", user.uid));
+  // Firebase Auth 계정 삭제
+  await firebaseDeleteUser(user);
 }

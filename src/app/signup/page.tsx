@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signUp, signInWithGoogle, type UserRole } from "@/app/api/auth";
-import { FestaMasterMark } from "@/app/components/FestaLogo";
 
 function GoogleIcon() {
   return (
@@ -54,6 +53,13 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   const handleGoogle = async () => {
     setError("");
@@ -113,40 +119,31 @@ export default function SignupPage() {
 
   return (
     <div
+      className="no-scrollbar"
       style={{
-        minHeight: "100vh",
+        margin: "-32px -20px -96px",
+        height: "calc(100vh - 68px)",
+        overflowY: "auto",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         background: "var(--bg)",
-        padding: "24px",
+        padding: "8px 16px 32px",
         boxSizing: "border-box",
       }}
     >
       <div style={{ width: "100%", maxWidth: 440 }}>
-        {/* Logo */}
-        <Link
-          href="/"
-          style={{
-            textDecoration: "none",
-            display: "block",
-            marginBottom: 16,
-          }}
-        >
-          <FestaMasterMark />
-        </Link>
-
         <form
           onSubmit={handleSubmit}
           style={{
             background: "var(--surface)",
             border: "1px solid var(--border)",
             borderRadius: 20,
-            padding: 28,
+            padding: 20,
             display: "flex",
             flexDirection: "column",
-            gap: 18,
+            gap: 10,
           }}
         >
           <div
@@ -246,7 +243,7 @@ export default function SignupPage() {
                   style={{
                     all: "unset",
                     cursor: "pointer",
-                    padding: "14px 12px",
+                    padding: "10px",
                     borderRadius: 12,
                     background:
                       role === opt.value ? "var(--faint)" : "var(--surface-2)",
@@ -255,7 +252,7 @@ export default function SignupPage() {
                     transition: "border-color 0.1s, background 0.1s",
                   }}
                 >
-                  <div style={{ fontSize: 22, marginBottom: 6 }}>
+                  <div style={{ fontSize: 18, marginBottom: 3 }}>
                     {opt.icon}
                   </div>
                   <div
@@ -463,7 +460,7 @@ export default function SignupPage() {
         <div
           style={{
             textAlign: "center",
-            marginTop: 16,
+            marginTop: 10,
             fontSize: 15,
             color: "var(--muted)",
           }}

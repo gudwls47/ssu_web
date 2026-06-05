@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useAuthState, type UserRole } from "@/app/api/auth";
+import { useRouter } from "next/navigation";
+import { useAuthState, deleteAccount, type UserRole } from "@/app/api/auth";
 import { useGetAllUsers, useUpdateUserRole } from "@/app/api/users";
 import Modal from "@/app/components/Modal";
 
@@ -45,11 +46,46 @@ function RoleBadge({ role }: { role: UserRole }) {
 }
 
 export default function AccountsPage() {
+  const router = useRouter();
   const { user: me } = useAuthState();
   const { data: users = [], isLoading } = useGetAllUsers();
   const updateRole = useUpdateUserRole();
   const [confirm, setConfirm] = useState<ConfirmState>(null);
   const [roleFilter, setRoleFilter] = useState<"ALL" | UserRole>("ALL");
+
+  // 회원탈퇴
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const isGoogle =
+    me?.providerData.some((p) => p.providerId === "google.com") ?? false;
+
+  const handleDeleteAccount = async () => {
+    setDeleteError("");
+    setDeleteLoading(true);
+    try {
+      await deleteAccount(isGoogle ? "" : deletePassword);
+      router.replace("/");
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code ?? "";
+      if (
+        code === "auth/wrong-password" ||
+        code === "auth/invalid-credential"
+      ) {
+        setDeleteError("비밀번호가 올바르지 않습니다.");
+      } else if (code === "auth/popup-closed-by-user") {
+        setDeleteError("구글 인증 창이 닫혔습니다.");
+      } else {
+        setDeleteError(
+          (err as { message?: string }).message ||
+            "탈퇴 중 오류가 발생했습니다.",
+        );
+      }
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   const filtered =
     roleFilter === "ALL" ? users : users.filter((u) => u.role === roleFilter);
@@ -365,6 +401,175 @@ export default function AccountsPage() {
           })
         )}
       </div>
+
+      {/* 내 계정 탈퇴 섹션 */}
+      <div
+        style={{
+          marginTop: 40,
+          paddingTop: 24,
+          borderTop: "1px solid var(--border)",
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "var(--mono-font)",
+            fontSize: 12,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--muted)",
+            marginBottom: 12,
+          }}
+        >
+          내 계정 관리
+        </div>
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          style={{
+            background: "none",
+            border: "1px solid #e53e3e40",
+            borderRadius: 10,
+            padding: "10px 16px",
+            color: "#e53e3e",
+            fontSize: 14,
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "background 0.12s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "#e53e3e10")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+        >
+          회원탈퇴
+        </button>
+      </div>
+
+      {/* 회원탈퇴 모달 */}
+      {showDeleteModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.45)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 999,
+          }}
+          onClick={() => {
+            setShowDeleteModal(false);
+            setDeleteError("");
+            setDeletePassword("");
+          }}
+        >
+          <div
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderRadius: 20,
+              padding: 28,
+              width: 400,
+              maxWidth: "calc(100vw - 40px)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ fontSize: 22, marginBottom: 8 }}>⚠️</div>
+            <div
+              style={{
+                fontWeight: 700,
+                fontSize: 18,
+                marginBottom: 8,
+                color: "var(--fg)",
+              }}
+            >
+              정말 탈퇴하시겠어요?
+            </div>
+            <div
+              style={{
+                fontSize: 14,
+                color: "var(--muted)",
+                lineHeight: 1.6,
+                marginBottom: 20,
+              }}
+            >
+              탈퇴하면 계정 정보와 등록된 모든 축제 데이터가{" "}
+              <b style={{ color: "#e53e3e" }}>영구 삭제</b>되며 복구할 수
+              없습니다.
+            </div>
+            {!isGoogle && (
+              <div style={{ marginBottom: 16 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "var(--fg)",
+                    marginBottom: 6,
+                  }}
+                >
+                  비밀번호 확인
+                </div>
+                <input
+                  className="a-input"
+                  type="password"
+                  placeholder="현재 비밀번호 입력"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  autoComplete="current-password"
+                  style={{
+                    width: "100%",
+                    height: 40,
+                    padding: "0 12px",
+                    borderRadius: 8,
+                    border: "1px solid var(--border)",
+                    background: "var(--bg)",
+                    color: "var(--fg)",
+                    fontSize: 14,
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+            )}
+            {deleteError && (
+              <div
+                style={{
+                  padding: "10px 12px",
+                  borderRadius: 10,
+                  background: "rgba(229,62,62,0.1)",
+                  color: "#e53e3e",
+                  fontSize: 14,
+                  marginBottom: 16,
+                }}
+              >
+                {deleteError}
+              </div>
+            )}
+            <div
+              style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}
+            >
+              <button
+                className="f-btn ghost sm"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteError("");
+                  setDeletePassword("");
+                }}
+              >
+                취소
+              </button>
+              <button
+                className="f-btn sm"
+                onClick={handleDeleteAccount}
+                disabled={deleteLoading || (!isGoogle && !deletePassword)}
+                style={{ background: "#e53e3e", color: "#fff", border: "none" }}
+              >
+                {deleteLoading
+                  ? "처리 중…"
+                  : isGoogle
+                    ? "Google 인증 후 탈퇴"
+                    : "탈퇴하기"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 확인 모달 */}
       <Modal
