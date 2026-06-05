@@ -136,9 +136,15 @@ export const useGetFestivals = (
 
       // ownerUid 없이 전체 조회 (공개 페이지용)
       if (params.status === "LIVE") {
-        // Firestore는 서로 다른 필드 부등호 조건 불가 → endDate >= now로만 필터 후 클라이언트 필터링
-        const now = Timestamp.now();
-        q = query(q, where("endDate", ">=", now), orderBy("endDate", "asc"));
+        // endDate가 오늘 자정(00:00:00)으로 저장되므로, 오늘 시작 기준으로 비교
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        const todayStart = Timestamp.fromDate(startOfToday);
+        q = query(
+          q,
+          where("endDate", ">=", todayStart),
+          orderBy("endDate", "asc"),
+        );
         q = query(q, limit(params.size ?? 20));
         const snap = await getDocs(q);
         const all = snap.docs.map((d) =>
@@ -150,8 +156,11 @@ export const useGetFestivals = (
         q = query(q, where("startDate", ">", now));
         q = query(q, orderBy("startDate", "asc"));
       } else if (params.status === "ENDED") {
-        const now = Timestamp.now();
-        q = query(q, where("endDate", "<", now));
+        // 오늘 자정 이전에 끝난 축제만 ENDED로 분류
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        const todayStart = Timestamp.fromDate(startOfToday);
+        q = query(q, where("endDate", "<", todayStart));
         q = query(q, orderBy("endDate", "desc"));
       } else {
         q = query(q, orderBy("startDate", "desc"));

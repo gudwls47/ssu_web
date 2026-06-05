@@ -90,10 +90,7 @@ export default function AdminSideMenu({
           marginBottom: 4,
         }}
       >
-        <Link
-          href="/admin/festivals"
-          style={{ textDecoration: "none", flex: 1 }}
-        >
+        <Link href="/" style={{ textDecoration: "none", flex: 1 }}>
           <FestaLogo size="sm" mode={mode} />
         </Link>
         <button

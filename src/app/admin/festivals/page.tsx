@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { useAuthState } from "@/app/api/auth";
 import { useGetFestivals, useDeleteFestival } from "@/app/api/festivals";
 import type {
   FestivalResponse,
@@ -166,6 +167,7 @@ function DeleteModal({
 }
 
 export default function AdminFestivalsPage() {
+  const { user } = useAuthState();
   const [statusFilter, setStatusFilter] = React.useState<
     FestivalStatus | "ALL"
   >("ALL");
@@ -173,7 +175,7 @@ export default function AdminFestivalsPage() {
     React.useState<FestivalResponse | null>(null);
   const { data: festivals = [], isLoading } = useGetFestivals({
     size: 50,
-    // ownerUid: user?.uid,
+    ownerUid: user?.uid,
   });
   const { mutate: deleteFestival, isPending: isDeleting } = useDeleteFestival();
 

@@ -43,6 +43,25 @@ export function useGetAllUsers() {
   });
 }
 
+// ── 소속 기관 수정 ─────────────────────────────────────────
+export function useUpdateUserOrganization() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      uid,
+      organization,
+    }: {
+      uid: string;
+      organization: string;
+    }) => {
+      await updateDoc(doc(db, "users", uid), { organization });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+    },
+  });
+}
+
 // ── 역할 변경 (승인 / 취소) ────────────────────────────────
 export function useUpdateUserRole() {
   const queryClient = useQueryClient();

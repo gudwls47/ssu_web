@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthState, deleteAccount, type UserRole } from "@/app/api/auth";
-import { useGetAllUsers, useUpdateUserRole } from "@/app/api/users";
+import {
+  useGetAllUsers,
+  useUpdateUserRole,
+  useUpdateUserOrganization,
+} from "@/app/api/users";
 import Modal from "@/app/components/Modal";
 
 type ConfirmState = {
@@ -50,7 +54,10 @@ export default function AccountsPage() {
   const { user: me } = useAuthState();
   const { data: users = [], isLoading } = useGetAllUsers();
   const updateRole = useUpdateUserRole();
+  const updateOrg = useUpdateUserOrganization();
   const [confirm, setConfirm] = useState<ConfirmState>(null);
+  const [editingOrgUid, setEditingOrgUid] = useState<string | null>(null);
+  const [editingOrgValue, setEditingOrgValue] = useState("");
   const [roleFilter, setRoleFilter] = useState<"ALL" | UserRole>("ALL");
 
   // 회원탈퇴
@@ -333,14 +340,97 @@ export default function AccountsPage() {
                 </div>
 
                 {/* 소속 기관 */}
-                <div
-                  style={{
-                    fontSize: 14,
-                    color: u.organization ? "var(--fg)" : "var(--muted)",
-                    fontFamily: "var(--mono-font), monospace",
-                  }}
-                >
-                  {u.organization || "—"}
+                <div>
+                  {editingOrgUid === u.uid ? (
+                    <div
+                      style={{ display: "flex", gap: 4, alignItems: "center" }}
+                    >
+                      <input
+                        value={editingOrgValue}
+                        onChange={(e) => setEditingOrgValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            updateOrg.mutate({
+                              uid: u.uid,
+                              organization: editingOrgValue.trim(),
+                            });
+                            setEditingOrgUid(null);
+                          }
+                          if (e.key === "Escape") setEditingOrgUid(null);
+                        }}
+                        style={{
+                          fontSize: 13,
+                          fontFamily: "var(--mono-font), monospace",
+                          padding: "3px 8px",
+                          border: "1px solid var(--accent)",
+                          borderRadius: 6,
+                          background: "var(--bg)",
+                          color: "var(--fg)",
+                          width: 120,
+                          outline: "none",
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          updateOrg.mutate({
+                            uid: u.uid,
+                            organization: editingOrgValue.trim(),
+                          });
+                          setEditingOrgUid(null);
+                        }}
+                        style={{
+                          fontSize: 11,
+                          padding: "3px 8px",
+                          borderRadius: 6,
+                          border: "none",
+                          background: "var(--accent)",
+                          color: "#fff",
+                          cursor: "pointer",
+                        }}
+                      >
+                        저장
+                      </button>
+                      <button
+                        onClick={() => setEditingOrgUid(null)}
+                        style={{
+                          fontSize: 11,
+                          padding: "3px 8px",
+                          borderRadius: 6,
+                          border: "1px solid var(--border)",
+                          background: "none",
+                          color: "var(--muted)",
+                          cursor: "pointer",
+                        }}
+                      >
+                        취소
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => {
+                        setEditingOrgUid(u.uid);
+                        setEditingOrgValue(u.organization || "");
+                      }}
+                      title="클릭하여 수정"
+                      style={{
+                        fontSize: 14,
+                        color: u.organization ? "var(--fg)" : "var(--muted)",
+                        fontFamily: "var(--mono-font), monospace",
+                        cursor: "pointer",
+                        padding: "3px 6px",
+                        borderRadius: 6,
+                        transition: "background 0.12s",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background = "var(--faint)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "transparent")
+                      }
+                    >
+                      {u.organization || "—"}
+                    </div>
+                  )}
                 </div>
 
                 {/* 가입일 */}
