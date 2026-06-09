@@ -936,6 +936,7 @@ body:has(.festa[data-palette="experimental"][data-mode="dark"]) {
   border-radius: 20px;
   overflow: visible;
   border: 1px solid var(--border);
+  align-self: start;
 }
 .f-map-canvas svg {
   width: 100%;
